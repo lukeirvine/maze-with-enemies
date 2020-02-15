@@ -118,7 +118,7 @@
                 { mass: 0, restitution: 0 }, scene);
 
             // Player Mesh
-            var player = BABYLON.MeshBuilder.CreateBox("player", { width: 3, height: 6, depth: 3 }, scene);
+            var player = BABYLON.MeshBuilder.CreateSphere("player", { diameterY: 6, diameterX: 3, diameterZ: 3}, scene);
             player.material = pMat;
             player.position.y = 3;
             player.ellipsoid = new BABYLON.Vector3(3, 7, 3);
@@ -187,29 +187,34 @@
 
             window.tempv = new BABYLON.Vector3.Zero();
 
-            // milliseconds between frames
-            var delay = 63;
+            // modulus for when thing executes
+            var delay = 3;
+            // governs when sprites move
+            var index = 0;
             // governs duration of jump
             var startJump = 7;
             var jump = startJump;
 
+
             scene.registerBeforeRender(function () {
                 walkingThor.position = player.position;
                 // Player speed
-                var v = 0.5;
+                var v = 0.2;
                 player.nextspeed.x = 0.0;
                 player.nextspeed.z = 0.00001;
+                index += 1;
                 // Left "a"
                 if (window.keyisdown[65] && !window.keyisdown[87] && !window.keyisdown[83]) {
                     player.nextspeed.x = -v;
-                    if (walkingThor.cellIndex < 8 || walkingThor.cellIndex > 15) {
-                        walkingThor.cellIndex = 8;
+                    if (index % delay === 0) {
+                        if (walkingThor.cellIndex < 8 || walkingThor.cellIndex > 15) {
+                            walkingThor.cellIndex = 8;
+                        }
+                        walkingThor.cellIndex = (walkingThor.cellIndex + 1) % 64;
+                        if (walkingThor.cellIndex > 15) {
+                            walkingThor.cellIndex = 8;
+                        }
                     }
-                    walkingThor.cellIndex = (walkingThor.cellIndex + 1) % 64;
-                    if (walkingThor.cellIndex > 15) {
-                        walkingThor.cellIndex = 8;
-                    }
-                    sleep(delay);
                 }
                 // Right "d"
                 if (window.keyisdown[68] && !window.keyisdown[87] && !window.keyisdown[83]) {
@@ -221,7 +226,6 @@
                     if (walkingThor.cellIndex > 23) {
                         walkingThor.cellIndex = 16;
                     }
-                    sleep(delay);
                 }
                 // Up "w"
                 if (window.keyisdown[87] && !window.keyisdown[65] && !window.keyisdown[68]) {
@@ -233,7 +237,6 @@
                     if (walkingThor.cellIndex > 31) {
                         walkingThor.cellIndex = 24;
                     }
-                    sleep(delay);
                 }
                 // Down "s"
                 if (window.keyisdown[83] && !window.keyisdown[65] && !window.keyisdown[68]) {
@@ -242,7 +245,6 @@
                     if (walkingThor.cellIndex > 7) {
                         walkingThor.cellIndex = 0;
                     }
-                    sleep(delay);
                 }
 
                 // MultiDirectional
@@ -258,7 +260,6 @@
                     if (walkingThor.cellIndex > 47) {
                         walkingThor.cellIndex = 40;
                     }
-                    sleep(delay);
                 }
                 // UpRight
                 if (window.keyisdown[68] && window.keyisdown[87]) {
@@ -271,7 +272,6 @@
                     if (walkingThor.cellIndex == 63) {
                         walkingThor.cellIndex = 56;
                     }
-                    sleep(delay)
                 }
                 // BottomRight
                 if (window.keyisdown[68] && window.keyisdown[83]) {
@@ -284,7 +284,6 @@
                     if (walkingThor.cellIndex > 55) {
                         walkingThor.cellIndex = 48;
                     }
-                    sleep(delay);
                 }
                 // BottomLeft
                 if (window.keyisdown[65] && window.keyisdown[83]) {
@@ -297,7 +296,6 @@
                     if (walkingThor.cellIndex > 39) {
                         walkingThor.cellIndex = 32;
                     }
-                    sleep(delay);
                 }
 
                 player.speed = BABYLON.Vector3.Lerp(player.speed, player.nextspeed, 0.1);

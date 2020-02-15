@@ -60,7 +60,7 @@
             // Create the scene space
             var scene = new BABYLON.Scene(engine);
             scene.collisionsEnabled = true;
-            scene.enablePhysics();
+            scene.enablePhysics(new BABYLON.Vector3(0, -50, 0), new BABYLON.OimoJSPlugin());
 
             // var options = new BABYLON.SceneOptimizerOptions();
             // // Optimizer
@@ -86,7 +86,7 @@
             // for spheres around sprites
             var pMat = new BABYLON.StandardMaterial("pMat", scene);
             pMat.emissiveColor = new BABYLON.Color3(1, 1, 0);
-            pMat.alpha = 0;
+            pMat.alpha = 0.5;
 
             // camera
             var camera = new BABYLON.UniversalCamera("UniversalCamera", new BABYLON.Vector3(0, 10, -30), scene);
@@ -103,7 +103,9 @@
             var myGround = BABYLON.MeshBuilder.CreateGround("myGround", { width: 500, height: 500, subdivisions: 5 }, scene);
             myGround.material = dirt;
             myGround.checkCollisions = true;
-            myGround.physicsImpostor = new BABYLON.PhysicsImpostor(myGround, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 1, friction: 0 }, scene);
+            myGround.physicsImpostor = new BABYLON.PhysicsImpostor(
+                myGround, BABYLON.PhysicsImpostor.BoxImpostor, 
+                { mass: 0, restitution: 1, friction: 0 }, scene);
             // var tiledDirt = BABYLON.MeshBuilder.CreateTiledPlane("dirt", {width: 500, size: 500}, scene);
 
             // Wall
@@ -111,21 +113,22 @@
             wall.position.z = 10
             wall.checkCollisions = true;
             wall.material = dirt;
-            wall.physicsImpostor = new BABYLON.PhysicsImpostor(wall, BABYLON.PhysicsImpostor.BoxImpostor, { mass: 0, restitution: 0 }, scene);
+            wall.physicsImpostor = new BABYLON.PhysicsImpostor(
+                wall, BABYLON.PhysicsImpostor.BoxImpostor, 
+                { mass: 0, restitution: 0 }, scene);
 
-            // Meshes around sprites
+            // Player Mesh
             var player = BABYLON.MeshBuilder.CreateBox("player", { width: 3, height: 6, depth: 3 }, scene);
             player.material = pMat;
             player.position.y = 3;
-            player.ellipsoid = new BABYLON.Vector3(4, 7, 4);
+            player.ellipsoid = new BABYLON.Vector3(3, 7, 3);
             player.checkCollisions = true;
             player.applyGravity = true;
             player.speed = new BABYLON.Vector3(0, 0, 0.08);
             player.nextspeed = new BABYLON.Vector3.Zero();
-
-            player.physicsImpostor = new BABYLON.PhysicsImpostor(player, BABYLON.PhysicsImpostor.SphereImpostor, { mass: 150, restitution: 0, friction: 1 }, scene);
-
-
+            player.physicsImpostor = new BABYLON.PhysicsImpostor(
+                player, BABYLON.PhysicsImpostor.SphereImpostor, 
+                { mass: 150, restitution: 0, friction: 1 }, scene);
 
             // Sprites
             // Walking Thor
@@ -147,30 +150,28 @@
             var spriteManagerTrees = new BABYLON.SpriteManager("treesManager", "textures/pine.png", 2000, { width: 394, height: 537 }, scene);
 
             // Trees at random positions
-            for (var i = 0; i < 500; i++) {
-                // mesh around trees
-                var treeMesh = BABYLON.MeshBuilder.CreateSphere("treeMesh", { diameterY: 20, diameterX: 4, diameterZ: 4 }, scene);
-                treeMesh.position.y = 7;
-                treeMesh.material = pMat;
-                treeMesh.ellipsoid = new BABYLON.Vector3(4, 10, 4);
-                treeMesh.checkCollisions = true;
-                // treeMesh.physicsImpostor = new BABYLON.PhysicsImpostor(treeMesh, BABYLON.PhysicsImpostor.SphereImpostor, {mass: 0, restitution: 0.1}, scene);
+            // for (var i = 0; i < 500; i++) {
+            //     // mesh around trees
+            //     var treeMesh = BABYLON.MeshBuilder.CreateSphere("treeMesh", { diameterY: 20, diameterX: 4, diameterZ: 4 }, scene);
+            //     treeMesh.position.y = 7;
+            //     treeMesh.material = pMat;
+            //     treeMesh.ellipsoid = new BABYLON.Vector3(4, 10, 4);
+            //     treeMesh.checkCollisions = true;
+            //     // treeMesh.physicsImpostor = new BABYLON.PhysicsImpostor(treeMesh, BABYLON.PhysicsImpostor.SphereImpostor, {mass: 0, restitution: 0.1}, scene);
 
-                var xSpot = Math.random() * 500 - 250;
-                var ySpot = Math.random() * 500 - 250;
+            //     var xSpot = Math.random() * 500 - 250;
+            //     var ySpot = Math.random() * 500 - 250;
 
-                tree = new BABYLON.Sprite("tree", spriteManagerTrees);
-                tree.size = 20;
-                tree.position.x = xSpot;
-                tree.position.z = ySpot;
-                treeMesh.position.x = xSpot;
-                treeMesh.position.z = ySpot;
-                tree.position.y = 7;
-                tree.ellipsoid = new BABYLON.Vector3(5, 20, 5);
-                tree.checkCollisions = true;
-
-
-            }
+            //     tree = new BABYLON.Sprite("tree", spriteManagerTrees);
+            //     tree.size = 20;
+            //     tree.position.x = xSpot;
+            //     tree.position.z = ySpot;
+            //     treeMesh.position.x = xSpot;
+            //     treeMesh.position.z = ySpot;
+            //     tree.position.y = 7;
+            //     tree.ellipsoid = new BABYLON.Vector3(5, 20, 5);
+            //     tree.checkCollisions = true;
+            // }
 
             /***********************************************************************************************************************************************************/
 
@@ -187,7 +188,10 @@
             window.tempv = new BABYLON.Vector3.Zero();
 
             // milliseconds between frames
-            var delay = 63
+            var delay = 63;
+            // governs duration of jump
+            var startJump = 7;
+            var jump = startJump;
 
             scene.registerBeforeRender(function () {
                 walkingThor.position = player.position;
@@ -222,7 +226,6 @@
                 // Up "w"
                 if (window.keyisdown[87] && !window.keyisdown[65] && !window.keyisdown[68]) {
                     player.nextspeed.z = v;
-                    // player.position.z += 0.5;
                     if (walkingThor.cellIndex < 24 || walkingThor.cellIndex > 31) {
                         walkingThor.cellIndex = 24;
                     }
@@ -235,7 +238,6 @@
                 // Down "s"
                 if (window.keyisdown[83] && !window.keyisdown[65] && !window.keyisdown[68]) {
                     player.nextspeed.z = -v;
-                    // player.position.z -= 0.5;
                     walkingThor.cellIndex = (walkingThor.cellIndex + 1) % 64;
                     if (walkingThor.cellIndex > 7) {
                         walkingThor.cellIndex = 0;
@@ -333,7 +335,13 @@
                 if (player.position.z > 250) { player.position.z = 250; }
                 if (player.position.z < -250) { player.position.z = -250; }
                 if (window.keyisdown[32]) {
-                    player.applyImpulse(new BABYLON.Vector3(0, 5, 0), player.getAbsolutePosition());
+                    jump -= 1;
+                    if (jump > 0) {
+                        player.applyImpulse(new BABYLON.Vector3(0, 4, 0), player.getAbsolutePosition());
+                    }
+                }
+                if (!window.keyisdown[32]) {
+                    jump = startJump;
                 }
 
                 // player.nexttorch = lightImpostor.getAbsolutePosition();

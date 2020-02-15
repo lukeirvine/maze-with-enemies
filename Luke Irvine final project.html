@@ -83,6 +83,11 @@
             dirt.specularTexture = new BABYLON.Texture("textures/cracked_dirt.jpg", scene);
             dirt.ambientTexture = new BABYLON.Texture("textures/cracked_dirt.jpg", scene);    
 
+            // for spheres around sprites
+            var pMat = new BABYLON.StandardMaterial("pMat", scene);
+            pMat.emissiveColor = new BABYLON.Color3(1, 1, 0);
+            pMat.alpha = 0.5;
+
             // camera
             var camera = new BABYLON.UniversalCamera("UniversalCamera", new BABYLON.Vector3(0, 10, -30), scene);
             camera.setTarget(new BABYLON.Vector3(0, 6, 0));
@@ -109,10 +114,7 @@
             wall.physicsImpostor = new BABYLON.PhysicsImpostor(wall, BABYLON.PhysicsImpostor.BoxImpostor, {mass: 0, restitution: 0}, scene);
 
             // Meshes around sprites
-            var pMat = new BABYLON.StandardMaterial("pMat", scene);
-            pMat.emissiveColor = new BABYLON.Color3(1, 1, 0);
-            pMat.alpha = 0;
-            var player = BABYLON.MeshBuilder.CreateSphere("player", {diameterY: 6, diameterX: 3, diameterZ: 3}, scene);
+            var player = BABYLON.MeshBuilder.CreateBox("player", {width: 3, height: 6, depth: 3}, scene);
             player.material = pMat;
             player.position.y = 3;
             player.ellipsoid = new BABYLON.Vector3(4, 7, 4);

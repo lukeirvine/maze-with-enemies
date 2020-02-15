@@ -99,16 +99,14 @@
             myGround.material = dirt;
             myGround.checkCollisions = true;
             myGround.physicsImpostor = new BABYLON.PhysicsImpostor(myGround, BABYLON.PhysicsImpostor.BoxImpostor, {mass: 0, restitution: 1, friction: 0}, scene);
-
             // var tiledDirt = BABYLON.MeshBuilder.CreateTiledPlane("dirt", {width: 500, size: 500}, scene);
 
+            // Wall
             var wall = new BABYLON.MeshBuilder.CreateBox("wall", {width: 50, height: 10, depth: 2}, scene);
             wall.position.z = 10
             wall.checkCollisions = true;
             wall.material = dirt;
             wall.physicsImpostor = new BABYLON.PhysicsImpostor(wall, BABYLON.PhysicsImpostor.BoxImpostor, {mass: 0, restitution: 0}, scene);
-
-            
 
             // Meshes around sprites
             var pMat = new BABYLON.StandardMaterial("pMat", scene);
@@ -121,17 +119,6 @@
             player.checkCollisions = true;
             player.applyGravity = true;
             player.physicsImpostor = new BABYLON.PhysicsImpostor(player, BABYLON.PhysicsImpostor.SphereImpostor, {mass: 150, restitution: 0, friction: 1}, scene);
-            
-            // scene.registerBeforeRender(function () {
-            //     if (player.intersectsMesh(wall, true)) {
-            //         player.material.emissiveColor = new BABYLON.Color4(1, 0, 0, 0.5);
-            //         player.position.x = player.position.x;
-            //         player.position.z = player.position.z;
-            //     } else {
-            //         player.material.emissiveColor = new BABYLON.Color4(1, 1, 0, 0.5);
-            //     }
-            // });
-            
 
             // Sprites
             // Walking Thor
@@ -145,18 +132,14 @@
             walkingThor.size = 6;
             walkingThor.position.y = 3;
             walkingThor.position.x = 0;
-            walkingThor.position.z = 0;
-            // walkingThor.ellipsoid = new BABYLON.Vector3(3, 6, 3);
-            // walkingThor.checkCollisions = true;
-            // walkingThor.applyGravity = true;
-            
+            walkingThor.position.z = 0;            
 
             // Trees
             // Create a sprite manager to optimize GPU ressources
             // Parameters : name, imgUrl, capacity, cellSize, scene
             var spriteManagerTrees = new BABYLON.SpriteManager("treesManager", "textures/pine.png", 2000, {width: 394, height: 537}, scene);
 
-            //We create 2000 trees at random positions
+            // Trees at random positions
             for (var i = 0; i < 500; i++) {
                 // mesh around trees
                 var treeMesh = BABYLON.MeshBuilder.CreateSphere("treeMesh", {diameterY: 20, diameterX: 4, diameterZ: 4}, scene);
@@ -166,7 +149,6 @@
                 treeMesh.checkCollisions = true;
                 // treeMesh.physicsImpostor = new BABYLON.PhysicsImpostor(treeMesh, BABYLON.PhysicsImpostor.SphereImpostor, {mass: 0, restitution: 0.1}, scene);
 
-                
                 var xSpot = Math.random() * 500 - 250;
                 var ySpot = Math.random() * 500 - 250;
 
@@ -184,8 +166,6 @@
             }
 
             
-
-
             // Key Controls
             /****************************Key Control Multiple Keys************************************************/
 
@@ -205,8 +185,8 @@
 
             scene.registerAfterRender(function () {
                 walkingThor.position = player.position;
+                
                 if ((map["w"] && !map["a"] && !map["d"])) {
-                    // walkingThor.position.z += 0.2;
                     player.position.z += 0.2;
                     if (walkingThor.cellIndex < 24 || walkingThor.cellIndex > 31) {
                         walkingThor.cellIndex = 24;
@@ -218,7 +198,6 @@
                 };
 
                 if ((map["s"] && !map["a"] && !map["d"])) {
-                    // walkingThor.position.z -= 0.2;
                     player.position.z -= 0.2;
                     walkingThor.cellIndex = (walkingThor.cellIndex + 1) % 64;
                     if (walkingThor.cellIndex > 7) {
@@ -227,7 +206,6 @@
                 };
 
                 if ((map["a"] && !map["w"] && !map["s"])) {
-                    // walkingThor.position.x -= 0.2;
                     player.position.x -= 0.2;
                     if (walkingThor.cellIndex < 8 || walkingThor.cellIndex > 15) {
                         walkingThor.cellIndex = 8;
@@ -239,7 +217,6 @@
                 };
 
                 if ((map["d"] && !map["w"] && !map["s"])) {
-                    // walkingThor.position.x += 0.2;
                     player.position.x += 0.2;
                     if (walkingThor.cellIndex < 16 || walkingThor.cellIndex > 23) {
                         walkingThor.cellIndex = 16;
@@ -251,8 +228,6 @@
                 };
 
                 if ((map["w"] && map["a"])) {
-                    // walkingThor.position.x -= 0.1414214;
-                    // walkingThor.position.z += 0.1414214;
                     player.position.x -= 0.1414214;
                     player.position.z += 0.1414214;
                     if (walkingThor.cellIndex < 40 || walkingThor.cellIndex > 47) {
@@ -265,8 +240,6 @@
                 }
 
                 if ((map["w"] && map["d"])) {
-                    // walkingThor.position.x += 0.1414214;
-                    // walkingThor.position.z += 0.1414214;
                     player.position.x += 0.1414214;
                     player.position.z += 0.1414214;
                     if (walkingThor.cellIndex < 56) {
@@ -279,8 +252,6 @@
                 }
 
                 if ((map["a"] && map["s"])) {
-                    // walkingThor.position.x -= 0.1414214;
-                    // walkingThor.position.z -= 0.1414214;
                     player.position.x -= 0.1414214;
                     player.position.z -= 0.1414214;
                     if (walkingThor.cellIndex < 32 || walkingThor.cellIndex > 39) {
@@ -293,8 +264,6 @@
                 }
 
                 if ((map["s"] && map["d"])) {
-                    // walkingThor.position.x += 0.1414214;
-                    // walkingThor.position.z -= 0.1414214;
                     player.position.x += 0.1414214;
                     player.position.z -= 0.1414214;
                     if (walkingThor.cellIndex < 48 || walkingThor.cellIndex > 55) {

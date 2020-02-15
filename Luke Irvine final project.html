@@ -86,7 +86,7 @@
             // for spheres around sprites
             var pMat = new BABYLON.StandardMaterial("pMat", scene);
             pMat.emissiveColor = new BABYLON.Color3(1, 1, 0);
-            pMat.alpha = 0.5;
+            pMat.alpha = 0;
 
             // camera
             var camera = new BABYLON.UniversalCamera("UniversalCamera", new BABYLON.Vector3(0, 10, -30), scene);
@@ -186,51 +186,116 @@
 
             window.tempv = new BABYLON.Vector3.Zero();
 
+            // milliseconds between frames
+            var delay = 63
+
             scene.registerBeforeRender(function () {
                 walkingThor.position = player.position;
                 // Player speed
-                var v = 0.2;
+                var v = 0.5;
                 player.nextspeed.x = 0.0;
                 player.nextspeed.z = 0.00001;
                 // Left "a"
                 if (window.keyisdown[65] && !window.keyisdown[87] && !window.keyisdown[83]) {
                     player.nextspeed.x = -v;
+                    if (walkingThor.cellIndex < 8 || walkingThor.cellIndex > 15) {
+                        walkingThor.cellIndex = 8;
+                    }
+                    walkingThor.cellIndex = (walkingThor.cellIndex + 1) % 64;
+                    if (walkingThor.cellIndex > 15) {
+                        walkingThor.cellIndex = 8;
+                    }
+                    sleep(delay);
                 }
                 // Right "d"
                 if (window.keyisdown[68] && !window.keyisdown[87] && !window.keyisdown[83]) {
                     player.nextspeed.x = v;
+                    if (walkingThor.cellIndex < 16 || walkingThor.cellIndex > 23) {
+                        walkingThor.cellIndex = 16;
+                    }
+                    walkingThor.cellIndex = (walkingThor.cellIndex + 1) % 64;
+                    if (walkingThor.cellIndex > 23) {
+                        walkingThor.cellIndex = 16;
+                    }
+                    sleep(delay);
                 }
                 // Up "w"
                 if (window.keyisdown[87] && !window.keyisdown[65] && !window.keyisdown[68]) {
                     player.nextspeed.z = v;
+                    // player.position.z += 0.5;
+                    if (walkingThor.cellIndex < 24 || walkingThor.cellIndex > 31) {
+                        walkingThor.cellIndex = 24;
+                    }
+                    walkingThor.cellIndex = (walkingThor.cellIndex + 1) % 64;
+                    if (walkingThor.cellIndex > 31) {
+                        walkingThor.cellIndex = 24;
+                    }
+                    sleep(delay);
                 }
                 // Down "s"
                 if (window.keyisdown[83] && !window.keyisdown[65] && !window.keyisdown[68]) {
                     player.nextspeed.z = -v;
+                    // player.position.z -= 0.5;
                     walkingThor.cellIndex = (walkingThor.cellIndex + 1) % 64;
                     if (walkingThor.cellIndex > 7) {
                         walkingThor.cellIndex = 0;
                     }
+                    sleep(delay);
                 }
+
+                // MultiDirectional
+
                 // UpLeft
                 if (window.keyisdown[65] && window.keyisdown[87]) {
                     player.nextspeed.x = -v;
                     player.nextspeed.z = v;
+                    if (walkingThor.cellIndex < 40 || walkingThor.cellIndex > 47) {
+                        walkingThor.cellIndex = 40;
+                    }
+                    walkingThor.cellIndex = (walkingThor.cellIndex + 1) % 64;
+                    if (walkingThor.cellIndex > 47) {
+                        walkingThor.cellIndex = 40;
+                    }
+                    sleep(delay);
                 }
                 // UpRight
                 if (window.keyisdown[68] && window.keyisdown[87]) {
                     player.nextspeed.x = v;
                     player.nextspeed.z = v;
+                    if (walkingThor.cellIndex < 56) {
+                        walkingThor.cellIndex = 56;
+                    }
+                    walkingThor.cellIndex = (walkingThor.cellIndex + 1) % 64;
+                    if (walkingThor.cellIndex == 63) {
+                        walkingThor.cellIndex = 56;
+                    }
+                    sleep(delay)
                 }
                 // BottomRight
                 if (window.keyisdown[68] && window.keyisdown[83]) {
                     player.nextspeed.x = v;
                     player.nextspeed.z = -v;
+                    if (walkingThor.cellIndex < 48 || walkingThor.cellIndex > 55) {
+                        walkingThor.cellIndex = 48;
+                    }
+                    walkingThor.cellIndex = (walkingThor.cellIndex + 1) % 64;
+                    if (walkingThor.cellIndex > 55) {
+                        walkingThor.cellIndex = 48;
+                    }
+                    sleep(delay);
                 }
                 // BottomLeft
                 if (window.keyisdown[65] && window.keyisdown[83]) {
                     player.nextspeed.x = -v;
                     player.nextspeed.z = -v;
+                    if (walkingThor.cellIndex < 32 || walkingThor.cellIndex > 39) {
+                        walkingThor.cellIndex = 32;
+                    }
+                    walkingThor.cellIndex = (walkingThor.cellIndex + 1) % 64;
+                    if (walkingThor.cellIndex > 39) {
+                        walkingThor.cellIndex = 32;
+                    }
+                    sleep(delay);
                 }
 
                 player.speed = BABYLON.Vector3.Lerp(player.speed, player.nextspeed, 0.1);
@@ -397,6 +462,14 @@
 
 
             return scene;
+        }
+
+        function sleep(milliseconds) {
+            const date = Date.now();
+            let currentDate = null;
+            do {
+                currentDate = Date.now();
+            } while (currentDate - date < milliseconds);
         }
 
 

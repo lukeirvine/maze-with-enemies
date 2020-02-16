@@ -144,36 +144,59 @@
             walkingThor.position.x = 0;
             walkingThor.position.z = 0;
 
-            // Trees
-            // Create a sprite manager to optimize GPU ressources
-            // Parameters : name, imgUrl, capacity, cellSize, scene
-            var spriteManagerTrees = new BABYLON.SpriteManager("treesManager", "textures/pine.png", 2000, { width: 394, height: 537 }, scene);
+            var post = new BABYLON.MeshBuilder.CreateCylinder("post", {diameter: 1, height: 10}, scene);
+            post.position.x = 5;
+            post.position.y = 5;
+            post.checkCollisions = true;
 
-            // Trees at random positions
-            for (var i = 0; i < 500; i++) {
-                // mesh around trees
-                var treeMesh = BABYLON.MeshBuilder.CreateSphere("treeMesh", { diameterY: 20, diameterX: 4, diameterZ: 4 }, scene);
-                treeMesh.position.y = 7;
-                treeMesh.material = pMat;
-                treeMesh.ellipsoid = new BABYLON.Vector3(4, 10, 4);
-                treeMesh.checkCollisions = true;
-                // treeMesh.physicsImpostor = new BABYLON.PhysicsImpostor(treeMesh, BABYLON.PhysicsImpostor.SphereImpostor, {mass: 0, restitution: 0.1}, scene);
-
-                do {
-                    var xSpot = Math.random() * 500 - 250;
-                    var zSpot = Math.random() * 500 - 250;
-                } while((xSpot > -25 && xSpot < 25) && (zSpot > -25 && zSpot < 25)) // keeps trees out of center
-
-                tree = new BABYLON.Sprite("tree", spriteManagerTrees);
-                tree.size = 20;
-                tree.position.x = xSpot;
-                tree.position.z = zSpot;
-                treeMesh.position.x = xSpot;
-                treeMesh.position.z = zSpot;
-                tree.position.y = 7;
-                tree.ellipsoid = new BABYLON.Vector3(5, 20, 5);
-                tree.checkCollisions = true;
+            // Maze
+            var lengthX = 500;
+            var lengthZ = 500;
+            var subX = 1;
+            var subZ = 1;
+            var subLengthX = lengthX / subX;
+            var subLengthZ = lengthZ / subZ;
+            for (i = 0; i < subZ; i++) {
+                for (j = 0; j < subX; i++) {
+                    var post = new BABYLON.MeshBuilder.CreateCylinder("post", {diameter: 1, height: 10}, scene);
+                    post.position.y = 5;
+                    post.checkCollisions = true;
+                    post.position.x = subLengthX / 2 + subLengthX * j - lengthX / 2;
+                    post.position.z = subLengthZ / 2 + subLengthZ * i - lengthZ / 2;
+                }
             }
+
+
+            // // Trees
+            // // Create a sprite manager to optimize GPU ressources
+            // // Parameters : name, imgUrl, capacity, cellSize, scene
+            // var spriteManagerTrees = new BABYLON.SpriteManager("treesManager", "textures/pine.png", 2000, { width: 394, height: 537 }, scene);
+
+            // // Trees at random positions
+            // for (var i = 0; i < 500; i++) {
+            //     // mesh around trees
+            //     var treeMesh = BABYLON.MeshBuilder.CreateSphere("treeMesh", { diameterY: 20, diameterX: 4, diameterZ: 4 }, scene);
+            //     treeMesh.position.y = 7;
+            //     treeMesh.material = pMat;
+            //     treeMesh.ellipsoid = new BABYLON.Vector3(4, 10, 4);
+            //     treeMesh.checkCollisions = true;
+            //     // treeMesh.physicsImpostor = new BABYLON.PhysicsImpostor(treeMesh, BABYLON.PhysicsImpostor.SphereImpostor, {mass: 0, restitution: 0.1}, scene);
+
+            //     do {
+            //         var xSpot = Math.random() * 500 - 250;
+            //         var zSpot = Math.random() * 500 - 250;
+            //     } while((xSpot > -25 && xSpot < 25) && (zSpot > -25 && zSpot < 25)) // keeps trees out of center
+
+            //     tree = new BABYLON.Sprite("tree", spriteManagerTrees);
+            //     tree.size = 20;
+            //     tree.position.x = xSpot;
+            //     tree.position.z = zSpot;
+            //     treeMesh.position.x = xSpot;
+            //     treeMesh.position.z = zSpot;
+            //     tree.position.y = 7;
+            //     tree.ellipsoid = new BABYLON.Vector3(5, 20, 5);
+            //     tree.checkCollisions = true;
+            // }
 
             /***********************************************************************************************************************************************************/
 
@@ -292,7 +315,7 @@
                 // camera.target = player;
             });
 
-            // /********************************************************************************************/
+            // /*********************************************************************************************************************/
 
             return scene;
         }

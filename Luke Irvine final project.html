@@ -191,6 +191,8 @@
 
             // modulus for when thing executes
             var delay = 4;
+            // total number of cells in sprite
+            var totalCells = 64;
             // governs when sprites move
             var index = 0;
             // governs duration of jump
@@ -208,54 +210,22 @@
                 // Left "a"
                 if (window.keyisdown[65] && !window.keyisdown[87] && !window.keyisdown[83]) {
                     player.nextspeed.x = -v;
-                    if (index % delay === 0) {
-                        if (walkingThor.cellIndex < 8 || walkingThor.cellIndex > 15) {
-                            walkingThor.cellIndex = 8;
-                        }
-                        walkingThor.cellIndex = (walkingThor.cellIndex + 1) % 64;
-                        if (walkingThor.cellIndex > 15) {
-                            walkingThor.cellIndex = 8;
-                        }
-                    }
+                    moveSprite(8, 15, delay, totalCells, index, walkingThor);
                 }
                 // Right "d"
                 if (window.keyisdown[68] && !window.keyisdown[87] && !window.keyisdown[83]) {
                     player.nextspeed.x = v;
-                    if (index % delay === 0) {
-                        if (walkingThor.cellIndex < 16 || walkingThor.cellIndex > 23) {
-                            walkingThor.cellIndex = 16;
-                        }
-                        walkingThor.cellIndex = (walkingThor.cellIndex + 1) % 64;
-                        if (walkingThor.cellIndex > 23) {
-                            walkingThor.cellIndex = 16;
-                        }
-                    }
+                    moveSprite(16, 23, delay, totalCells, index, walkingThor);
                 }
                 // Up "w"
                 if (window.keyisdown[87] && !window.keyisdown[65] && !window.keyisdown[68]) {
                     player.nextspeed.z = v;
-                    if (index % delay === 0) {
-                        if (walkingThor.cellIndex < 24 || walkingThor.cellIndex > 31) {
-                            walkingThor.cellIndex = 24;
-                        }
-                        walkingThor.cellIndex = (walkingThor.cellIndex + 1) % 64;
-                        if (walkingThor.cellIndex > 31) {
-                            walkingThor.cellIndex = 24;
-                        }
-                    }
+                    moveSprite(24, 31, delay, totalCells, index, walkingThor);
                 }
                 // Down "s"
                 if (window.keyisdown[83] && !window.keyisdown[65] && !window.keyisdown[68]) {
                     player.nextspeed.z = -v;
-                    if (index % delay === 0) {
-                        if (walkingThor.cellIndex < 0 || walkingThor.cellIndex > 7) {
-                            walkingThor.cellIndex = 0;
-                        }
-                        walkingThor.cellIndex = (walkingThor.cellIndex + 1) % 64;
-                        if (walkingThor.cellIndex > 7) {
-                            walkingThor.cellIndex = 0;
-                        }
-                    }
+                    moveSprite(0, 7, delay, totalCells, index, walkingThor);
                 }
 
                 // MultiDirectional
@@ -264,83 +234,35 @@
                 if (window.keyisdown[65] && window.keyisdown[87]) {
                     player.nextspeed.x = -v;
                     player.nextspeed.z = v;
-                    if (index % delay === 0) {
-                        if (walkingThor.cellIndex < 40 || walkingThor.cellIndex > 47) {
-                            walkingThor.cellIndex = 40;
-                        }
-                        walkingThor.cellIndex = (walkingThor.cellIndex + 1) % 64;
-                        if (walkingThor.cellIndex > 47) {
-                            walkingThor.cellIndex = 40;
-                        }
-                    }
+                    moveSprite(40, 47, delay, totalCells, index, walkingThor);
                 }
                 // UpRight
                 if (window.keyisdown[68] && window.keyisdown[87]) {
                     player.nextspeed.x = v;
                     player.nextspeed.z = v;
-                    if (index % delay === 0) {
-                        if (walkingThor.cellIndex < 56) {
-                            walkingThor.cellIndex = 56;
-                        }
-                        walkingThor.cellIndex = (walkingThor.cellIndex + 1) % 64;
-                        if (walkingThor.cellIndex === 63) {
-                            walkingThor.cellIndex = 56;
-                        }
-                    }
+                    moveSprite(56, 63, delay, totalCells, index, walkingThor);
                 }
                 // BottomRight
                 if (window.keyisdown[68] && window.keyisdown[83]) {
                     player.nextspeed.x = v;
                     player.nextspeed.z = -v;
-                    if (index % delay === 0) {
-                        if (walkingThor.cellIndex < 48 || walkingThor.cellIndex > 55) {
-                            walkingThor.cellIndex = 48;
-                        }
-                        walkingThor.cellIndex = (walkingThor.cellIndex + 1) % 64;
-                        if (walkingThor.cellIndex > 55) {
-                            walkingThor.cellIndex = 48;
-                        }
-                    }
+                    moveSprite(48, 55, delay, totalCells, index, walkingThor);
                 }
                 // BottomLeft
                 if (window.keyisdown[65] && window.keyisdown[83]) {
                     player.nextspeed.x = -v;
                     player.nextspeed.z = -v;
-                    if (index % delay === 0) {
-                        if (walkingThor.cellIndex < 32 || walkingThor.cellIndex > 39) {
-                            walkingThor.cellIndex = 32;
-                        }
-                        walkingThor.cellIndex = (walkingThor.cellIndex + 1) % 64;
-                        if (walkingThor.cellIndex > 39) {
-                            walkingThor.cellIndex = 32;
-                        }
-                    }
+                    moveSprite(32, 39, delay, totalCells, index, walkingThor);
                 }
                 // Top Three (a, w, d)
                 if (window.keyisdown[87] && window.keyisdown[65] && window.keyisdown[68]) {
                     player.nextspeed.z = v;
-                    if (index % delay === 0) {
-                        if (walkingThor.cellIndex < 24 || walkingThor.cellIndex > 31) {
-                            walkingThor.cellIndex = 24;
-                        }
-                        walkingThor.cellIndex = (walkingThor.cellIndex + 1) % 64;
-                        if (walkingThor.cellIndex > 31) {
-                            walkingThor.cellIndex = 24;
-                        }
-                    }
+                    moveSprite(24, 31, delay, totalCells, index, walkingThor);
                 }
                 // Bottom Three (a, s, d)
                 if (window.keyisdown[83] && window.keyisdown[65] && window.keyisdown[68]) {
                     player.nextspeed.z = -v;
-                    if (index % delay === 0) {
-                        if (walkingThor.cellIndex < 0 || walkingThor.cellIndex > 7) {
-                            walkingThor.cellIndex = 0;
-                        }
-                        walkingThor.cellIndex = (walkingThor.cellIndex + 1) % 64;
-                        if (walkingThor.cellIndex > 7) {
-                            walkingThor.cellIndex = 0;
-                        }
-                    }
+                    moveSprite(0, 7, delay, totalCells, index, walkingThor);
                 }
 
 
@@ -373,6 +295,23 @@
             // /********************************************************************************************/
 
             return scene;
+        }
+
+        /* ==== function moveSprite ====
+         * min and max are bounds for sprite cells
+         * delay is modulo number to slow down frame rate
+         * total is total number of cells in sprite
+         */
+        function moveSprite(min, max, delay, total, index, walkingThor) {
+            if (index % delay === 0) {
+                if (walkingThor.cellIndex < min || walkingThor.cellIndex > max) {
+                    walkingThor.cellIndex = min;
+                }
+                walkingThor.cellIndex = (walkingThor.cellIndex + 1) % (total + 1);
+                if (walkingThor.cellIndex > max) {
+                    walkingThor.cellIndex = min;
+                }
+            }
         }
 
         function sleep(milliseconds) {

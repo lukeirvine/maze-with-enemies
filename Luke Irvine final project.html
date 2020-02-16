@@ -89,7 +89,7 @@
             pMat.alpha = 0;
 
             // camera
-            var camera = new BABYLON.UniversalCamera("UniversalCamera", new BABYLON.Vector3(0, 10, -20), scene);
+            var camera = new BABYLON.UniversalCamera("UniversalCamera", new BABYLON.Vector3(0, 30, -30), scene);
             camera.setTarget(new BABYLON.Vector3(0, 6, 0));
             camera.attachControl(canvas, true);
             camera.applyGravity = true;
@@ -149,15 +149,17 @@
             post.position.y = 5;
             post.checkCollisions = true;
 
-            // Maze
-            var lengthX = 500;
-            var lengthZ = 500;
-            var subX = 1;
-            var subZ = 1;
+            // // Maze
+            var lengthX = 400;
+            var lengthZ = 400;
+            var subX = 40;
+            var subZ = 40;
             var subLengthX = lengthX / subX;
             var subLengthZ = lengthZ / subZ;
+            var i = 0;
+            var j = 0;
             for (i = 0; i < subZ; i++) {
-                for (j = 0; j < subX; i++) {
+                for (j = 0; j < subX; j++) {
                     var post = new BABYLON.MeshBuilder.CreateCylinder("post", {diameter: 1, height: 10}, scene);
                     post.position.y = 5;
                     post.checkCollisions = true;

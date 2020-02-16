@@ -92,7 +92,7 @@
             var camera = new BABYLON.UniversalCamera("UniversalCamera", new BABYLON.Vector3(0, 30, -30), scene);
             camera.setTarget(new BABYLON.Vector3(0, 6, 0));
             camera.attachControl(canvas, true);
-            camera.applyGravity = true;
+            camera.applyGravity = false;
             camera.ellipsoid = new BABYLON.Vector3(1, 4, 1);
             camera.checkCollisions = true;
 
@@ -100,7 +100,9 @@
             var light = new BABYLON.HemisphericLight("HemiLight", new BABYLON.Vector3(0, 100, 0), scene);
 
             // Ground
-            var myGround = BABYLON.MeshBuilder.CreateGround("myGround", { width: 500, height: 500, subdivisions: 5 }, scene);
+            var worldWidth = 400;
+            var worldDepth = 400;
+            var myGround = BABYLON.MeshBuilder.CreateGround("myGround", { width: worldWidth, height: worldDepth, subdivisions: 5 }, scene);
             myGround.material = dirt;
             myGround.checkCollisions = true;
             myGround.physicsImpostor = new BABYLON.PhysicsImpostor(
@@ -121,7 +123,7 @@
             var player = BABYLON.MeshBuilder.CreateSphere("player", { diameterY: 6, diameterX: 3, diameterZ: 3}, scene);
             player.material = pMat;
             player.position.y = 3;
-            player.ellipsoid = new BABYLON.Vector3(3, 7, 3);
+            player.ellipsoid = new BABYLON.Vector3(1, 7, 1);
             player.checkCollisions = true;
             player.applyGravity = true;
             player.speed = new BABYLON.Vector3(0, 0, 0.08);
@@ -144,16 +146,11 @@
             walkingThor.position.x = 0;
             walkingThor.position.z = 0;
 
-            var post = new BABYLON.MeshBuilder.CreateCylinder("post", {diameter: 1, height: 10}, scene);
-            post.position.x = 5;
-            post.position.y = 5;
-            post.checkCollisions = true;
-
             // // Maze
-            var lengthX = 400;
-            var lengthZ = 400;
-            var subX = 40;
-            var subZ = 40;
+            var lengthX = worldWidth * 0.8;
+            var lengthZ = worldDepth * 0.8;
+            var subX = 50;
+            var subZ = 50;
             var subLengthX = lengthX / subX;
             var subLengthZ = lengthZ / subZ;
             var i = 0;
@@ -185,8 +182,8 @@
             //     // treeMesh.physicsImpostor = new BABYLON.PhysicsImpostor(treeMesh, BABYLON.PhysicsImpostor.SphereImpostor, {mass: 0, restitution: 0.1}, scene);
 
             //     do {
-            //         var xSpot = Math.random() * 500 - 250;
-            //         var zSpot = Math.random() * 500 - 250;
+            //         var xSpot = Math.random() * worldWidth - worldWidth / 2;
+            //         var zSpot = Math.random() * worldDepth - worldDepth / 2;
             //     } while((xSpot > -25 && xSpot < 25) && (zSpot > -25 && zSpot < 25)) // keeps trees out of center
 
             //     tree = new BABYLON.Sprite("tree", spriteManagerTrees);

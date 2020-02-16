@@ -86,10 +86,10 @@
             // for spheres around sprites
             var pMat = new BABYLON.StandardMaterial("pMat", scene);
             pMat.emissiveColor = new BABYLON.Color3(1, 1, 0);
-            pMat.alpha = 0.5;
+            pMat.alpha = 0;
 
             // camera
-            var camera = new BABYLON.UniversalCamera("UniversalCamera", new BABYLON.Vector3(0, 10, -30), scene);
+            var camera = new BABYLON.UniversalCamera("UniversalCamera", new BABYLON.Vector3(0, 10, -20), scene);
             camera.setTarget(new BABYLON.Vector3(0, 6, 0));
             camera.attachControl(canvas, true);
             camera.applyGravity = true;
@@ -145,35 +145,35 @@
             walkingThor.position.z = 0;
 
             // Trees
-            // // Create a sprite manager to optimize GPU ressources
-            // // Parameters : name, imgUrl, capacity, cellSize, scene
-            // var spriteManagerTrees = new BABYLON.SpriteManager("treesManager", "textures/pine.png", 2000, { width: 394, height: 537 }, scene);
+            // Create a sprite manager to optimize GPU ressources
+            // Parameters : name, imgUrl, capacity, cellSize, scene
+            var spriteManagerTrees = new BABYLON.SpriteManager("treesManager", "textures/pine.png", 2000, { width: 394, height: 537 }, scene);
 
-            // // Trees at random positions
-            // for (var i = 0; i < 500; i++) {
-            //     // mesh around trees
-            //     var treeMesh = BABYLON.MeshBuilder.CreateSphere("treeMesh", { diameterY: 20, diameterX: 4, diameterZ: 4 }, scene);
-            //     treeMesh.position.y = 7;
-            //     treeMesh.material = pMat;
-            //     treeMesh.ellipsoid = new BABYLON.Vector3(4, 10, 4);
-            //     treeMesh.checkCollisions = true;
-            //     // treeMesh.physicsImpostor = new BABYLON.PhysicsImpostor(treeMesh, BABYLON.PhysicsImpostor.SphereImpostor, {mass: 0, restitution: 0.1}, scene);
+            // Trees at random positions
+            for (var i = 0; i < 500; i++) {
+                // mesh around trees
+                var treeMesh = BABYLON.MeshBuilder.CreateSphere("treeMesh", { diameterY: 20, diameterX: 4, diameterZ: 4 }, scene);
+                treeMesh.position.y = 7;
+                treeMesh.material = pMat;
+                treeMesh.ellipsoid = new BABYLON.Vector3(4, 10, 4);
+                treeMesh.checkCollisions = true;
+                // treeMesh.physicsImpostor = new BABYLON.PhysicsImpostor(treeMesh, BABYLON.PhysicsImpostor.SphereImpostor, {mass: 0, restitution: 0.1}, scene);
 
-            //     do {
-            //         var xSpot = Math.random() * 500 - 250;
-            //         var zSpot = Math.random() * 500 - 250;
-            //     } while((xSpot > -25 && xSpot < 25) && (zSpot > -25 && zSpot < 25)) // keeps trees out of center
+                do {
+                    var xSpot = Math.random() * 500 - 250;
+                    var zSpot = Math.random() * 500 - 250;
+                } while((xSpot > -25 && xSpot < 25) && (zSpot > -25 && zSpot < 25)) // keeps trees out of center
 
-            //     tree = new BABYLON.Sprite("tree", spriteManagerTrees);
-            //     tree.size = 20;
-            //     tree.position.x = xSpot;
-            //     tree.position.z = zSpot;
-            //     treeMesh.position.x = xSpot;
-            //     treeMesh.position.z = zSpot;
-            //     tree.position.y = 7;
-            //     tree.ellipsoid = new BABYLON.Vector3(5, 20, 5);
-            //     tree.checkCollisions = true;
-            // }
+                tree = new BABYLON.Sprite("tree", spriteManagerTrees);
+                tree.size = 20;
+                tree.position.x = xSpot;
+                tree.position.z = zSpot;
+                treeMesh.position.x = xSpot;
+                treeMesh.position.z = zSpot;
+                tree.position.y = 7;
+                tree.ellipsoid = new BABYLON.Vector3(5, 20, 5);
+                tree.checkCollisions = true;
+            }
 
             /***********************************************************************************************************************************************************/
 
@@ -370,122 +370,7 @@
                 // camera.target = player;
             });
 
-
-            // // Key Controls
-            // /****************************Key Control Multiple Keys************************************************/
-
-            // var map = {}; //object for multiple key presses
-            // scene.actionManager = new BABYLON.ActionManager(scene);
-
-            // scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnKeyDownTrigger, function (evt) {
-            //     map[evt.sourceEvent.key] = evt.sourceEvent.type == "keydown";
-
-            // }));
-
-            // scene.actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnKeyUpTrigger, function (evt) {
-            //     map[evt.sourceEvent.key] = evt.sourceEvent.type == "keydown";
-            // }));
-
-            // /****************************Move Sprite******************************************************/
-
-            // scene.registerAfterRender(function () {
-            //     walkingThor.position = player.position;
-
-            //     if ((map["w"] && !map["a"] && !map["d"])) {
-            //         player.position.z += 0.2;
-            //         if (walkingThor.cellIndex < 24 || walkingThor.cellIndex > 31) {
-            //             walkingThor.cellIndex = 24;
-            //         }
-            //         walkingThor.cellIndex = (walkingThor.cellIndex + 1) % 64;
-            //         if (walkingThor.cellIndex > 31) {
-            //             walkingThor.cellIndex = 24;
-            //         }
-            //     };
-
-                // if ((map["s"] && !map["a"] && !map["d"])) {
-                //     player.position.z -= 0.2;
-                //     walkingThor.cellIndex = (walkingThor.cellIndex + 1) % 64;
-                //     if (walkingThor.cellIndex > 7) {
-                //         walkingThor.cellIndex = 0;
-                //     }
-                // };
-
-            //     if ((map["a"] && !map["w"] && !map["s"])) {
-            //         player.position.x -= 0.2;
-            //         if (walkingThor.cellIndex < 8 || walkingThor.cellIndex > 15) {
-            //             walkingThor.cellIndex = 8;
-            //         }
-            //         walkingThor.cellIndex = (walkingThor.cellIndex + 1) % 64;
-            //         if (walkingThor.cellIndex > 15) {
-            //             walkingThor.cellIndex = 8;
-            //         }
-            //     };
-
-            //     if ((map["d"] && !map["w"] && !map["s"])) {
-            //         player.position.x += 0.2;
-            //         if (walkingThor.cellIndex < 16 || walkingThor.cellIndex > 23) {
-            //             walkingThor.cellIndex = 16;
-            //         }
-            //         walkingThor.cellIndex = (walkingThor.cellIndex + 1) % 64;
-            //         if (walkingThor.cellIndex > 23) {
-            //             walkingThor.cellIndex = 16;
-            //         }
-            //     };
-
-            //     if ((map["w"] && map["a"])) {
-            //         player.position.x -= 0.1414214;
-            //         player.position.z += 0.1414214;
-            //         if (walkingThor.cellIndex < 40 || walkingThor.cellIndex > 47) {
-            //             walkingThor.cellIndex = 40;
-            //         }
-            //         walkingThor.cellIndex = (walkingThor.cellIndex + 1) % 64;
-            //         if (walkingThor.cellIndex > 47) {
-            //             walkingThor.cellIndex = 40;
-            //         }
-            //     }
-
-            //     if ((map["w"] && map["d"])) {
-            //         player.position.x += 0.1414214;
-            //         player.position.z += 0.1414214;
-            //         if (walkingThor.cellIndex < 56) {
-            //             walkingThor.cellIndex = 56;
-            //         }
-            //         walkingThor.cellIndex = (walkingThor.cellIndex + 1) % 64;
-            //         if (walkingThor.cellIndex == 63) {
-            //             walkingThor.cellIndex = 56;
-            //         }
-            //     }
-
-            //     if ((map["a"] && map["s"])) {
-            //         player.position.x -= 0.1414214;
-            //         player.position.z -= 0.1414214;
-            //         if (walkingThor.cellIndex < 32 || walkingThor.cellIndex > 39) {
-            //             walkingThor.cellIndex = 32;
-            //         }
-            //         walkingThor.cellIndex = (walkingThor.cellIndex + 1) % 64;
-            //         if (walkingThor.cellIndex > 39) {
-            //             walkingThor.cellIndex = 32;
-            //         }
-            //     }
-
-            //     if ((map["s"] && map["d"])) {
-            //         player.position.x += 0.1414214;
-            //         player.position.z -= 0.1414214;
-            //         if (walkingThor.cellIndex < 48 || walkingThor.cellIndex > 55) {
-            //             walkingThor.cellIndex = 48;
-            //         }
-            //         walkingThor.cellIndex = (walkingThor.cellIndex + 1) % 64;
-            //         if (walkingThor.cellIndex > 55) {
-            //             walkingThor.cellIndex = 48;
-            //         }
-            //     }
-
-            // });
-
             // /********************************************************************************************/
-
-
-
 
             return scene;
         }

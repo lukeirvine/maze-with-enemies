@@ -301,6 +301,8 @@
          * min and max are bounds for sprite cells
          * delay is modulo number to slow down frame rate
          * total is total number of cells in sprite
+         * index is used for slowing frame rate
+         * walkingThor is sprite object
          */
         function moveSprite(min, max, delay, total, index, walkingThor) {
             if (index % delay === 0) {

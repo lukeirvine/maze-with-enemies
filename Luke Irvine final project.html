@@ -72,6 +72,7 @@
             hedge.diffuseTexture = new BABYLON.Texture("textures/hedge.png", scene);
             hedge.specularTexture = new BABYLON.Texture("textures/hedge.png", scene);
             hedge.ambientTexture = new BABYLON.Texture("textures/hedge.png", scene);
+            hedge.alpha = 1;
 
             var grass = new BABYLON.StandardMaterial("grass", scene);
             grass.diffuseTexture = new BABYLON.Texture("textures/grass.jpg", scene);
@@ -106,21 +107,12 @@
             myGround.material = dirt;
             myGround.checkCollisions = true;
             myGround.physicsImpostor = new BABYLON.PhysicsImpostor(
-                myGround, BABYLON.PhysicsImpostor.BoxImpostor, 
+                myGround, BABYLON.PhysicsImpostor.BoxImpostor,
                 { mass: 0, restitution: 1, friction: 0 }, scene);
             // var tiledDirt = BABYLON.MeshBuilder.CreateTiledPlane("dirt", {width: 500, size: 500}, scene);
 
-            // Wall
-            var wall = new BABYLON.MeshBuilder.CreateBox("wall", { width: 50, height: 10, depth: 2 }, scene);
-            wall.position.z = 10
-            wall.checkCollisions = true;
-            wall.material = dirt;
-            wall.physicsImpostor = new BABYLON.PhysicsImpostor(
-                wall, BABYLON.PhysicsImpostor.BoxImpostor, 
-                { mass: 0, restitution: 0 }, scene);
-
             // Player Mesh
-            var player = BABYLON.MeshBuilder.CreateSphere("player", { diameterY: 6, diameterX: 3, diameterZ: 3}, scene);
+            var player = BABYLON.MeshBuilder.CreateSphere("player", { diameterY: 6, diameterX: 3, diameterZ: 3 }, scene);
             player.material = pMat;
             player.position.y = 3;
             player.ellipsoid = new BABYLON.Vector3(1, 7, 1);
@@ -129,7 +121,7 @@
             player.speed = new BABYLON.Vector3(0, 0, 0.08);
             player.nextspeed = new BABYLON.Vector3.Zero();
             player.physicsImpostor = new BABYLON.PhysicsImpostor(
-                player, BABYLON.PhysicsImpostor.SphereImpostor, 
+                player, BABYLON.PhysicsImpostor.SphereImpostor,
                 { mass: 150, restitution: 0, friction: 1 }, scene);
 
             // Sprites
@@ -146,56 +138,55 @@
             walkingThor.position.x = 0;
             walkingThor.position.z = 0;
 
-            // // Maze
-            var lengthX = worldWidth * 0.8;
-            var lengthZ = worldDepth * 0.8;
-            var subX = 50;
-            var subZ = 50;
-            var subLengthX = lengthX / subX;
-            var subLengthZ = lengthZ / subZ;
+            // // Maze Posts
+            // var lengthX = worldWidth * 0.8;
+            // var lengthZ = worldDepth * 0.8;
+            // var subX = 50;
+            // var subZ = 50;
+            // var subLengthX = lengthX / subX;
+            // var subLengthZ = lengthZ / subZ;
+            // var i = 0;
+            // var j = 0;
+            // for (i = 0; i < subZ; i++) {
+            //     for (j = 0; j < subX; j++) {
+            //         var post = new BABYLON.MeshBuilder.CreateCylinder("post", {diameter: 1, height: 10}, scene);
+            //         post.position.y = 5;
+            //         post.checkCollisions = true;
+            //         post.position.x = subLengthX / 2 + subLengthX * j - lengthX / 2;
+            //         post.position.z = subLengthZ / 2 + subLengthZ * i - lengthZ / 2;
+            //     }
+            // }
+
+            // Maze Walls
+            var wallHeight = 10;
+            var wallDepth = 2;
+            var mazeLength = 125;
+            var sub = 15;
+            var subLength = mazeLength / sub;
             var i = 0;
             var j = 0;
-            for (i = 0; i < subZ; i++) {
-                for (j = 0; j < subX; j++) {
-                    var post = new BABYLON.MeshBuilder.CreateCylinder("post", {diameter: 1, height: 10}, scene);
-                    post.position.y = 5;
-                    post.checkCollisions = true;
-                    post.position.x = subLengthX / 2 + subLengthX * j - lengthX / 2;
-                    post.position.z = subLengthZ / 2 + subLengthZ * i - lengthZ / 2;
+            for (i = 0; i <= sub * 2; i++) {
+                for (j = 0; j <= sub; j++) {
+                    var mazeWall = new BABYLON.MeshBuilder.CreateBox(
+                        "mazeWall",
+                        { height: wallHeight, width: subLength, depth: wallDepth },
+                        scene);
+                    mazeWall.material = hedge;
+                    mazeWall.checkCollisions = true;
+                    mazeWall.position.y = wallHeight / 2;
+                    mazeWall.position.z = subLength / 2 * i - mazeLength / 2;
+                    if (i % 2 === 0) {
+                        if (j < sub) {
+                            mazeWall.position.x = subLength / 2 + subLength * j - mazeLength / 2;
+                        }
+                    }
+                    if (i % 2 === 1) {
+                        mazeWall.position.x = subLength * j - mazeLength / 2;
+                        mazeWall.rotation.y = Math.PI / 2;
+                    }
                 }
             }
 
-
-            // // Trees
-            // // Create a sprite manager to optimize GPU ressources
-            // // Parameters : name, imgUrl, capacity, cellSize, scene
-            // var spriteManagerTrees = new BABYLON.SpriteManager("treesManager", "textures/pine.png", 2000, { width: 394, height: 537 }, scene);
-
-            // // Trees at random positions
-            // for (var i = 0; i < 500; i++) {
-            //     // mesh around trees
-            //     var treeMesh = BABYLON.MeshBuilder.CreateSphere("treeMesh", { diameterY: 20, diameterX: 4, diameterZ: 4 }, scene);
-            //     treeMesh.position.y = 7;
-            //     treeMesh.material = pMat;
-            //     treeMesh.ellipsoid = new BABYLON.Vector3(4, 10, 4);
-            //     treeMesh.checkCollisions = true;
-            //     // treeMesh.physicsImpostor = new BABYLON.PhysicsImpostor(treeMesh, BABYLON.PhysicsImpostor.SphereImpostor, {mass: 0, restitution: 0.1}, scene);
-
-            //     do {
-            //         var xSpot = Math.random() * worldWidth - worldWidth / 2;
-            //         var zSpot = Math.random() * worldDepth - worldDepth / 2;
-            //     } while((xSpot > -25 && xSpot < 25) && (zSpot > -25 && zSpot < 25)) // keeps trees out of center
-
-            //     tree = new BABYLON.Sprite("tree", spriteManagerTrees);
-            //     tree.size = 20;
-            //     tree.position.x = xSpot;
-            //     tree.position.z = zSpot;
-            //     treeMesh.position.x = xSpot;
-            //     treeMesh.position.z = zSpot;
-            //     tree.position.y = 7;
-            //     tree.ellipsoid = new BABYLON.Vector3(5, 20, 5);
-            //     tree.checkCollisions = true;
-            // }
 
             /***********************************************************************************************************************************************************/
 

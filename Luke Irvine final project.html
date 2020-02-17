@@ -55,6 +55,93 @@
         var scene = null;
         var createDefaultEngine = function () { return new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true }); };
 
+        /* ==== function moveSprite ====
+         * min and max are bounds for sprite cells
+         * delay is modulo number to slow down frame rate
+         * total is total number of cells in sprite
+         * index is used for slowing frame rate
+         * walkingThor is sprite object
+         */
+         function moveSprite(min, max, delay, total, index, walkingThor) {
+            if (index % delay === 0) {
+                if (walkingThor.cellIndex < min || walkingThor.cellIndex > max) {
+                    walkingThor.cellIndex = min;
+                }
+                walkingThor.cellIndex = (walkingThor.cellIndex + 1) % (total + 1);
+                if (walkingThor.cellIndex > max) {
+                    walkingThor.cellIndex = min;
+                }
+            }
+        }
+
+        /* ==== Recursive Maze Function ====
+         * 
+         * 
+         * 
+         */
+        function carve_passages_from(cx, cy, grid, wallArray, myStack) {
+            // new x and y indices
+            var nx;
+            var ny;
+            // iterator
+            var i;
+            // array holding cardinal directions, shuffled for random
+            var N = -1;
+            var S = 1;
+            var W = -1;
+            var E = 1;
+            var directions = [N, S, W, E];
+            shuffle(directions);
+            // set 1 at current cell so we know we've been here
+            grid[cy][cx] = 1;
+
+            for (i = 0; i < directions.length; i++) {
+                if (directions[i] === E || directions[i] === W) {
+                    nx = cx + directions[i];
+                }
+                else {
+                    ny = cy + directions[i];
+                }
+                // new cell is inbounds and not visited
+                if ( (nx >= 0 && nx < grid[0].length) && (ny >= 0 && ny < grid[0].length) && grid[ny][nx] === 0) {
+                    myStack.push(cx);
+                    myStack.push(cy);
+                    // tear down wall
+                    if (directions[i] === N || directions[i] === S) {
+                        wallArray[2 * cy + 1 + directions[i]][cx].dispose();
+                    }
+                    else {
+                        wallArray[2 * cy + 1][cx + directions[i]].dispose();
+                    }
+                    carve_passages_from(nx, ny, grid, wallArray, myStack);
+                }
+                else {
+                    if (myStack.length === 0) {
+                        break;
+                    }
+                    var py = myStack.pop();
+                    var px = myStack.pop();
+                    carve_passages_from(px, py, grid, wallArray, myStack);
+                }
+            }
+            
+        }
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                let j = Math.floor(Math.random() * (i + 1)); // random index from 0 to i
+
+                // swap elements array[i] and array[j]
+                // we use "destructuring assignment" syntax to achieve that
+                // you'll find more details about that syntax in later chapters
+                // same can be written as:
+                // let t = array[i]; array[i] = array[j]; array[j] = t
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+/********************************************************************************************************************************/
+
         var createScene = function () {
 
             // Create the scene space
@@ -157,7 +244,7 @@
             //     }
             // }
 
-            // Maze Walls
+            // Maze Wall Grid
             var wallHeight = 10;
             var wallDepth = 2;
             var mazeLength = 125;
@@ -189,6 +276,21 @@
                     }
                 }
             }
+            wallArray[2][2].dispose();
+            // Maze Generator
+            var grid = [];
+            // initialize array
+            for (i = 0; i < sub; i++) {
+                grid.push([]);
+                for (j = 0; j < sub; j++) {
+                    grid[i].push(0);
+                }
+            }
+            // stack to push previously visited cells
+            var myStack = [];
+            // start recursive function
+            carve_passages_from(Math.round(sub/2), 0, grid, wallArray, myStack);
+
 
             /***********************************************************************************************************************************************************/
 
@@ -312,24 +414,6 @@
             return scene;
         }
 
-        /* ==== function moveSprite ====
-         * min and max are bounds for sprite cells
-         * delay is modulo number to slow down frame rate
-         * total is total number of cells in sprite
-         * index is used for slowing frame rate
-         * walkingThor is sprite object
-         */
-        function moveSprite(min, max, delay, total, index, walkingThor) {
-            if (index % delay === 0) {
-                if (walkingThor.cellIndex < min || walkingThor.cellIndex > max) {
-                    walkingThor.cellIndex = min;
-                }
-                walkingThor.cellIndex = (walkingThor.cellIndex + 1) % (total + 1);
-                if (walkingThor.cellIndex > max) {
-                    walkingThor.cellIndex = min;
-                }
-            }
-        }
 
         function sleep(milliseconds) {
             const date = Date.now();

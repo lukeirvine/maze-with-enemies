@@ -95,6 +95,11 @@
             // set 1 at current cell so we know we've been here
             grid[cy][cx] = 1;
 
+            console.log("cy");
+            console.log(cy);
+            console.log("cx");
+            console.log(cx);
+
             for (i = 0; i < directions.length; i++) {
                 if (directions[i] === E || directions[i] === W) {
                     nx = cx + directions[i] / 2;
@@ -109,14 +114,32 @@
                     myStack.push(cx);
                     myStack.push(cy);
                     // INSERT tear down wall
-                    if (directions[i] === N || directions[i] === S) {
-                        wallArray[2 * cy + 1 + directions[i]][cx].dispose();
-                        wallArray[4][4].dispose();
+                    if (directions[i] === N) {
+                        wallArray[2 * cy + 1 + N][cx].dispose();
+                        console.log("tear down wall at:");
+                        console.log(2 * cy + 1 + N);
+                        console.log(cx);
                     }
-                    else {
-                        wallArray[2 * cy + 1][cx + directions[i] / 2].dispose();
+                    if (directions[i] === S) {
+                        wallArray[2 * cy + 1 + S][cx].dispose();
+                        console.log("tear down wall at:");
+                        console.log(2 * cy + 1 + + S);
+                        console.log(cx);
+                    }
+                    if (directions[i] === E) {
+                        wallArray[2 * cy + 1][cx + E / 2].dispose();
+                        console.log("tear down wall at:");
+                        console.log(2 * cy + 1);
+                        console.log(cx + E / 2);
+                    }
+                    if (directions[i] === W) {
+                        wallArray[2 * cy + 1][cx].dispose();
+                        console.log("tear down wall at:");
+                        console.log(2 * cy + 1);
+                        console.log(cx);
                     }
                     index++;
+                    console.log("moving forward");
                     carve_passages_from(nx, ny, grid, wallArray, myStack, index);
                 }
             }
@@ -126,6 +149,7 @@
             var py = myStack.pop();
             var px = myStack.pop();
             index++;
+            console.log("moving backward")
             carve_passages_from(px, py, grid, wallArray, myStack, index);
         }
 
@@ -141,6 +165,15 @@
                 [array[i], array[j]] = [array[j], array[i]];
             }
         }
+
+        function sleep(milliseconds) {
+            const date = Date.now();
+            let currentDate = null;
+            do {
+                currentDate = Date.now();
+            } while (currentDate - date < milliseconds);
+        }
+
 
 /********************************************************************************************************************************/
 
@@ -179,7 +212,7 @@
             pMat.alpha = 0;
 
             // camera
-            var camera = new BABYLON.UniversalCamera("UniversalCamera", new BABYLON.Vector3(0, 200, -30), scene);
+            var camera = new BABYLON.UniversalCamera("UniversalCamera", new BABYLON.Vector3(0, 100, -30), scene);
             camera.setTarget(new BABYLON.Vector3(0, 6, 0));
             camera.attachControl(canvas, true);
             camera.applyGravity = false;
@@ -203,7 +236,7 @@
             // Player Mesh
             var player = BABYLON.MeshBuilder.CreateSphere("player", { diameterY: 6, diameterX: 3, diameterZ: 3 }, scene);
             player.material = pMat;
-            player.position.y = 3;
+            player.position = new BABYLON.Vector3(0, 3, -100);
             player.ellipsoid = new BABYLON.Vector3(1, 7, 1);
             player.checkCollisions = true;
             player.applyGravity = true;
@@ -249,7 +282,7 @@
             // Maze Wall Grid
             var wallHeight = 10;
             var wallDepth = 2;
-            var mazeLength = 125;
+            var mazeLength = 150;
             var sub = 15;
             var subLength = mazeLength / sub;
             var i = 0;
@@ -264,26 +297,29 @@
                         { height: wallHeight, width: subLength, depth: wallDepth },
                         scene);
                     wallArray[i].push(mazeWall);
-                    wallArray[i][j].material = hedge;
+                    if (!(i === 0 && j === 0) && !(i === 1 && j === 0)) {
+                        wallArray[i][j].material = hedge;
+                    }
                     wallArray[i][j].checkCollisions = true;
                     wallArray[i][j].position.y = wallHeight / 2;
-                    wallArray[i][j].position.z = subLength / 2 * i - mazeLength / 2;
+                    wallArray[i][j].position.z = mazeLength - subLength / 2 * i - mazeLength / 2;
                     if (i % 2 === 0) {
                         if (j < sub) {
                             wallArray[i][j].position.x = subLength / 2 + subLength * j - mazeLength / 2;
+                            console.log("placed horizontal wall at:");
+                            console.log(i);
+                            console.log(j);
                         }
                     }
                     if (i % 2 === 1) {
                         wallArray[i][j].position.x = subLength * j - mazeLength / 2;
                         wallArray[i][j].rotation.y = Math.PI / 2;
+                        console.log("placed vertical wall at:");
+                        console.log(i);
+                        console.log(j);
                     }
                 }
             }
-            // wallArray[2][2].dispose();
-            function test() {
-                wallArray[7][7].dispose();
-            }
-            test();
             // Maze Generator
             var grid = [];
             // initialize array
@@ -420,16 +456,6 @@
 
             return scene;
         }
-
-
-        function sleep(milliseconds) {
-            const date = Date.now();
-            let currentDate = null;
-            do {
-                currentDate = Date.now();
-            } while (currentDate - date < milliseconds);
-        }
-
 
 
         engine = createDefaultEngine();

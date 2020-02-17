@@ -74,58 +74,60 @@
             }
         }
 
-        // /* ==== Recursive Maze Function ====
-        //  * 
-        //  * 
-        //  * 
-        //  */
-        // function carve_passages_from(cx, cy, grid, wallArray, myStack) {
-        //     // new x and y indices
-        //     var nx;
-        //     var ny;
-        //     // iterator
-        //     var i;
-        //     // array holding cardinal directions, shuffled for random
-        //     var N = -1;
-        //     var S = 1;
-        //     var W = -1;
-        //     var E = 1;
-        //     var directions = [N, S, W, E];
-        //     shuffle(directions);
-        //     // set 1 at current cell so we know we've been here
-        //     grid[cy][cx] = 1;
+        /* ==== Recursive Maze Function ====
+        * 
+        * 
+        * 
+        */
+        function carve_passages_from(cx, cy, grid, wallArray, myStack, index) {
+            // new x and y indices
+            var nx;
+            var ny;
+            // iterator
+            var i;
+            // array holding cardinal directions, shuffled for random
+            var N = -1;
+            var S = 1;
+            var W = -2;
+            var E = 2;
+            var directions = [N, S, W, E];
+            shuffle(directions);
+            // set 1 at current cell so we know we've been here
+            grid[cy][cx] = 1;
 
-        //     for (i = 0; i < directions.length; i++) {
-        //         if (directions[i] === E || directions[i] === W) {
-        //             nx = cx + directions[i];
-        //         }
-        //         else {
-        //             ny = cy + directions[i];
-        //         }
-        //         // new cell is inbounds and not visited
-        //         if ( (nx >= 0 && nx < grid[0].length) && (ny >= 0 && ny < grid[0].length) && grid[ny][nx] === 0) {
-        //             myStack.push(cx);
-        //             myStack.push(cy);
-        //             // tear down wall
-        //             if (directions[i] === N || directions[i] === S) {
-        //                 wallArray[2 * cy + 1 + directions[i]][cx].dispose();
-        //             }
-        //             else {
-        //                 wallArray[2 * cy + 1][cx + directions[i]].dispose();
-        //             }
-        //             carve_passages_from(nx, ny, grid, wallArray, myStack);
-        //         }
-        //         else {
-        //             if (myStack.length === 0) {
-        //                 break;
-        //             }
-        //             var py = myStack.pop();
-        //             var px = myStack.pop();
-        //             carve_passages_from(px, py, grid, wallArray, myStack);
-        //         }
-        //     }
-            
-        // }
+            for (i = 0; i < directions.length; i++) {
+                if (directions[i] === E || directions[i] === W) {
+                    nx = cx + directions[i] / 2;
+                    ny = cy;
+                }
+                else {
+                    nx = cx;
+                    ny = cy + directions[i];
+                }
+                if ( (nx >= 0 && nx < grid[0].length) && (ny >= 0 && ny < grid.length) && grid[ny][nx] === 0) {
+                    // new cell is inbounds and not visited
+                    myStack.push(cx);
+                    myStack.push(cy);
+                    // INSERT tear down wall
+                    if (directions[i] === N || directions[i] === S) {
+                        wallArray[2 * cy + 1 + directions[i]][cx].dispose();
+                        wallArray[4][4].dispose();
+                    }
+                    else {
+                        wallArray[2 * cy + 1][cx + directions[i] / 2].dispose();
+                    }
+                    index++;
+                    carve_passages_from(nx, ny, grid, wallArray, myStack, index);
+                }
+            }
+            if (myStack.length === 0 && index != 0) {
+                return 0;
+            }
+            var py = myStack.pop();
+            var px = myStack.pop();
+            index++;
+            carve_passages_from(px, py, grid, wallArray, myStack, index);
+        }
 
         function shuffle(array) {
             for (let i = array.length - 1; i > 0; i--) {
@@ -177,7 +179,7 @@
             pMat.alpha = 0;
 
             // camera
-            var camera = new BABYLON.UniversalCamera("UniversalCamera", new BABYLON.Vector3(0, 30, -30), scene);
+            var camera = new BABYLON.UniversalCamera("UniversalCamera", new BABYLON.Vector3(0, 200, -30), scene);
             camera.setTarget(new BABYLON.Vector3(0, 6, 0));
             camera.attachControl(canvas, true);
             camera.applyGravity = false;
@@ -253,6 +255,7 @@
             var i = 0;
             var j = 0;
             var wallArray = [];
+            var index = 0;
             for (i = 0; i <= sub * 2; i++) {
                 wallArray.push([]);
                 for (j = 0; j <= sub; j++) {
@@ -276,85 +279,6 @@
                     }
                 }
             }
-
-
-
-
-            /* ==== Recursive Maze Function ====
-            * 
-            * 
-            * 
-            */
-            function carve_passages_from(cx, cy, grid, wallArray, myStack, index) {
-                // new x and y indices
-                var nx;
-                var ny;
-                // iterator
-                var i;
-                // array holding cardinal directions, shuffled for random
-                var N = -1;
-                var S = 1;
-                var W = -2;
-                var E = 2;
-                var directions = [N, S, W, E];
-                shuffle(directions);
-                console.log(directions);
-                console.log("cy");
-                console.log(cy);
-                console.log("cx");
-                console.log(cx);
-                // set 1 at current cell so we know we've been here
-                // console.log("aa");
-                grid[cy][cx] = 1;
-                console.log("grid[cy][cx]");
-                console.log(grid[cy][cx]);
-                // console.log("a");
-
-                for (i = 0; i < directions.length; i++) {
-                    if (directions[i] === E || directions[i] === W) {
-                        nx = cx + directions[i] / 2;
-                        ny = cy;
-                    }
-                    else {
-                        nx = cx;
-                        ny = cy + directions[i];
-                        // console.log("directions[i]");
-                        // console.log(directions[i]);
-                    }
-                    console.log("ny");
-                    console.log(ny);
-                    console.log("nx");
-                    console.log(nx);
-                    if ( (nx >= 0 && nx < grid[0].length) && (ny >= 0 && ny < grid.length) && grid[ny][nx] === 0) {
-                        // new cell is inbounds and not visited
-                        console.log("reached next cell spot");
-                        myStack.push(cx);
-                        myStack.push(cy);
-                        // INSERT tear down wall
-                        if (directions[i] === N || directions[i] === S) {
-                            wallArray[2 * cy + 1 + directions[i]][cx].dispose();
-                            wallArray[4][4].dispose();
-                        }
-                        else {
-                            wallArray[2 * cy + 1][cx + directions[i] / 2].dispose();
-                        }
-                        index++;
-                        carve_passages_from(nx, ny, grid, wallArray, myStack, index);
-                    }
-                }
-                console.log("index");
-                console.log(index);
-                if (myStack.length === 0 && index != 0) {
-                    return 0;
-                }
-                var py = myStack.pop();
-                var px = myStack.pop();
-                console.log("reached previous cell spot");
-                index++;
-                carve_passages_from(px, py, grid, wallArray, myStack, index);
-            }
-
-
             // wallArray[2][2].dispose();
             function test() {
                 wallArray[7][7].dispose();
@@ -372,7 +296,7 @@
             // stack to push previously visited cells
             var myStack = [];
             // start recursive function
-            carve_passages_from(Math.round(sub/2 - 1), 0, grid, wallArray, myStack);
+            carve_passages_from(Math.round(sub/2 - 1), 0, grid, wallArray, myStack, index);
 
 
             /***********************************************************************************************************************************************************/

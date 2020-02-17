@@ -165,28 +165,30 @@
             var subLength = mazeLength / sub;
             var i = 0;
             var j = 0;
+            var wallArray = [];
             for (i = 0; i <= sub * 2; i++) {
+                wallArray.push([]);
                 for (j = 0; j <= sub; j++) {
                     var mazeWall = new BABYLON.MeshBuilder.CreateBox(
                         "mazeWall",
                         { height: wallHeight, width: subLength, depth: wallDepth },
                         scene);
-                    mazeWall.material = hedge;
-                    mazeWall.checkCollisions = true;
-                    mazeWall.position.y = wallHeight / 2;
-                    mazeWall.position.z = subLength / 2 * i - mazeLength / 2;
+                    wallArray[i].push(mazeWall);
+                    wallArray[i][j].material = hedge;
+                    wallArray[i][j].checkCollisions = true;
+                    wallArray[i][j].position.y = wallHeight / 2;
+                    wallArray[i][j].position.z = subLength / 2 * i - mazeLength / 2;
                     if (i % 2 === 0) {
                         if (j < sub) {
-                            mazeWall.position.x = subLength / 2 + subLength * j - mazeLength / 2;
+                            wallArray[i][j].position.x = subLength / 2 + subLength * j - mazeLength / 2;
                         }
                     }
                     if (i % 2 === 1) {
-                        mazeWall.position.x = subLength * j - mazeLength / 2;
-                        mazeWall.rotation.y = Math.PI / 2;
+                        wallArray[i][j].position.x = subLength * j - mazeLength / 2;
+                        wallArray[i][j].rotation.y = Math.PI / 2;
                     }
                 }
             }
-
 
             /***********************************************************************************************************************************************************/
 

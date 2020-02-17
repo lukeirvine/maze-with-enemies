@@ -116,24 +116,28 @@
                     // INSERT tear down wall
                     if (directions[i] === N) {
                         wallArray[2 * cy + 1 + N][cx].dispose();
+                        wallArray[2 * cy + 1 + N][cx] = 0;
                         console.log("tear down wall at:");
                         console.log(2 * cy + 1 + N);
                         console.log(cx);
                     }
                     if (directions[i] === S) {
                         wallArray[2 * cy + 1 + S][cx].dispose();
+                        wallArray[2 * cy + 1 + S][cx] = 0;
                         console.log("tear down wall at:");
                         console.log(2 * cy + 1 + + S);
                         console.log(cx);
                     }
                     if (directions[i] === E) {
                         wallArray[2 * cy + 1][cx + E / 2].dispose();
+                        wallArray[2 * cy + 1][cx + E / 2] = 0;
                         console.log("tear down wall at:");
                         console.log(2 * cy + 1);
                         console.log(cx + E / 2);
                     }
                     if (directions[i] === W) {
                         wallArray[2 * cy + 1][cx].dispose();
+                        wallArray[2 * cy + 1][cx] = 0;
                         console.log("tear down wall at:");
                         console.log(2 * cy + 1);
                         console.log(cx);
@@ -282,8 +286,8 @@
             // Maze Wall Grid
             var wallHeight = 10;
             var wallDepth = 4;
-            var mazeLength = 160;
-            var sub = 15;
+            var mazeLength = 50;
+            var sub = 5;
             var subLength = mazeLength / sub;
             var i = 0;
             var j = 0;

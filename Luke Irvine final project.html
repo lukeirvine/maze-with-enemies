@@ -117,30 +117,30 @@
                     if (directions[i] === N) {
                         wallArray[2 * cy + 1 + N][cx].dispose();
                         wallArray[2 * cy + 1 + N][cx] = 0;
-                        console.log("tear down wall at:");
-                        console.log(2 * cy + 1 + N);
-                        console.log(cx);
+                        // console.log("tear down wall at:");
+                        // console.log(2 * cy + 1 + N);
+                        // console.log(cx);
                     }
                     if (directions[i] === S) {
                         wallArray[2 * cy + 1 + S][cx].dispose();
                         wallArray[2 * cy + 1 + S][cx] = 0;
-                        console.log("tear down wall at:");
-                        console.log(2 * cy + 1 + + S);
-                        console.log(cx);
+                        // console.log("tear down wall at:");
+                        // console.log(2 * cy + 1 + + S);
+                        // console.log(cx);
                     }
                     if (directions[i] === E) {
                         wallArray[2 * cy + 1][cx + E / 2].dispose();
                         wallArray[2 * cy + 1][cx + E / 2] = 0;
-                        console.log("tear down wall at:");
-                        console.log(2 * cy + 1);
-                        console.log(cx + E / 2);
+                        // console.log("tear down wall at:");
+                        // console.log(2 * cy + 1);
+                        // console.log(cx + E / 2);
                     }
                     if (directions[i] === W) {
                         wallArray[2 * cy + 1][cx].dispose();
                         wallArray[2 * cy + 1][cx] = 0;
-                        console.log("tear down wall at:");
-                        console.log(2 * cy + 1);
-                        console.log(cx);
+                        // console.log("tear down wall at:");
+                        // console.log(2 * cy + 1);
+                        // console.log(cx);
                     }
                     index++;
                     console.log("moving forward");
@@ -216,7 +216,7 @@
             pMat.alpha = 0;
 
             // camera
-            var camera = new BABYLON.UniversalCamera("UniversalCamera", new BABYLON.Vector3(0, 100, -100), scene);
+            var camera = new BABYLON.UniversalCamera("UniversalCamera", new BABYLON.Vector3(0, 200, -100), scene);
             camera.setTarget(new BABYLON.Vector3(0, 6, 0));
             camera.attachControl(canvas, true);
             camera.applyGravity = true;
@@ -286,8 +286,8 @@
             // Maze Wall Grid
             var wallHeight = 10;
             var wallDepth = 4;
-            var mazeLength = 50;
-            var sub = 3;
+            var mazeLength = 150;
+            var sub = 15;
             var subLength = mazeLength / sub;
             var i = 0;
             var j = 0;
@@ -296,34 +296,36 @@
             for (i = 0; i <= sub * 2; i++) {
                 wallArray.push([]);
                 for (j = 0; j <= sub; j++) {
-                    var mazeWall = new BABYLON.MeshBuilder.CreateBox(
-                        "mazeWall",
-                        { height: wallHeight, width: subLength, depth: wallDepth },
-                        scene);
-                    // // index shift
-                    // if (i % 2 === 0) {
-                    //     wallArray[i].push(0);
-                    // }
+                    if (!(i % 2 === 0 && j === sub)) {
+                        var mazeWall = new BABYLON.MeshBuilder.CreateBox(
+                            "mazeWall",
+                            { height: wallHeight, width: subLength, depth: wallDepth },
+                            scene);
+                        console.log("created Wall");
+                        console.log("---------------------");
+                    }
                     if (!(i === 0 && j === 0) && !(i === 1 && j === 0)) {
                         mazeWall.material = hedge;
                     }
                     mazeWall.checkCollisions = true;
                     mazeWall.position.y = wallHeight / 2;
                     mazeWall.position.z = mazeLength - subLength / 2 * i - mazeLength / 2;
+                    // console.log("placed wall at z:")
+                    // console.log(mazeLength - subLength / 2 * i + 50);
                     if (i % 2 === 0) {
                         if (j < sub) {
                             mazeWall.position.x = subLength / 2 + subLength * j - mazeLength / 2;
                             // console.log("placed horizontal wall at:");
-                            // console.log(i);
-                            // console.log(j);
+                            // console.log(mazeLength - subLength / 2 * i + 50);
+                            // console.log(subLength / 2 + subLength * j + 50);
                         }
                     }
                     if (i % 2 === 1) {
                         mazeWall.position.x = subLength * j - mazeLength / 2;
                         mazeWall.rotation.y = Math.PI / 2;
                         // console.log("placed vertical wall at:");
-                        // console.log(i);
-                        // console.log(j);
+                        // console.log(mazeLength - subLength / 2 * i + 50);
+                        // console.log(subLength * j + 50);
                     }
                     wallArray[i].push(mazeWall);
                 }

@@ -300,28 +300,32 @@
                         "mazeWall",
                         { height: wallHeight, width: subLength, depth: wallDepth },
                         scene);
-                    wallArray[i].push(mazeWall);
+                    // // index shift
+                    // if (i % 2 === 0) {
+                    //     wallArray[i].push(0);
+                    // }
                     if (!(i === 0 && j === 0) && !(i === 1 && j === 0)) {
-                        wallArray[i][j].material = hedge;
+                        mazeWall.material = hedge;
                     }
-                    wallArray[i][j].checkCollisions = true;
-                    wallArray[i][j].position.y = wallHeight / 2;
-                    wallArray[i][j].position.z = mazeLength - subLength / 2 * i - mazeLength / 2;
+                    mazeWall.checkCollisions = true;
+                    mazeWall.position.y = wallHeight / 2;
+                    mazeWall.position.z = mazeLength - subLength / 2 * i - mazeLength / 2;
                     if (i % 2 === 0) {
                         if (j < sub) {
-                            wallArray[i][j].position.x = subLength / 2 + subLength * j - mazeLength / 2;
-                            console.log("placed horizontal wall at:");
-                            console.log(i);
-                            console.log(j);
+                            mazeWall.position.x = subLength / 2 + subLength * j - mazeLength / 2;
+                            // console.log("placed horizontal wall at:");
+                            // console.log(i);
+                            // console.log(j);
                         }
                     }
                     if (i % 2 === 1) {
-                        wallArray[i][j].position.x = subLength * j - mazeLength / 2;
-                        wallArray[i][j].rotation.y = Math.PI / 2;
-                        console.log("placed vertical wall at:");
-                        console.log(i);
-                        console.log(j);
+                        mazeWall.position.x = subLength * j - mazeLength / 2;
+                        mazeWall.rotation.y = Math.PI / 2;
+                        // console.log("placed vertical wall at:");
+                        // console.log(i);
+                        // console.log(j);
                     }
+                    wallArray[i].push(mazeWall);
                 }
             }
 
@@ -342,8 +346,8 @@
             carve_passages_from(0, sub - 1, grid, wallArray, myStack, index);
             wallArray[sub * 2][0].dispose();
 
-            console.log("wallArray[6][1]");
-            console.log(wallArray[6][1]);
+            console.log("wallArray[4][1]");
+            console.log(wallArray[4][1]);
 
 
 

@@ -191,10 +191,11 @@
             scene.collisionsEnabled = true;
             scene.enablePhysics(new BABYLON.Vector3(0, -50, 0), new BABYLON.OimoJSPlugin());
 
-            // var options = new BABYLON.SceneOptimizerOptions();
-            // // Optimizer
-            // var optimizer = new BABYLON.SceneOptimizer(scene, options);
-            // options.targetFrameRate(60);
+            // Maze making Variables
+            var wallHeight = 10;
+            var wallDepth = 4;
+            var mazeLength = 125;
+            var sub = 15;
 
             // textures
             var hedge = new BABYLON.StandardMaterial("hedge", scene);
@@ -213,14 +214,24 @@
             dirt.specularTexture = new BABYLON.Texture("textures/cracked_dirt.jpg", scene);
             dirt.ambientTexture = new BABYLON.Texture("textures/cracked_dirt.jpg", scene);
 
-            // for spheres around sprites
+                // for spheres around sprites
             var pMat = new BABYLON.StandardMaterial("pMat", scene);
             pMat.emissiveColor = new BABYLON.Color3(1, 1, 0);
             pMat.alpha = 0;
 
-            var follow = false;
-
-            if (!follow) {
+            // Cameras
+            var follow = true;
+            if (follow) {
+                // follow camera
+                var followCam = new BABYLON.FollowCamera("FollowCam", new BABYLON.Vector3(0, 20, -500), scene);
+                followCam.radius = 15;
+                followCam.heightOffset = 30;
+                followCam.rotationOffset = 180;
+                followCam.cameraAcceleration = 0.115
+                followCam.maxCameraSpeed = 10
+                // followCam.attachControl(canvas, true);
+            }
+            else {
                 // Universe Camera
                 var camera = new BABYLON.UniversalCamera("UniversalCamera", new BABYLON.Vector3(0, 200, -100), scene);
                 camera.setTarget(new BABYLON.Vector3(0, 6, 0));
@@ -229,17 +240,6 @@
                 camera.ellipsoid = new BABYLON.Vector3(1, 14, 1);
                 camera.checkCollisions = true;
             }
-            else {
-                // follow camera
-                var followCam = new BABYLON.FollowCamera("FollowCam", new BABYLON.Vector3(0, 20, -100), scene);
-                followCam.radius = 15;
-                followCam.heightOffset = 20;
-                followCam.rotationOffset = 0;
-                followCam.cameraAcceleration = 0.015
-                followCam.maxCameraSpeed = 10
-                followCam.attachControl(canvas, true);
-            }
-
 
             // lighting
             var light = new BABYLON.HemisphericLight("HemiLight", new BABYLON.Vector3(0, 100, 0), scene);
@@ -285,30 +285,7 @@
             walkingThor.position.x = 0;
             walkingThor.position.z = 0;
 
-            // // Maze Posts
-            // var lengthX = worldWidth * 0.8;
-            // var lengthZ = worldDepth * 0.8;
-            // var subX = 50;
-            // var subZ = 50;
-            // var subLengthX = lengthX / subX;
-            // var subLengthZ = lengthZ / subZ;
-            // var i = 0;
-            // var j = 0;
-            // for (i = 0; i < subZ; i++) {
-            //     for (j = 0; j < subX; j++) {
-            //         var post = new BABYLON.MeshBuilder.CreateCylinder("post", {diameter: 1, height: 10}, scene);
-            //         post.position.y = 5;
-            //         post.checkCollisions = true;
-            //         post.position.x = subLengthX / 2 + subLengthX * j - lengthX / 2;
-            //         post.position.z = subLengthZ / 2 + subLengthZ * i - lengthZ / 2;
-            //     }
-            // }
-
             // Maze Wall Grid
-            var wallHeight = 10;
-            var wallDepth = 4;
-            var mazeLength = 125;
-            var sub = 15;
             var subLength = mazeLength / sub;
             var i = 0;
             var j = 0;
@@ -363,7 +340,6 @@
             // stack to push previously visited cells
             var myStack = [];
             // start recursive function
-            // carve_passages_from(Math.round(sub/2 - 1), sub - 1, grid, wallArray, myStack, index);
             carve_passages_from(0, sub - 1, grid, wallArray, myStack, index);
             // Entrance
             wallArray[sub * 2][Math.round(sub / 2) - 1].dispose();
@@ -372,7 +348,6 @@
 
             // set player where maze entrance is
             player.position = new BABYLON.Vector3(0, 3, -mazeLength / 2 - mazeLength * 0.05)
-
 
 
             /***********************************************************************************************************************************************************/
@@ -403,7 +378,7 @@
             scene.registerBeforeRender(function () {
                 walkingThor.position = player.position;
                 // Player speed
-                var v = 0.15;
+                var v = 0.45;
                 player.nextspeed.x = 0.0;
                 player.nextspeed.z = 0.00001;
                 index += 1;

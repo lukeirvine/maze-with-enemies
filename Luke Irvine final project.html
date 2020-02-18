@@ -86,34 +86,36 @@
             // iterator
             var i;
             // array holding cardinal directions, shuffled for random
-            var N = -1;
-            var S = 1;
-            var W = -2;
-            var E = 2;
+            var N = -1; // because North is negative 1 on z axis
+            var S = 1;  // because South is 1 on z axis
+            var W = -2; // because West is -1 on x axis (divide by 2 everywhere else)
+            var E = 2;  // opposite ^^^
             var directions = [N, S, W, E];
             shuffle(directions);
             // set 1 at current cell so we know we've been here
             grid[cy][cx] = 1;
 
-            console.log("cy");
-            console.log(cy);
-            console.log("cx");
-            console.log(cx);
+            // console.log("cy");
+            // console.log(cy);
+            // console.log("cx");
+            // console.log(cx);
 
+            // loops through array of randomized directions
             for (i = 0; i < directions.length; i++) {
                 if (directions[i] === E || directions[i] === W) {
                     nx = cx + directions[i] / 2;
                     ny = cy;
                 }
                 else {
+                    // if north/south
                     nx = cx;
                     ny = cy + directions[i];
                 }
+                // if new cell is inbounds and not visitied previously
                 if ( (nx >= 0 && nx < grid[0].length) && (ny >= 0 && ny < grid.length) && grid[ny][nx] === 0) {
-                    // new cell is inbounds and not visited
                     myStack.push(cx);
                     myStack.push(cy);
-                    // INSERT tear down wall
+                    // Tear down wall
                     if (directions[i] === N) {
                         wallArray[2 * cy + 1 + N][cx].dispose();
                         wallArray[2 * cy + 1 + N][cx] = 0;
@@ -143,10 +145,11 @@
                         // console.log(cx);
                     }
                     index++;
-                    console.log("moving forward");
+                    // console.log("moving forward");
                     carve_passages_from(nx, ny, grid, wallArray, myStack, index);
                 }
             }
+            // if no options available - not in for loop
             if (myStack.length === 0 && index != 0) {
                 return 0;
             }
@@ -215,13 +218,28 @@
             pMat.emissiveColor = new BABYLON.Color3(1, 1, 0);
             pMat.alpha = 0;
 
-            // camera
-            var camera = new BABYLON.UniversalCamera("UniversalCamera", new BABYLON.Vector3(0, 200, -100), scene);
-            camera.setTarget(new BABYLON.Vector3(0, 6, 0));
-            camera.attachControl(canvas, true);
-            camera.applyGravity = true;
-            camera.ellipsoid = new BABYLON.Vector3(1, 14, 1);
-            camera.checkCollisions = false;
+            var follow = false;
+
+            if (!follow) {
+                // Universe Camera
+                var camera = new BABYLON.UniversalCamera("UniversalCamera", new BABYLON.Vector3(0, 200, -100), scene);
+                camera.setTarget(new BABYLON.Vector3(0, 6, 0));
+                camera.attachControl(canvas, true);
+                camera.applyGravity = true;
+                camera.ellipsoid = new BABYLON.Vector3(1, 14, 1);
+                camera.checkCollisions = true;
+            }
+            else {
+                // follow camera
+                var followCam = new BABYLON.FollowCamera("FollowCam", new BABYLON.Vector3(0, 20, -100), scene);
+                followCam.radius = 15;
+                followCam.heightOffset = 20;
+                followCam.rotationOffset = 0;
+                followCam.cameraAcceleration = 0.015
+                followCam.maxCameraSpeed = 10
+                followCam.attachControl(canvas, true);
+            }
+
 
             // lighting
             var light = new BABYLON.HemisphericLight("HemiLight", new BABYLON.Vector3(0, 100, 0), scene);
@@ -249,6 +267,9 @@
             player.physicsImpostor = new BABYLON.PhysicsImpostor(
                 player, BABYLON.PhysicsImpostor.SphereImpostor,
                 { mass: 150, restitution: 0, friction: 1 }, scene);
+            if (follow) {
+                followCam.lockedTarget = player;
+            }
 
             // Sprites
             // Walking Thor

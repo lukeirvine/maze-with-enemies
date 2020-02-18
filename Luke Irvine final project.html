@@ -287,7 +287,7 @@
             var wallHeight = 10;
             var wallDepth = 4;
             var mazeLength = 50;
-            var sub = 5;
+            var sub = 3;
             var subLength = mazeLength / sub;
             var i = 0;
             var j = 0;
@@ -324,6 +324,7 @@
                     }
                 }
             }
+
             // Maze Generator
             var grid = [];
             // initialize array
@@ -333,12 +334,17 @@
                     grid[i].push(0);
                 }
             }
+
             // stack to push previously visited cells
             var myStack = [];
             // start recursive function
             // carve_passages_from(Math.round(sub/2 - 1), sub - 1, grid, wallArray, myStack, index);
             carve_passages_from(0, sub - 1, grid, wallArray, myStack, index);
             wallArray[sub * 2][0].dispose();
+
+            console.log("wallArray[6][1]");
+            console.log(wallArray[6][1]);
+
 
 
             /***********************************************************************************************************************************************************/

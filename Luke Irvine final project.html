@@ -191,11 +191,14 @@
             scene.collisionsEnabled = true;
             scene.enablePhysics(new BABYLON.Vector3(0, -50, 0), new BABYLON.OimoJSPlugin());
 
-            // Maze making Variables
+            // Tweaking Variables
             var wallHeight = 10;
             var wallDepth = 4;
-            var sub = 5;
+            var sub = 10;               // keep under 40. 10 is easy, 20 is medium, 30 is hard.
             var mazeLength = sub * 10;
+            var groundSize = 500;
+            var follow = true;         // true makes camera follow player. False gives bird's eye
+            var cameraGravity = true;   // only works for Universal Camera
 
             // textures
             var hedge = new BABYLON.StandardMaterial("hedge", scene);
@@ -238,7 +241,6 @@
             pMat.alpha = 0;
 
             // Cameras
-            var follow = true;
             if (follow) {
                 // follow camera
                 var followCam = new BABYLON.FollowCamera("FollowCam", new BABYLON.Vector3(0, 20, -500), scene);
@@ -251,10 +253,10 @@
             }
             else {
                 // Universe Camera
-                var camera = new BABYLON.UniversalCamera("UniversalCamera", new BABYLON.Vector3(0, 200, -100), scene);
+                var camera = new BABYLON.UniversalCamera("UniversalCamera", new BABYLON.Vector3(0, sub * 12, -100), scene);
                 camera.setTarget(new BABYLON.Vector3(0, 6, 0));
                 camera.attachControl(canvas, true);
-                camera.applyGravity = false;
+                camera.applyGravity = cameraGravity;
                 camera.ellipsoid = new BABYLON.Vector3(1, 14, 1);
                 camera.checkCollisions = true;
             }
@@ -263,8 +265,8 @@
             var light = new BABYLON.HemisphericLight("HemiLight", new BABYLON.Vector3(0, 100, 0), scene);
 
             // Ground
-            var worldWidth = 400;
-            var worldDepth = 400;
+            var worldWidth = 500;
+            var worldDepth = 500;
             var myGround = BABYLON.MeshBuilder.CreateGround("myGround", { width: worldWidth, height: worldDepth, subdivisions: 5 }, scene);
             myGround.material = dirt;
             myGround.checkCollisions = true;
@@ -276,11 +278,39 @@
             var floor = new BABYLON.MeshBuilder.CreateBox("floor", {width: mazeLength, depth: mazeLength + wallDepth, height: 0.5}, scene);
             floor.material = stone;
 
+            // Trees
+            // Create a sprite manager to optimize GPU ressources
+            // Parameters : name, imgUrl, capacity, cellSize, scene
+            var spriteManagerTrees = new BABYLON.SpriteManager("treesManager", "textures/pine.png", 2000, { width: 394, height: 537 }, scene);
+
+            // Trees at random positions
+            for (var i = 0; i < Math.round(3000 / (sub / 2)); i++) {
+                // mesh around trees
+                var treeMesh = BABYLON.MeshBuilder.CreateSphere("treeMesh", { diameterY: 20, diameterX: 6, diameterZ: 7 }, scene);
+                treeMesh.position.y = 7;
+                treeMesh.material = pMat;
+                treeMesh.checkCollisions = true;
+
+                do {
+                    var xSpot = Math.random() * 500 - 250;
+                    var zSpot = Math.random() * 500 - 250;
+                } while((xSpot > -mazeLength / 2 - 8 && xSpot < mazeLength / 2 + 8) && (zSpot > -mazeLength / 2 - 8 && zSpot < mazeLength / 2 + 8)) // keeps trees out of maze
+
+                tree = new BABYLON.Sprite("tree", spriteManagerTrees);
+                tree.size = 20;
+                tree.position.x = xSpot;
+                tree.position.z = zSpot;
+                treeMesh.position.x = xSpot;
+                treeMesh.position.z = zSpot;
+                tree.position.y = 7;
+            }
+
+
             // Player Mesh
             var player = BABYLON.MeshBuilder.CreateSphere("player", { diameterY: 6, diameterX: 3, diameterZ: 3 }, scene);
             player.material = pMat;
             // player.position = new BABYLON.Vector3(-100, 3, -100);
-            player.ellipsoid = new BABYLON.Vector3(2, 7, 2);
+            player.ellipsoid = new BABYLON.Vector3(1, 7, 2.5);
             player.checkCollisions = true;
             player.applyGravity = true;
             player.speed = new BABYLON.Vector3(0, 0, 0.08);

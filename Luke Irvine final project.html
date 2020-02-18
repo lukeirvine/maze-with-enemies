@@ -194,11 +194,11 @@
             // Tweaking Variables
             var wallHeight = 10;
             var wallDepth = 4;
-            var sub = 10;               // keep under 40. 10 is easy, 20 is medium, 30 is hard.
+            var sub = 10;                       // keep under 40. 10 is easy, 20 is medium, 30 is hard.
             var mazeLength = sub * 10;
-            var groundSize = 500;
-            var follow = true;         // true makes camera follow player. False gives bird's eye
-            var cameraGravity = true;   // only works for Universal Camera
+            var groundSize = mazeLength + 300;
+            var follow = true;                  // true makes camera follow player. False gives bird's eye
+            var cameraGravity = true;           // only works for Universal Camera
 
             // textures
             var hedge = new BABYLON.StandardMaterial("hedge", scene);
@@ -265,8 +265,8 @@
             var light = new BABYLON.HemisphericLight("HemiLight", new BABYLON.Vector3(0, 100, 0), scene);
 
             // Ground
-            var worldWidth = 500;
-            var worldDepth = 500;
+            var worldWidth = groundSize;
+            var worldDepth = groundSize;
             var myGround = BABYLON.MeshBuilder.CreateGround("myGround", { width: worldWidth, height: worldDepth, subdivisions: 5 }, scene);
             myGround.material = dirt;
             myGround.checkCollisions = true;
@@ -284,7 +284,7 @@
             var spriteManagerTrees = new BABYLON.SpriteManager("treesManager", "textures/pine.png", 2000, { width: 394, height: 537 }, scene);
 
             // Trees at random positions
-            for (var i = 0; i < Math.round(3000 / (sub / 2)); i++) {
+            for (var i = 0; i < sub * 20; i++) {
                 // mesh around trees
                 var treeMesh = BABYLON.MeshBuilder.CreateSphere("treeMesh", { diameterY: 20, diameterX: 6, diameterZ: 7 }, scene);
                 treeMesh.position.y = 7;
@@ -292,8 +292,8 @@
                 treeMesh.checkCollisions = true;
 
                 do {
-                    var xSpot = Math.random() * 500 - 250;
-                    var zSpot = Math.random() * 500 - 250;
+                    var xSpot = Math.random() * groundSize - groundSize / 2;
+                    var zSpot = Math.random() * groundSize - groundSize / 2;
                 } while((xSpot > -mazeLength / 2 - 8 && xSpot < mazeLength / 2 + 8) && (zSpot > -mazeLength / 2 - 8 && zSpot < mazeLength / 2 + 8)) // keeps trees out of maze
 
                 tree = new BABYLON.Sprite("tree", spriteManagerTrees);
@@ -458,26 +458,26 @@
 
                 // UpLeft
                 if (window.keyisdown[65] && window.keyisdown[87]) {
-                    player.nextspeed.x = -v;
-                    player.nextspeed.z = v;
+                    player.nextspeed.x = - Math.sqrt( Math.pow(v,2) / 2 );   // makes trig combination equal to v
+                    player.nextspeed.z = Math.sqrt( Math.pow(v,2) / 2 );
                     moveSprite(40, 47, delay, totalCells, index, walkingThor);
                 }
                 // UpRight
                 if (window.keyisdown[68] && window.keyisdown[87]) {
-                    player.nextspeed.x = v;
-                    player.nextspeed.z = v;
+                    player.nextspeed.x = Math.sqrt( Math.pow(v,2) / 2 );
+                    player.nextspeed.z = Math.sqrt( Math.pow(v,2) / 2 );
                     moveSprite(56, 63, delay, totalCells, index, walkingThor);
                 }
                 // BottomRight
                 if (window.keyisdown[68] && window.keyisdown[83]) {
-                    player.nextspeed.x = v;
-                    player.nextspeed.z = -v;
+                    player.nextspeed.x = Math.sqrt( Math.pow(v,2) / 2 );
+                    player.nextspeed.z = - Math.sqrt( Math.pow(v,2) / 2 );
                     moveSprite(48, 55, delay, totalCells, index, walkingThor);
                 }
                 // BottomLeft
                 if (window.keyisdown[65] && window.keyisdown[83]) {
-                    player.nextspeed.x = -v;
-                    player.nextspeed.z = -v;
+                    player.nextspeed.x = - Math.sqrt( Math.pow(v,2) / 2 );
+                    player.nextspeed.z = - Math.sqrt( Math.pow(v,2) / 2 );
                     moveSprite(32, 39, delay, totalCells, index, walkingThor);
                 }
                 // Top Three (a, w, d)

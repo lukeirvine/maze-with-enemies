@@ -62,7 +62,7 @@
          * index is used for slowing frame rate
          * walkingThor is sprite object
          */
-         function moveSprite(min, max, delay, total, index, walkingThor) {
+        function moveSprite(min, max, delay, total, index, walkingThor) {
             if (index % delay === 0) {
                 if (walkingThor.cellIndex < min || walkingThor.cellIndex > max) {
                     walkingThor.cellIndex = min;
@@ -112,7 +112,7 @@
                     ny = cy + directions[i];
                 }
                 // if new cell is inbounds and not visitied previously
-                if ( (nx >= 0 && nx < grid[0].length) && (ny >= 0 && ny < grid.length) && grid[ny][nx] === 0) {
+                if ((nx >= 0 && nx < grid[0].length) && (ny >= 0 && ny < grid.length) && grid[ny][nx] === 0) {
                     myStack.push(cx);
                     myStack.push(cy);
                     // Tear down wall
@@ -182,7 +182,7 @@
         }
 
 
-/********************************************************************************************************************************/
+        /********************************************************************************************************************************/
 
         var createScene = function () {
 
@@ -235,7 +235,7 @@
             dirt.ambientTexture.uScale = 35;
             dirt.ambientTexture.vScale = 35;
 
-                // for spheres around sprites
+            // for spheres around sprites
             var pMat = new BABYLON.StandardMaterial("pMat", scene);
             pMat.emissiveColor = new BABYLON.Color3(1, 1, 0);
             pMat.alpha = 0;
@@ -275,7 +275,7 @@
                 { mass: 0, restitution: 1, friction: 0 }, scene);
 
             // floor of maze
-            var floor = new BABYLON.MeshBuilder.CreateBox("floor", {width: mazeLength, depth: mazeLength + wallDepth, height: 0.5}, scene);
+            var floor = new BABYLON.MeshBuilder.CreateBox("floor", { width: mazeLength, depth: mazeLength + wallDepth, height: 0.5 }, scene);
             floor.material = stone;
 
             // Trees
@@ -294,7 +294,7 @@
                 do {
                     var xSpot = Math.random() * groundSize - groundSize / 2;
                     var zSpot = Math.random() * groundSize - groundSize / 2;
-                } while((xSpot > -mazeLength / 2 - 8 && xSpot < mazeLength / 2 + 8) && (zSpot > -mazeLength / 2 - 8 && zSpot < mazeLength / 2 + 8)) // keeps trees out of maze
+                } while ((xSpot > -mazeLength / 2 - 8 && xSpot < mazeLength / 2 + 8) && (zSpot > -mazeLength / 2 - 8 && zSpot < mazeLength / 2 + 8)) // keeps trees out of maze
 
                 tree = new BABYLON.Sprite("tree", spriteManagerTrees);
                 tree.size = 20;
@@ -335,6 +335,19 @@
             walkingThor.position.y = 3;
             walkingThor.position.x = 0;
             walkingThor.position.z = 0;
+
+            // Running Thor
+            var spriteManagerRunningThor = new BABYLON.SpriteManager(
+                "RunningThorManager",
+                "spritesheets/running_thor.png",
+                64, { width: 800 / 8, height: 800 / 8 }, scene
+            );
+            var runningThor = new BABYLON.Sprite("runningThor", spriteManagerRunningThor);
+            runningThor.cellIndex = 0;
+            runningThor.size = 6;
+            runningThor.position.y = 3;
+            runningThor.position.x = 0;
+            runningThor.position.z = 0;
 
             // Maze Wall Grid
             var subLength = mazeLength / sub;
@@ -415,21 +428,32 @@
 
             window.tempv = new BABYLON.Vector3.Zero();
 
-            // modulus for when thing executes
-            var delay = 4;
             // total number of cells in sprite
             var totalCells = 64;
             // governs when sprites move
             var index = 0;
-            // governs duration of jump
-            var startJump = 7;
-            var jump = startJump;
-
 
             scene.registerBeforeRender(function () {
-                walkingThor.position = player.position;
+                if (!window.keyisdown[32]) {
+                    walkingThor.position = player.position;
+                    runningThor.position.y = player.position.y - 10;
+                    // runningThor.position.x = player.position.x;
+                    // runningThor.position.z = player.position.z;
+                }
                 // Player speed
-                var v = 0.45;
+                // delay variable is loop interval at which player sprite operates (uses modulus)
+                if (!window.keyisdown[32]) {
+                    var v = 0.15;
+                    var delay = 6;
+                    walkingThor.position = player.position;
+                    runningThor.position.y = player.position.y - 10;
+                }
+                else {
+                    var v = 0.45;
+                    var delay = 4;
+                    runningThor.position = player.position;
+                    walkingThor.position.y = player.position.y - 10;
+                }
                 player.nextspeed.x = 0.0;
                 player.nextspeed.z = 0.00001;
                 index += 1;
@@ -437,58 +461,69 @@
                 if (window.keyisdown[65] && !window.keyisdown[87] && !window.keyisdown[83]) {
                     player.nextspeed.x = -v;
                     moveSprite(8, 15, delay, totalCells, index, walkingThor);
+                    // if running
+                    moveSprite(8, 15, delay, totalCells, index, runningThor);
                 }
                 // Right "d"
                 if (window.keyisdown[68] && !window.keyisdown[87] && !window.keyisdown[83]) {
                     player.nextspeed.x = v;
                     moveSprite(16, 23, delay, totalCells, index, walkingThor);
+                    moveSprite(16, 23, delay, totalCells, index, runningThor);
                 }
                 // Up "w"
                 if (window.keyisdown[87] && !window.keyisdown[65] && !window.keyisdown[68]) {
                     player.nextspeed.z = v;
                     moveSprite(24, 31, delay, totalCells, index, walkingThor);
+                    moveSprite(24, 31, delay, totalCells, index, runningThor);
                 }
                 // Down "s"
                 if (window.keyisdown[83] && !window.keyisdown[65] && !window.keyisdown[68]) {
                     player.nextspeed.z = -v;
                     moveSprite(0, 7, delay, totalCells, index, walkingThor);
+                    moveSprite(0, 7, delay, totalCells, index, runningThor);
                 }
 
                 // MultiDirectional
 
                 // UpLeft
                 if (window.keyisdown[65] && window.keyisdown[87]) {
-                    player.nextspeed.x = - Math.sqrt( Math.pow(v,2) / 2 );   // makes trig combination equal to v
-                    player.nextspeed.z = Math.sqrt( Math.pow(v,2) / 2 );
+                    player.nextspeed.x = - Math.sqrt(Math.pow(v, 2) / 2);   // makes trig combination equal to v
+                    player.nextspeed.z = Math.sqrt(Math.pow(v, 2) / 2);
                     moveSprite(40, 47, delay, totalCells, index, walkingThor);
+                    moveSprite(40, 47, delay, totalCells, index, runningThor);
                 }
                 // UpRight
                 if (window.keyisdown[68] && window.keyisdown[87]) {
-                    player.nextspeed.x = Math.sqrt( Math.pow(v,2) / 2 );
-                    player.nextspeed.z = Math.sqrt( Math.pow(v,2) / 2 );
+                    player.nextspeed.x = Math.sqrt(Math.pow(v, 2) / 2);
+                    player.nextspeed.z = Math.sqrt(Math.pow(v, 2) / 2);
                     moveSprite(56, 63, delay, totalCells, index, walkingThor);
+                    moveSprite(56, 63, delay, totalCells, index, runningThor);
                 }
                 // BottomRight
                 if (window.keyisdown[68] && window.keyisdown[83]) {
-                    player.nextspeed.x = Math.sqrt( Math.pow(v,2) / 2 );
-                    player.nextspeed.z = - Math.sqrt( Math.pow(v,2) / 2 );
+                    player.nextspeed.x = Math.sqrt(Math.pow(v, 2) / 2);
+                    player.nextspeed.z = - Math.sqrt(Math.pow(v, 2) / 2);
                     moveSprite(48, 55, delay, totalCells, index, walkingThor);
+                    moveSprite(48, 55, delay, totalCells, index, runningThor);
                 }
                 // BottomLeft
                 if (window.keyisdown[65] && window.keyisdown[83]) {
-                    player.nextspeed.x = - Math.sqrt( Math.pow(v,2) / 2 );
-                    player.nextspeed.z = - Math.sqrt( Math.pow(v,2) / 2 );
+                    player.nextspeed.x = - Math.sqrt(Math.pow(v, 2) / 2);
+                    player.nextspeed.z = - Math.sqrt(Math.pow(v, 2) / 2);
                     moveSprite(32, 39, delay, totalCells, index, walkingThor);
+                    moveSprite(32, 39, delay, totalCells, index, runningThor);
                 }
                 // Top Three (a, w, d)
                 if (window.keyisdown[87] && window.keyisdown[65] && window.keyisdown[68]) {
                     player.nextspeed.z = v;
                     moveSprite(24, 31, delay, totalCells, index, walkingThor);
+                    moveSprite(24, 31, delay, totalCells, index, runningThor);
                 }
                 // Bottom Three (a, s, d)
                 if (window.keyisdown[83] && window.keyisdown[65] && window.keyisdown[68]) {
                     player.nextspeed.z = -v;
                     moveSprite(0, 7, delay, totalCells, index, walkingThor);
+                    moveSprite(0, 7, delay, totalCells, index, runningThor);
                 }
 
 
@@ -500,15 +535,6 @@
                 if (player.position.x < -groundSize / 2 + 5) { player.position.x = -groundSize / 2 + 5; }
                 if (player.position.z > groundSize / 2 - 5) { player.position.z = groundSize / 2 - 5; }
                 if (player.position.z < -groundSize / 2 + 5) { player.position.z = -groundSize / 2 + 5; }
-                if (window.keyisdown[32]) {
-                    jump -= 1;
-                    if (jump > 0) {
-                        player.applyImpulse(new BABYLON.Vector3(0, 4, 0), player.getAbsolutePosition());
-                    }
-                }
-                if (!window.keyisdown[32]) {
-                    jump = startJump;
-                }
 
                 // player.nexttorch = lightImpostor.getAbsolutePosition();
                 // torch.position.copyFrom(player.nexttorch);

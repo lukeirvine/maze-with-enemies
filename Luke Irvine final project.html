@@ -242,23 +242,23 @@
 
             // Cameras
             if (follow) {
-                // // follow camera
-                // var followCam = new BABYLON.FollowCamera("FollowCam", new BABYLON.Vector3(0, 20, -500), scene);
-                // followCam.radius = 15;
-                // followCam.heightOffset = 30;
-                // followCam.rotationOffset = 180;
-                // followCam.cameraAcceleration = 0.115
-                // followCam.maxCameraSpeed = 10
-                // // followCam.attachControl(canvas, true);
+                // follow camera
+                var followCam = new BABYLON.FollowCamera("FollowCam", new BABYLON.Vector3(0, 20, -500), scene);
+                followCam.radius = 15;
+                followCam.heightOffset = 30;
+                followCam.rotationOffset = 180;
+                followCam.cameraAcceleration = 0.115
+                followCam.maxCameraSpeed = 10
+                // followCam.attachControl(canvas, true);
             }
             else {
-                // // Universe Camera
-                // var camera = new BABYLON.UniversalCamera("UniversalCamera", new BABYLON.Vector3(0, sub * 12, -100), scene);
-                // camera.setTarget(new BABYLON.Vector3(0, 6, 0));
-                // camera.attachControl(canvas, true);
-                // camera.applyGravity = cameraGravity;
-                // camera.ellipsoid = new BABYLON.Vector3(1, 14, 1);
-                // camera.checkCollisions = true;
+                // Universe Camera
+                var camera = new BABYLON.UniversalCamera("UniversalCamera", new BABYLON.Vector3(0, sub * 12, -100), scene);
+                camera.setTarget(new BABYLON.Vector3(0, 6, 0));
+                camera.attachControl(canvas, true);
+                camera.applyGravity = cameraGravity;
+                camera.ellipsoid = new BABYLON.Vector3(1, 14, 1);
+                camera.checkCollisions = true;
             }
 
             // lighting
@@ -319,7 +319,7 @@
                 player, BABYLON.PhysicsImpostor.SphereImpostor,
                 { mass: 150, restitution: 0, friction: 1 }, scene);
             if (follow) {
-                // followCam.lockedTarget = player;
+                followCam.lockedTarget = player;
             }
 
             // Sprites
@@ -435,25 +435,15 @@
 
             scene.registerBeforeRender(function () {
                 // bird's eye view for z && o
-                if (window.keyisdown[90] && window.keyisdown[79]) {
-                    // Universe Camera
-                    var camera = new BABYLON.UniversalCamera("UniversalCamera", new BABYLON.Vector3(0, sub * 12, -100), scene);
-                    camera.setTarget(new BABYLON.Vector3(0, 6, 0));
-                    camera.attachControl(canvas, true);
-                    camera.applyGravity = cameraGravity;
-                    camera.ellipsoid = new BABYLON.Vector3(1, 14, 1);
-                    camera.checkCollisions = true;
-                }
-                else {
-                    // follow camera
-                    var followCam = new BABYLON.FollowCamera("FollowCam", new BABYLON.Vector3(0, 20, -500), scene);
-                    followCam.radius = 15;
-                    followCam.heightOffset = 30;
-                    followCam.rotationOffset = 180;
-                    followCam.cameraAcceleration = 0.115
-                    followCam.maxCameraSpeed = 10
-                    // followCam.attachControl(canvas, true);
-                    followCam.lockedTarget = player;
+                if (follow) {
+                    if (window.keyisdown[90] && window.keyisdown[79]) {
+                        // Zoom out
+                        followCam.radius = 105;
+                    }
+                    else {
+                        // Zoom in
+                        followCam.radius = 15;
+                    }
                 }
 
                 if (!window.keyisdown[32]) {

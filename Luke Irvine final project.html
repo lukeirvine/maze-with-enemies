@@ -212,6 +212,11 @@
             grass.specularTexture = new BABYLON.Texture("textures/grass.jpg", scene);
             grass.ambientTexture = new BABYLON.Texture("textures/grass.jpg", scene);
 
+            var rock = new BABYLON.StandardMaterial("rock", scene);
+            rock.diffuseTexture = new BABYLON.Texture("textures/rock.jpg", scene);
+            rock.specularTexture = new BABYLON.Texture("textures/rock.jpg", scene);
+            rock.ambientTexture = new BABYLON.Texture("textures/rock.jpg", scene);
+
             var tileCount = Math.round(sub * 0.83);
             var stone = new BABYLON.StandardMaterial("stone", scene);
             stone.diffuseTexture = new BABYLON.Texture("textures/stone.jpg", scene);
@@ -263,6 +268,11 @@
 
             // lighting
             var light = new BABYLON.HemisphericLight("HemiLight", new BABYLON.Vector3(0, 100, 0), scene);
+            // var playerLight = new BABYLON.PointLight("lamplight", new BABYLON.Vector3(-subLength / 2, 3, -mazeLength / 2 - mazeLength * 0.05), scene);
+            // playerLight.diffuse = new BABYLON.Color3(0.9, 0.7, 0.4);
+            // playerLight.specular = new BABYLON.Color3(0.4, 0.2, 0);
+
+
 
             // Ground
             var worldWidth = groundSize;
@@ -418,8 +428,26 @@
                 player.position = new BABYLON.Vector3(-subLength / 2, 3, -mazeLength / 2 - mazeLength * 0.05)
             }
 
-
             // Torches
+            // var light2 = new BABYLON.PointLight("lamplight", new BABYLON.Vector3(-subLength, 3, -mazeLength / 2 - mazeLength * 0.02), scene);
+            // light2.diffuse = new BABYLON.Color3(0.9, 0.7, 0.4);
+            // light2.specular = new BABYLON.Color3(0.4, 0.2, 0);
+            var lampstand = BABYLON.MeshBuilder.CreateCylinder("lampstand", {height: 6, diameterTop: 3, diameterBottom: 1, tessellation: 24}, scene);
+            lampstand.position = new BABYLON.Vector3(-subLength, 3, -mazeLength / 2 - mazeLength * 0.02);
+            // lampstand.rotation.z = Math.PI;
+            lampstand.material = rock;
+            lampstand.checkCollisions = true;
+            //lamp 2
+            // var light3 = new BABYLON.PointLight("lamplight", new BABYLON.Vector3(0, 3, -mazeLength / 2 - mazeLength * 0.02), scene);
+            // light3.diffuse = new BABYLON.Color3(0.9, 0.7, 0.4);
+            // light3.specular = new BABYLON.Color3(0.4, 0.2, 0);
+            var lampstand2 = BABYLON.MeshBuilder.CreateCylinder("lampstand", {height: 6, diameterTop: 3, diameterBottom: 1, tessellation: 24}, scene);
+            lampstand2.position = new BABYLON.Vector3(0, 3, -mazeLength / 2 - mazeLength * 0.02);
+            // lampstand2.rotation.z = Math.PI;
+            lampstand2.material = rock;
+            lampstand2.checkCollisions = true;
+
+            // Fire
             var sparks = new BABYLON.ParticleSystem("sparks", 4000, scene);
             sparks.particleTexture = new BABYLON.Texture("textures/fire.png", scene);
             sparks.emitter = new BABYLON.Vector3(-subLength, 6, -mazeLength / 2 - mazeLength * 0.02);
@@ -494,7 +522,7 @@
                         followCam.heightOffset = 30;
                     }
                 }
-
+                // playerLight.position = player.position;
                 if (!window.keyisdown[32]) {
                     walkingThor.position = player.position;
                     runningThor.position.y = player.position.y - 10;

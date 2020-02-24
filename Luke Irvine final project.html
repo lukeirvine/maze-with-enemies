@@ -194,7 +194,7 @@
             // Tweaking Variables
             var wallHeight = 10;                // don't adjust
             var wallDepth = 4;                  // don't adjust
-            var sub = 20;                       // keep under 40. 10 is easy, 20 is medium, 30 is hard, 40 is impossible.
+            var sub = 15;                       // keep under 40. 10 is easy, 20 is medium, 30 is hard, 40 is impossible.
             var mazeLength = sub * 10;
             var groundSize = mazeLength + 300;
             var follow = true;                  // true makes camera follow player. False gives bird's eye
@@ -433,7 +433,7 @@
             // light2.diffuse = new BABYLON.Color3(0.9, 0.7, 0.4);
             // light2.specular = new BABYLON.Color3(0.4, 0.2, 0);
             var lampstand = BABYLON.MeshBuilder.CreateCylinder("lampstand", {height: 6, diameterTop: 3, diameterBottom: 1, tessellation: 24}, scene);
-            lampstand.position = new BABYLON.Vector3(-subLength, 3, -mazeLength / 2 - mazeLength * 0.02);
+            lampstand.position = new BABYLON.Vector3(-subLength + (sub % 2)*(subLength / 2), 3, -mazeLength / 2 - 4);
             // lampstand.rotation.z = Math.PI;
             lampstand.material = rock;
             lampstand.checkCollisions = true;
@@ -442,45 +442,45 @@
             // light3.diffuse = new BABYLON.Color3(0.9, 0.7, 0.4);
             // light3.specular = new BABYLON.Color3(0.4, 0.2, 0);
             var lampstand2 = BABYLON.MeshBuilder.CreateCylinder("lampstand", {height: 6, diameterTop: 3, diameterBottom: 1, tessellation: 24}, scene);
-            lampstand2.position = new BABYLON.Vector3(0, 3, -mazeLength / 2 - mazeLength * 0.02);
+            lampstand2.position = new BABYLON.Vector3((sub % 2)*(subLength / 2), 3, -mazeLength / 2 - 4);
             // lampstand2.rotation.z = Math.PI;
             lampstand2.material = rock;
             lampstand2.checkCollisions = true;
 
             // Fire
-            var sparks = new BABYLON.ParticleSystem("sparks", 4000, scene);
+            var sparks = new BABYLON.ParticleSystem("sparks", 1000, scene);
             sparks.particleTexture = new BABYLON.Texture("textures/fire.png", scene);
-            sparks.emitter = new BABYLON.Vector3(-subLength, 6, -mazeLength / 2 - mazeLength * 0.02);
-            sparks.minEmitBox = new BABYLON.Vector3(-1, 0, 1);
-            sparks.maxEmitBox = new BABYLON.Vector3(1, 0, -1);
+            sparks.emitter = new BABYLON.Vector3(-subLength + (sub % 2)*(subLength / 2), 6, -mazeLength / 2 - 4);
+            sparks.minEmitBox = new BABYLON.Vector3(-0.5, 0, 0.5);
+            sparks.maxEmitBox = new BABYLON.Vector3(0.5, 0, -0.5);
             sparks.color1 = new BABYLON.Color4(0.7, 0, 0, 1.0);
             sparks.color2 = new BABYLON.Color4(0.5, 0.5, 0, 1.0);
             sparks.minSize = 0.4;
             sparks.maxSize = 1.5;
             sparks.minLifeTime = 0.2;
             sparks.maxLifeTime = 0.5;
-            sparks.emitRate = 3000;
-            sparks.direction1 = new BABYLON.Vector3(0, 6, 0);
-            sparks.direction2 = new BABYLON.Vector3(0, 3, 0);
+            sparks.emitRate = 4000;
+            sparks.direction1 = new BABYLON.Vector3(0, 3, 0);
+            sparks.direction2 = new BABYLON.Vector3(0, 1.5, 0);
             sparks.minEmitPower = 1;
             sparks.maxEmitPower = 7;
             sparks.updateSpeed = 0.005;
             sparks.start();
 
-            var sparks2 = new BABYLON.ParticleSystem("sparks", 4000, scene);
+            var sparks2 = new BABYLON.ParticleSystem("sparks", 1000, scene);
             sparks2.particleTexture = new BABYLON.Texture("textures/fire.png", scene);
-            sparks2.emitter = new BABYLON.Vector3(0, 6, -mazeLength / 2 - mazeLength * 0.02);
-            sparks2.minEmitBox = new BABYLON.Vector3(-1, 0, 1);
-            sparks2.maxEmitBox = new BABYLON.Vector3(1, 0, -1);
+            sparks2.emitter = new BABYLON.Vector3((sub % 2)*(subLength / 2), 6, -mazeLength / 2 - 4);
+            sparks2.minEmitBox = new BABYLON.Vector3(-0.5, 0, 0.5);
+            sparks2.maxEmitBox = new BABYLON.Vector3(0.5, 0, -0.5);
             sparks2.color1 = new BABYLON.Color4(0.7, 0, 0, 1.0);
             sparks2.color2 = new BABYLON.Color4(0.5, 0.5, 0, 1.0);
             sparks2.minSize = 0.4;
             sparks2.maxSize = 1.5;
             sparks2.minLifeTime = 0.2;
             sparks2.maxLifeTime = 0.5;
-            sparks2.emitRate = 3000;
-            sparks2.direction1 = new BABYLON.Vector3(0, 6, 0);
-            sparks2.direction2 = new BABYLON.Vector3(0, 3, 0);
+            sparks2.emitRate = 4000;
+            sparks2.direction1 = new BABYLON.Vector3(0, 3, 0);
+            sparks2.direction2 = new BABYLON.Vector3(0, 1.5, 0);
             sparks2.minEmitPower = 1;
             sparks2.maxEmitPower = 7;
             sparks2.updateSpeed = 0.005;

@@ -194,7 +194,7 @@
             // Tweaking Variables
             var wallHeight = 10;                // don't adjust
             var wallDepth = 4;                  // don't adjust
-            var sub = 15;                       // keep under 40. 10 is easy, 20 is medium, 30 is hard, 40 is impossible.
+            var sub = 20;                       // keep under 40. 10 is easy, 20 is medium, 30 is hard, 40 is impossible.
             var mazeLength = sub * 10;
             var groundSize = mazeLength + 300;
             var follow = true;                  // true makes camera follow player. False gives bird's eye
@@ -411,7 +411,12 @@
             wallArray[0][Math.round(sub / 2) - 1].dispose();
 
             // set player where maze entrance is
-            player.position = new BABYLON.Vector3(0, 3, -mazeLength / 2 - mazeLength * 0.05)
+            if (sub % 2 === 1) {
+                player.position = new BABYLON.Vector3(0, 3, -mazeLength / 2 - mazeLength * 0.05)
+            }
+            else {
+                player.position = new BABYLON.Vector3(-subLength / 2, 3, -mazeLength / 2 - mazeLength * 0.05)
+            }
 
 
             /***********************************************************************************************************************************************************/

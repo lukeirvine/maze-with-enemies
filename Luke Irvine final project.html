@@ -246,6 +246,20 @@
             pMat.emissiveColor = new BABYLON.Color3(1, 1, 0);
             pMat.alpha = 0;
 
+            // Music
+            var volume = 0.3;
+            var soundtrack = new BABYLON.Sound(
+                "soundtrack",
+                "sounds/our_universe.wav",
+                scene,
+                null,
+                {
+                    volume: volume,
+                    autoplay: true,
+                    loop: true
+                }
+            );
+
             // Cameras
             if (follow) {
                 // follow camera

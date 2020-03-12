@@ -193,7 +193,7 @@
                     var xSpot = Math.random() * groundSize - groundSize / 2;
                     var zSpot = Math.random() * groundSize - groundSize / 2;
                 } while (((xSpot > -mazeLength / 2 - 8 && xSpot < mazeLength / 2 + 8) && (zSpot > -mazeLength / 2 - 8 && zSpot < mazeLength / 2 + 8)) ||
-                         ((xSpot < 10 + (sub % 2 - 1) * (subLength / 2) && xSpot > -10 + (sub % 2 - 1) * (subLength / 2)) && (zSpot < -mazeLength / 2 && zSpot > -groundSize / 2))) // keeps trees out of maze
+                    ((xSpot < 10 + (sub % 2 - 1) * (subLength / 2) && xSpot > -10 + (sub % 2 - 1) * (subLength / 2)) && (zSpot < -mazeLength / 2 && zSpot > -groundSize / 2))) // keeps trees out of maze
 
                 tree = new BABYLON.Sprite("tree", spriteManagerTrees);
                 tree.size = 20;
@@ -320,8 +320,8 @@
             // var light2 = new BABYLON.PointLight("lamplight", new BABYLON.Vector3(-subLength, 3, -mazeLength / 2 - mazeLength * 0.02), scene);
             // light2.diffuse = new BABYLON.Color3(0.9, 0.7, 0.4);
             // light2.specular = new BABYLON.Color3(0.4, 0.2, 0);
-            var lampstand = BABYLON.MeshBuilder.CreateCylinder("lampstand", {height: 6, diameterTop: 3, diameterBottom: 1.75, tessellation: 24}, scene);
-            lampstand.position = new BABYLON.Vector3(-subLength + (sub % 2)*(subLength / 2), 3, -mazeLength / 2 - 4);
+            var lampstand = BABYLON.MeshBuilder.CreateCylinder("lampstand", { height: 6, diameterTop: 3, diameterBottom: 1.75, tessellation: 24 }, scene);
+            lampstand.position = new BABYLON.Vector3(-subLength + (sub % 2) * (subLength / 2), 3, -mazeLength / 2 - 4);
             // lampstand.rotation.z = Math.PI;
             lampstand.material = rock;
             lampstand.checkCollisions = true;
@@ -329,8 +329,8 @@
             // var light3 = new BABYLON.PointLight("lamplight", new BABYLON.Vector3(0, 3, -mazeLength / 2 - mazeLength * 0.02), scene);
             // light3.diffuse = new BABYLON.Color3(0.9, 0.7, 0.4);
             // light3.specular = new BABYLON.Color3(0.4, 0.2, 0);
-            var lampstand2 = BABYLON.MeshBuilder.CreateCylinder("lampstand", {height: 6, diameterTop: 3, diameterBottom: 1.75, tessellation: 24}, scene);
-            lampstand2.position = new BABYLON.Vector3((sub % 2)*(subLength / 2), 3, -mazeLength / 2 - 4);
+            var lampstand2 = BABYLON.MeshBuilder.CreateCylinder("lampstand", { height: 6, diameterTop: 3, diameterBottom: 1.75, tessellation: 24 }, scene);
+            lampstand2.position = new BABYLON.Vector3((sub % 2) * (subLength / 2), 3, -mazeLength / 2 - 4);
             // lampstand2.rotation.z = Math.PI;
             lampstand2.material = rock;
             lampstand2.checkCollisions = true;
@@ -338,7 +338,7 @@
             // Fire
             var sparks = new BABYLON.ParticleSystem("sparks", 1000, scene);
             sparks.particleTexture = new BABYLON.Texture("textures/fire.png", scene);
-            sparks.emitter = new BABYLON.Vector3(-subLength + (sub % 2)*(subLength / 2), 6, -mazeLength / 2 - 4);
+            sparks.emitter = new BABYLON.Vector3(-subLength + (sub % 2) * (subLength / 2), 6, -mazeLength / 2 - 4);
             sparks.minEmitBox = new BABYLON.Vector3(-0.5, 0, 0.5);
             sparks.maxEmitBox = new BABYLON.Vector3(0.5, 0, -0.5);
             sparks.color1 = new BABYLON.Color4(0.7, 0, 0, 1.0);
@@ -357,7 +357,7 @@
 
             var sparks2 = new BABYLON.ParticleSystem("sparks", 1000, scene);
             sparks2.particleTexture = new BABYLON.Texture("textures/fire.png", scene);
-            sparks2.emitter = new BABYLON.Vector3((sub % 2)*(subLength / 2), 6, -mazeLength / 2 - 4);
+            sparks2.emitter = new BABYLON.Vector3((sub % 2) * (subLength / 2), 6, -mazeLength / 2 - 4);
             sparks2.minEmitBox = new BABYLON.Vector3(-0.5, 0, 0.5);
             sparks2.maxEmitBox = new BABYLON.Vector3(0.5, 0, -0.5);
             sparks2.color1 = new BABYLON.Color4(0.7, 0, 0, 1.0);
@@ -410,14 +410,11 @@
                         followCam.heightOffset = 30;
                     }
                 }
+                // Player Torch: 
                 // playerLight.position = player.position;
-                if (!window.keyisdown[32]) {
-                    walkingThor.position = player.position;
-                    runningThor.position.y = player.position.y - 10;
-                    // runningThor.position.x = player.position.x;
-                    // runningThor.position.z = player.position.z;
-                }
-                // Player speed
+
+
+                // Player Walking or Running
                 // delay variable is loop interval at which player sprite operates (uses modulus)
                 // when space bar is pressed, run.
                 if (!window.keyisdown[32]) {
@@ -633,7 +630,7 @@
          * index is used for slowing frame rate
          * walkingThor is sprite object
          */
-         function moveSprite(min, max, delay, total, index, walkingThor) {
+        function moveSprite(min, max, delay, total, index, walkingThor) {
             if (index % delay === 0) {
                 if (walkingThor.cellIndex < min || walkingThor.cellIndex > max) {
                     walkingThor.cellIndex = min;

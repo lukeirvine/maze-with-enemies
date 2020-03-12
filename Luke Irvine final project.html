@@ -67,7 +67,7 @@
             // Tweaking Variables
             var wallHeight = 10;                // don't adjust
             var wallDepth = 4;                  // don't adjust
-            var sub = 50;                       // keep under 40. 10 is easy, 20 is medium, 30 is hard, 40 is impossible.
+            var sub = 20;                       // keep under 40. 10 is easy, 20 is medium, 30 is hard, 40 is impossible.
             var mazeLength = sub * 10;
             var subLength = mazeLength / sub;
             var groundSize = mazeLength + sub * 10;
@@ -304,8 +304,10 @@
             carve_passages_from(0, sub - 1, grid, wallArray, myStack, index);
             // Entrance
             wallArray[sub * 2][Math.round(sub / 2) - 1].dispose();
+            delete wallArray[sub * 2][Math.round(sub / 2) - 1];
             // Exit
             wallArray[0][Math.round(sub / 2) - 1].dispose();
+            delete  wallArray[0][Math.round(sub / 2) - 1];
 
             // set player where maze entrance is
             if (sub % 2 === 1) {

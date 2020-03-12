@@ -91,8 +91,8 @@
             rock.specularTexture = new BABYLON.Texture("textures/rock.jpg", scene);
             rock.ambientTexture = new BABYLON.Texture("textures/rock.jpg", scene);
 
-            var tileCount = Math.round(sub * 0.83);
             var stone = new BABYLON.StandardMaterial("stone", scene);
+            var tileCount = Math.round(sub * 0.83);
             stone.diffuseTexture = new BABYLON.Texture("textures/stone.jpg", scene);
             stone.specularTexture = new BABYLON.Texture("textures/stone.jpg", scene);
             stone.ambientTexture = new BABYLON.Texture("textures/stone.jpg", scene);
@@ -102,6 +102,18 @@
             stone.specularTexture.vScale = tileCount;
             stone.ambientTexture.uScale = tileCount;
             stone.ambientTexture.vScale = tileCount;
+
+            var bigHedge = new BABYLON.StandardMaterial("bigHedge", scene);
+            var tileCount2 = Math.round(groundSize / (sub * 4));
+            bigHedge.diffuseTexture = new BABYLON.Texture("textures/hedge.png", scene);
+            bigHedge.specularTexture = new BABYLON.Texture("textures/hedge.png", scene);
+            bigHedge.ambientTexture = new BABYLON.Texture("textures/hedge.png", scene);
+            bigHedge.diffuseTexture.uScale = tileCount2;
+            bigHedge.diffuseTexture.vScale = tileCount2;
+            bigHedge.specularTexture.uScale = tileCount2;
+            bigHedge.specularTexture.vScale = tileCount2;
+            bigHedge.ambientTexture.uScale = tileCount2;
+            bigHedge.ambientTexture.vScale = tileCount2;
 
             var dirt = new BABYLON.StandardMaterial("dirt", scene);
             dirt.diffuseTexture = new BABYLON.Texture("textures/grassy.jpg", scene);
@@ -154,18 +166,15 @@
                 camera.checkCollisions = true;
             }
 
-            // lighting
+            // Scene Lighting
             var light = new BABYLON.HemisphericLight("HemiLight", new BABYLON.Vector3(0, 100, 0), scene);
+            // light.diffuse = new BABYLON.Color3(0.3, 0.3, 0.3);
             // var playerLight = new BABYLON.PointLight("lamplight", new BABYLON.Vector3(-subLength / 2, 3, -mazeLength / 2 - mazeLength * 0.05), scene);
             // playerLight.diffuse = new BABYLON.Color3(0.9, 0.7, 0.4);
             // playerLight.specular = new BABYLON.Color3(0.4, 0.2, 0);
 
-
-
             // Ground
-            var worldWidth = groundSize;
-            var worldDepth = groundSize;
-            var myGround = BABYLON.MeshBuilder.CreateGround("myGround", { width: worldWidth, height: worldDepth, subdivisions: 5 }, scene);
+            var myGround = BABYLON.MeshBuilder.CreateGround("myGround", { width: groundSize, height: groundSize, subdivisions: 5 }, scene);
             myGround.material = dirt;
             myGround.checkCollisions = true;
             myGround.physicsImpostor = new BABYLON.PhysicsImpostor(
@@ -175,6 +184,33 @@
             // floor of maze
             var floor = new BABYLON.MeshBuilder.CreateBox("floor", { width: mazeLength, depth: mazeLength + wallDepth, height: 0.5 }, scene);
             floor.material = stone;
+
+            // Outer Wall
+            var northWall = new BABYLON.MeshBuilder.CreateBox("northWall", {height: 50, width: groundSize, depth: 20}, scene);
+            northWall.position.z = groundSize / 2 + 10;
+            northWall.position.y = 25;
+            northWall.checkCollisions = true;
+            northWall.material = bigHedge;
+
+            var eastWall = new BABYLON.MeshBuilder.CreateBox("northWall", {height: 50, width: groundSize, depth: 20}, scene);
+            eastWall.position.x = groundSize / 2 + 10;
+            eastWall.position.y = 25;
+            eastWall.rotation.y = Math.PI / 2;
+            eastWall.checkCollisions = true;
+            eastWall.material = bigHedge;
+
+            var westWall = new BABYLON.MeshBuilder.CreateBox("northWall", {height: 50, width: groundSize, depth: 20}, scene);
+            westWall.position.x = -(groundSize / 2 + 10);
+            westWall.position.y = 25;
+            westWall.rotation.y = Math.PI / 2;
+            westWall.checkCollisions = true;
+            westWall.material = bigHedge;
+
+            var southWall = new BABYLON.MeshBuilder.CreateBox("northWall", {height: 50, width: groundSize, depth: 20}, scene);
+            southWall.position.z = -(groundSize / 2 + 10);
+            southWall.position.y = 25;
+            southWall.checkCollisions = true;
+            southWall.material = bigHedge;
 
             // Trees
             // Create a sprite manager to optimize GPU ressources
@@ -204,7 +240,6 @@
                 tree.position.y = 7;
             }
 
-
             // Player Mesh
             var player = BABYLON.MeshBuilder.CreateSphere("player", { diameterY: 6, diameterX: 3, diameterZ: 3 }, scene);
             player.material = pMat;
@@ -222,6 +257,7 @@
             }
 
             // Sprites
+
             // Walking Thor
             var spriteManagerWalkingThor = new BABYLON.SpriteManager(
                 "WalkingThorManager",
@@ -261,8 +297,6 @@
                             "mazeWall",
                             { height: wallHeight + Math.random() * 0.5, width: subLength + subLength * 0.4, depth: wallDepth + Math.random() * 0.2 },
                             scene);
-                        console.log("created Wall");
-                        console.log("---------------------");
                     }
                     mazeWall.material = hedge;
                     mazeWall.checkCollisions = true;
@@ -507,10 +541,10 @@
                 player.speed = BABYLON.Vector3.Lerp(player.speed, player.nextspeed, 0.1);
                 player.moveWithCollisions(player.speed);
 
-                if (player.position.x > groundSize / 2 - 5) { player.position.x = groundSize / 2 - 5; }
-                if (player.position.x < -groundSize / 2 + 5) { player.position.x = -groundSize / 2 + 5; }
-                if (player.position.z > groundSize / 2 - 5) { player.position.z = groundSize / 2 - 5; }
-                if (player.position.z < -groundSize / 2 + 5) { player.position.z = -groundSize / 2 + 5; }
+                // if (player.position.x > groundSize / 2 - 5) { player.position.x = groundSize / 2 - 5; }
+                // if (player.position.x < -groundSize / 2 + 5) { player.position.x = -groundSize / 2 + 5; }
+                // if (player.position.z > groundSize / 2 - 5) { player.position.z = groundSize / 2 - 5; }
+                // if (player.position.z < -groundSize / 2 + 5) { player.position.z = -groundSize / 2 + 5; }
 
                 // player.nexttorch = lightImpostor.getAbsolutePosition();
                 // torch.position.copyFrom(player.nexttorch);

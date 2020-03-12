@@ -67,7 +67,7 @@
             // Tweaking Variables
             var wallHeight = 10;                // don't adjust
             var wallDepth = 4;                  // don't adjust
-            var sub = 10;                       // keep under 40. 10 is easy, 20 is medium, 30 is hard, 40 is impossible.
+            var sub = 50;                       // keep under 40. 10 is easy, 20 is medium, 30 is hard, 40 is impossible.
             var mazeLength = sub * 10;
             var subLength = mazeLength / sub;
             var groundSize = mazeLength + sub * 10;
@@ -289,7 +289,7 @@
                 }
             }
 
-            // Maze Generator
+            // Maze Generator --------
             var grid = [];
             // initialize array
             for (i = 0; i < sub; i++) {
@@ -298,7 +298,6 @@
                     grid[i].push(0);
                 }
             }
-
             // stack to push previously visited cells
             var myStack = [];
             // start recursive function
@@ -568,28 +567,28 @@
                     // Tear down wall
                     if (directions[i] === N) {
                         wallArray[2 * cy + 1 + N][cx].dispose();
-                        wallArray[2 * cy + 1 + N][cx] = 0;
+                        delete wallArray[2 * cy + 1 + N][cx];
                         // console.log("tear down wall at:");
                         // console.log(2 * cy + 1 + N);
                         // console.log(cx);
                     }
                     if (directions[i] === S) {
                         wallArray[2 * cy + 1 + S][cx].dispose();
-                        wallArray[2 * cy + 1 + S][cx] = 0;
+                        delete wallArray[2 * cy + 1 + S][cx];
                         // console.log("tear down wall at:");
                         // console.log(2 * cy + 1 + + S);
                         // console.log(cx);
                     }
                     if (directions[i] === E) {
                         wallArray[2 * cy + 1][cx + E / 2].dispose();
-                        wallArray[2 * cy + 1][cx + E / 2] = 0;
+                        delete wallArray[2 * cy + 1][cx + E / 2];
                         // console.log("tear down wall at:");
                         // console.log(2 * cy + 1);
                         // console.log(cx + E / 2);
                     }
                     if (directions[i] === W) {
                         wallArray[2 * cy + 1][cx].dispose();
-                        wallArray[2 * cy + 1][cx] = 0;
+                        delete wallArray[2 * cy + 1][cx];
                         // console.log("tear down wall at:");
                         // console.log(2 * cy + 1);
                         // console.log(cx);

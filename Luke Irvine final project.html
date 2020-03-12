@@ -55,133 +55,6 @@
         var scene = null;
         var createDefaultEngine = function () { return new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true }); };
 
-        /* ==== function moveSprite ====
-         * min and max are bounds for sprite cells
-         * delay is modulo number to slow down frame rate
-         * total is total number of cells in sprite
-         * index is used for slowing frame rate
-         * walkingThor is sprite object
-         */
-        function moveSprite(min, max, delay, total, index, walkingThor) {
-            if (index % delay === 0) {
-                if (walkingThor.cellIndex < min || walkingThor.cellIndex > max) {
-                    walkingThor.cellIndex = min;
-                }
-                walkingThor.cellIndex = (walkingThor.cellIndex + 1) % (total + 1);
-                if (walkingThor.cellIndex > max) {
-                    walkingThor.cellIndex = min;
-                }
-            }
-        }
-
-        /* ==== Recursive Maze Function ====
-        * 
-        * 
-        * 
-        */
-        function carve_passages_from(cx, cy, grid, wallArray, myStack, index) {
-            // new x and y indices
-            var nx;
-            var ny;
-            // iterator
-            var i;
-            // array holding cardinal directions, shuffled for random
-            var N = -1; // because North is negative 1 on z axis
-            var S = 1;  // because South is 1 on z axis
-            var W = -2; // because West is -1 on x axis (divide by 2 everywhere else)
-            var E = 2;  // opposite ^^^
-            var directions = [N, S, W, E];
-            shuffle(directions);
-            // set 1 at current cell so we know we've been here
-            grid[cy][cx] = 1;
-
-            // console.log("cy");
-            // console.log(cy);
-            // console.log("cx");
-            // console.log(cx);
-
-            // loops through array of randomized directions
-            for (i = 0; i < directions.length; i++) {
-                if (directions[i] === E || directions[i] === W) {
-                    nx = cx + directions[i] / 2;
-                    ny = cy;
-                }
-                else {
-                    // if north/south
-                    nx = cx;
-                    ny = cy + directions[i];
-                }
-                // if new cell is inbounds and not visitied previously
-                if ((nx >= 0 && nx < grid[0].length) && (ny >= 0 && ny < grid.length) && grid[ny][nx] === 0) {
-                    myStack.push(cx);
-                    myStack.push(cy);
-                    // Tear down wall
-                    if (directions[i] === N) {
-                        wallArray[2 * cy + 1 + N][cx].dispose();
-                        wallArray[2 * cy + 1 + N][cx] = 0;
-                        // console.log("tear down wall at:");
-                        // console.log(2 * cy + 1 + N);
-                        // console.log(cx);
-                    }
-                    if (directions[i] === S) {
-                        wallArray[2 * cy + 1 + S][cx].dispose();
-                        wallArray[2 * cy + 1 + S][cx] = 0;
-                        // console.log("tear down wall at:");
-                        // console.log(2 * cy + 1 + + S);
-                        // console.log(cx);
-                    }
-                    if (directions[i] === E) {
-                        wallArray[2 * cy + 1][cx + E / 2].dispose();
-                        wallArray[2 * cy + 1][cx + E / 2] = 0;
-                        // console.log("tear down wall at:");
-                        // console.log(2 * cy + 1);
-                        // console.log(cx + E / 2);
-                    }
-                    if (directions[i] === W) {
-                        wallArray[2 * cy + 1][cx].dispose();
-                        wallArray[2 * cy + 1][cx] = 0;
-                        // console.log("tear down wall at:");
-                        // console.log(2 * cy + 1);
-                        // console.log(cx);
-                    }
-                    index++;
-                    // console.log("moving forward");
-                    carve_passages_from(nx, ny, grid, wallArray, myStack, index);
-                }
-            }
-            // if no options available - not in for loop
-            if (myStack.length === 0 && index != 0) {
-                return 0;
-            }
-            var py = myStack.pop();
-            var px = myStack.pop();
-            index++;
-            console.log("moving backward")
-            carve_passages_from(px, py, grid, wallArray, myStack, index);
-        }
-
-        function shuffle(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                let j = Math.floor(Math.random() * (i + 1)); // random index from 0 to i
-
-                // swap elements array[i] and array[j]
-                // we use "destructuring assignment" syntax to achieve that
-                // you'll find more details about that syntax in later chapters
-                // same can be written as:
-                // let t = array[i]; array[i] = array[j]; array[j] = t
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-        }
-
-        function sleep(milliseconds) {
-            const date = Date.now();
-            let currentDate = null;
-            do {
-                currentDate = Date.now();
-            } while (currentDate - date < milliseconds);
-        }
-
-
         /********************************************************************************************************************************/
 
         var createScene = function () {
@@ -194,7 +67,7 @@
             // Tweaking Variables
             var wallHeight = 10;                // don't adjust
             var wallDepth = 4;                  // don't adjust
-            var sub = 15;                       // keep under 40. 10 is easy, 20 is medium, 30 is hard, 40 is impossible.
+            var sub = 30;                       // keep under 40. 10 is easy, 20 is medium, 30 is hard, 40 is impossible.
             var mazeLength = sub * 10;
             var subLength = mazeLength / sub;
             var groundSize = mazeLength + sub * 10;
@@ -652,6 +525,132 @@
             // /*********************************************************************************************************************/
 
             return scene;
+        }
+
+        /* ==== Recursive Maze Function ====
+        * 
+        * 
+        * 
+        */
+        function carve_passages_from(cx, cy, grid, wallArray, myStack, index) {
+            // new x and y indices
+            var nx;
+            var ny;
+            // iterator
+            var i;
+            // array holding cardinal directions, shuffled for random
+            var N = -1; // because North is negative 1 on z axis
+            var S = 1;  // because South is 1 on z axis
+            var W = -2; // because West is -1 on x axis (divide by 2 everywhere else)
+            var E = 2;  // opposite ^^^
+            var directions = [N, S, W, E];
+            shuffle(directions);
+            // set 1 at current cell so we know we've been here
+            grid[cy][cx] = 1;
+
+            // console.log("cy");
+            // console.log(cy);
+            // console.log("cx");
+            // console.log(cx);
+
+            // loops through array of randomized directions
+            for (i = 0; i < directions.length; i++) {
+                if (directions[i] === E || directions[i] === W) {
+                    nx = cx + directions[i] / 2;
+                    ny = cy;
+                }
+                else {
+                    // if north/south
+                    nx = cx;
+                    ny = cy + directions[i];
+                }
+                // if new cell is inbounds and not visitied previously
+                if ((nx >= 0 && nx < grid[0].length) && (ny >= 0 && ny < grid.length) && grid[ny][nx] === 0) {
+                    myStack.push(cx);
+                    myStack.push(cy);
+                    // Tear down wall
+                    if (directions[i] === N) {
+                        wallArray[2 * cy + 1 + N][cx].dispose();
+                        wallArray[2 * cy + 1 + N][cx] = 0;
+                        // console.log("tear down wall at:");
+                        // console.log(2 * cy + 1 + N);
+                        // console.log(cx);
+                    }
+                    if (directions[i] === S) {
+                        wallArray[2 * cy + 1 + S][cx].dispose();
+                        wallArray[2 * cy + 1 + S][cx] = 0;
+                        // console.log("tear down wall at:");
+                        // console.log(2 * cy + 1 + + S);
+                        // console.log(cx);
+                    }
+                    if (directions[i] === E) {
+                        wallArray[2 * cy + 1][cx + E / 2].dispose();
+                        wallArray[2 * cy + 1][cx + E / 2] = 0;
+                        // console.log("tear down wall at:");
+                        // console.log(2 * cy + 1);
+                        // console.log(cx + E / 2);
+                    }
+                    if (directions[i] === W) {
+                        wallArray[2 * cy + 1][cx].dispose();
+                        wallArray[2 * cy + 1][cx] = 0;
+                        // console.log("tear down wall at:");
+                        // console.log(2 * cy + 1);
+                        // console.log(cx);
+                    }
+                    index++;
+                    // console.log("moving forward");
+                    carve_passages_from(nx, ny, grid, wallArray, myStack, index);
+                }
+            }
+            // if no options available - not in for loop
+            if (myStack.length === 0 && index != 0) {
+                return 0;
+            }
+            var py = myStack.pop();
+            var px = myStack.pop();
+            index++;
+            console.log("moving backward")
+            carve_passages_from(px, py, grid, wallArray, myStack, index);
+        }
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                let j = Math.floor(Math.random() * (i + 1)); // random index from 0 to i
+
+                // swap elements array[i] and array[j]
+                // we use "destructuring assignment" syntax to achieve that
+                // you'll find more details about that syntax in later chapters
+                // same can be written as:
+                // let t = array[i]; array[i] = array[j]; array[j] = t
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        /* ==== function moveSprite ====
+         * min and max are bounds for sprite cells
+         * delay is modulo number to slow down frame rate
+         * total is total number of cells in sprite
+         * index is used for slowing frame rate
+         * walkingThor is sprite object
+         */
+         function moveSprite(min, max, delay, total, index, walkingThor) {
+            if (index % delay === 0) {
+                if (walkingThor.cellIndex < min || walkingThor.cellIndex > max) {
+                    walkingThor.cellIndex = min;
+                }
+                walkingThor.cellIndex = (walkingThor.cellIndex + 1) % (total + 1);
+                if (walkingThor.cellIndex > max) {
+                    walkingThor.cellIndex = min;
+                }
+            }
+        }
+
+        function sleep(milliseconds) {
+            const date = Date.now();
+            let currentDate = null;
+            do {
+                currentDate = Date.now();
+            } while (currentDate - date < milliseconds);
         }
 
 

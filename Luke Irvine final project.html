@@ -70,7 +70,7 @@
             var sub = 20;                       // keep under 40. 10 is easy, 20 is medium, 30 is hard, 40 is impossible.
             var mazeLength = sub * 10;
             var subLength = mazeLength / sub;
-            var groundSize = mazeLength + sub * 10;
+            var groundSize = mazeLength + sub * 20;
             var follow = true;                  // true makes camera follow player. False gives bird's eye
             var cameraGravity = true;           // only works for Universal Camera
 
@@ -148,7 +148,7 @@
             // Cameras
             if (follow) {
                 // follow camera
-                var followCam = new BABYLON.FollowCamera("FollowCam", new BABYLON.Vector3(0, 20, -500), scene);
+                var followCam = new BABYLON.FollowCamera("FollowCam", new BABYLON.Vector3(0, 20, -groundSize / 2), scene);
                 followCam.radius = 15;
                 followCam.heightOffset = 30;
                 followCam.rotationOffset = 180;
@@ -433,7 +433,10 @@
             scene.registerBeforeRender(function () {
                 // bird's eye view for z && o
                 if (follow) {
-                    if (window.keyisdown[90] && window.keyisdown[79]) {
+                    if (window.keyisdown[90] && window.keyisdown[79] 
+                        && -mazeLength / 2 < player.position.x && player.position.x < mazeLength / 2    // only lets you zoom out when inside the maze
+                        && -mazeLength / 2 < player.position.z && player.position.z < mazeLength / 2
+                        ) {
                         // Zoom out
                         followCam.radius = sub * 9;
                         followCam.heightOffset = sub * 9;
@@ -544,7 +547,7 @@
                 // if (player.position.x > groundSize / 2 - 5) { player.position.x = groundSize / 2 - 5; }
                 // if (player.position.x < -groundSize / 2 + 5) { player.position.x = -groundSize / 2 + 5; }
                 // if (player.position.z > groundSize / 2 - 5) { player.position.z = groundSize / 2 - 5; }
-                // if (player.position.z < -groundSize / 2 + 5) { player.position.z = -groundSize / 2 + 5; }
+                if (player.position.z < -groundSize / 2 + 15) { player.position.z = -groundSize / 2 + 15; }
 
                 // player.nexttorch = lightImpostor.getAbsolutePosition();
                 // torch.position.copyFrom(player.nexttorch);

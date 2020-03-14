@@ -198,6 +198,8 @@
                 camera.checkCollisions = true;
             }
 
+            var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI( "myUI" );
+
             // Scene Lighting
             var light = new BABYLON.HemisphericLight("HemiLight", new BABYLON.Vector3(0, 100, 0), scene);
             // light.diffuse = new BABYLON.Color3(0.3, 0.3, 0.3);

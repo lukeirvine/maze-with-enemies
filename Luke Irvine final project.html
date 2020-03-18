@@ -62,6 +62,8 @@
         var nextScene = false;
         var advancedTexture;
         var sub = 10;
+        var soundtrack;
+        var replay = true;
 
         // global gui variables
         // var timerStart = false;
@@ -69,7 +71,7 @@
 
         /************************************************* scene0: Welcome Menu *****************************************************************/
         // this scene has the welcome and options menu
-        var createScene0 = function() {
+        var createScene0 = function () {
             // Create the scene1 space
             var scene0 = new BABYLON.Scene(engine);
 
@@ -79,8 +81,22 @@
 
             var light = new BABYLON.HemisphericLight("HemiLight", new BABYLON.Vector3(0, 1, 0), scene0);
 
+            // Music
+            var volume = 1;
+            soundtrack = new BABYLON.Sound(
+                "soundtrack",
+                "sounds/our_universe.wav",
+                scene0,
+                null,
+                {
+                    volume: volume,
+                    autoplay: true,
+                    loop: true
+                }
+            );
+
             // add gui for just scene0
-            var box = new BABYLON.MeshBuilder.CreateBox("box", {width: 1, height: 1, depth: 1}, scene0);
+            var box = new BABYLON.MeshBuilder.CreateBox("box", { width: 1, height: 1, depth: 1 }, scene0);
             return scene0;
         }
 
@@ -192,18 +208,20 @@
             pMat.alpha = 0;
 
             // Music
-            var volume = 1;
-            var soundtrack = new BABYLON.Sound(
-                "soundtrack",
-                "sounds/forbidden_valley_gate.wav",
-                scene1,
-                null,
-                {
-                    volume: volume,
-                    autoplay: true,
-                    loop: true
-                }
-            );
+            if (replay) {
+                var volume = 1;
+                soundtrack = new BABYLON.Sound(
+                    "soundtrack",
+                    "sounds/forbidden_valley_gate.wav",
+                    scene1,
+                    null,
+                    {
+                        volume: volume,
+                        autoplay: true,
+                        loop: true
+                    }
+                );
+            }
 
             // Cameras
             if (follow) {
@@ -226,7 +244,7 @@
                 camera.checkCollisions = true;
             }
 
-            var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI( "myUI" );
+            var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("myUI");
 
             // Scene Lighting
             var light = new BABYLON.HemisphericLight("HemiLight", new BABYLON.Vector3(0, 100, 0), scene1);
@@ -250,27 +268,27 @@
 
             // Outer Wall
             var bigWallHeight = 50 + elevation;
-            var northWall = new BABYLON.MeshBuilder.CreateBox("northWall", {height: bigWallHeight, width: groundSize, depth: 20}, scene1);
+            var northWall = new BABYLON.MeshBuilder.CreateBox("northWall", { height: bigWallHeight, width: groundSize, depth: 20 }, scene1);
             northWall.position.z = groundSize / 2 + 10;
             northWall.position.y = bigWallHeight / 2;
             northWall.checkCollisions = true;
             northWall.material = bigHedge;
 
-            var eastWall = new BABYLON.MeshBuilder.CreateBox("northWall", {height: bigWallHeight, width: groundSize, depth: 20}, scene1);
+            var eastWall = new BABYLON.MeshBuilder.CreateBox("northWall", { height: bigWallHeight, width: groundSize, depth: 20 }, scene1);
             eastWall.position.x = groundSize / 2 + 10;
             eastWall.position.y = bigWallHeight / 2;
             eastWall.rotation.y = Math.PI / 2;
             eastWall.checkCollisions = true;
             eastWall.material = bigHedge;
 
-            var westWall = new BABYLON.MeshBuilder.CreateBox("northWall", {height: bigWallHeight, width: groundSize, depth: 20}, scene1);
+            var westWall = new BABYLON.MeshBuilder.CreateBox("northWall", { height: bigWallHeight, width: groundSize, depth: 20 }, scene1);
             westWall.position.x = -(groundSize / 2 + 10);
             westWall.position.y = bigWallHeight / 2;
             westWall.rotation.y = Math.PI / 2;
             westWall.checkCollisions = true;
             westWall.material = bigHedge;
 
-            var southWall = new BABYLON.MeshBuilder.CreateBox("northWall", {height: bigWallHeight, width: groundSize, depth: 20}, scene1);
+            var southWall = new BABYLON.MeshBuilder.CreateBox("northWall", { height: bigWallHeight, width: groundSize, depth: 20 }, scene1);
             southWall.position.z = -(groundSize / 2 + 10);
             southWall.position.y = bigWallHeight / 2;
             southWall.checkCollisions = true;
@@ -279,78 +297,78 @@
             // Elevated Floor
             if (elevation != 0) {
                 var trenchSize = 10;
-                var southGroundLeft = new BABYLON.MeshBuilder.CreateBox("southGroundLeft", {height: elevation, width: (groundSize - mazeLength) / 2, depth: groundSize / 2 - trenchSize / 2}, scene1);
+                var southGroundLeft = new BABYLON.MeshBuilder.CreateBox("southGroundLeft", { height: elevation, width: (groundSize - mazeLength) / 2, depth: groundSize / 2 - trenchSize / 2 }, scene1);
                 southGroundLeft.material = grass;
                 southGroundLeft.position.z = -(groundSize / 4 + trenchSize / 4);
                 southGroundLeft.position.y = elevation / 2;
                 southGroundLeft.position.x = -(mazeLength / 2 + ((groundSize - mazeLength) / 2) / 2);
                 southGroundLeft.checkCollisions = true;
                 southGroundLeft.physicsImpostor = new BABYLON.PhysicsImpostor(
-                southGroundLeft, BABYLON.PhysicsImpostor.BoxImpostor,
-                { mass: 0, restitution: 1, friction: 0 }, scene1);
+                    southGroundLeft, BABYLON.PhysicsImpostor.BoxImpostor,
+                    { mass: 0, restitution: 1, friction: 0 }, scene1);
 
-                var southGroundRight = new BABYLON.MeshBuilder.CreateBox("southGroundLeft", {height: elevation, width: (groundSize - mazeLength) / 2, depth: groundSize / 2 - trenchSize / 2}, scene1);
+                var southGroundRight = new BABYLON.MeshBuilder.CreateBox("southGroundLeft", { height: elevation, width: (groundSize - mazeLength) / 2, depth: groundSize / 2 - trenchSize / 2 }, scene1);
                 southGroundRight.material = grass;
                 southGroundRight.position.z = -(groundSize / 4 + trenchSize / 4);
                 southGroundRight.position.y = elevation / 2;
                 southGroundRight.position.x = mazeLength / 2 + ((groundSize - mazeLength) / 2) / 2;
                 southGroundRight.checkCollisions = true;
                 southGroundRight.physicsImpostor = new BABYLON.PhysicsImpostor(
-                southGroundRight, BABYLON.PhysicsImpostor.BoxImpostor,
-                { mass: 0, restitution: 1, friction: 0 }, scene1);
+                    southGroundRight, BABYLON.PhysicsImpostor.BoxImpostor,
+                    { mass: 0, restitution: 1, friction: 0 }, scene1);
 
-                var northGroundLeft = new BABYLON.MeshBuilder.CreateBox("southGroundLeft", {height: elevation, width: (groundSize - mazeLength) / 2, depth: groundSize / 2 - trenchSize / 2}, scene1);
+                var northGroundLeft = new BABYLON.MeshBuilder.CreateBox("southGroundLeft", { height: elevation, width: (groundSize - mazeLength) / 2, depth: groundSize / 2 - trenchSize / 2 }, scene1);
                 northGroundLeft.material = grass;
                 northGroundLeft.position.z = groundSize / 4 + trenchSize / 4;
                 northGroundLeft.position.y = elevation / 2;
                 northGroundLeft.position.x = -(mazeLength / 2 + ((groundSize - mazeLength) / 2) / 2);
                 northGroundLeft.checkCollisions = true;
                 northGroundLeft.physicsImpostor = new BABYLON.PhysicsImpostor(
-                northGroundLeft, BABYLON.PhysicsImpostor.BoxImpostor,
-                { mass: 0, restitution: 1, friction: 0 }, scene1);
+                    northGroundLeft, BABYLON.PhysicsImpostor.BoxImpostor,
+                    { mass: 0, restitution: 1, friction: 0 }, scene1);
 
-                var northGroundRight = new BABYLON.MeshBuilder.CreateBox("southGroundLeft", {height: elevation, width: (groundSize - mazeLength) / 2, depth: groundSize / 2 - trenchSize / 2}, scene1);
+                var northGroundRight = new BABYLON.MeshBuilder.CreateBox("southGroundLeft", { height: elevation, width: (groundSize - mazeLength) / 2, depth: groundSize / 2 - trenchSize / 2 }, scene1);
                 northGroundRight.material = grass;
                 northGroundRight.position.z = groundSize / 4 + trenchSize / 4;
                 northGroundRight.position.y = elevation / 2;
                 northGroundRight.position.x = mazeLength / 2 + ((groundSize - mazeLength) / 2) / 2;
                 northGroundRight.checkCollisions = true;
                 northGroundRight.physicsImpostor = new BABYLON.PhysicsImpostor(
-                northGroundRight, BABYLON.PhysicsImpostor.BoxImpostor,
-                { mass: 0, restitution: 1, friction: 0 }, scene1);
+                    northGroundRight, BABYLON.PhysicsImpostor.BoxImpostor,
+                    { mass: 0, restitution: 1, friction: 0 }, scene1);
 
-                var centerGround = new BABYLON.MeshBuilder.CreateBox("southGroundLeft", {height: elevation, width: mazeLength, depth: groundSize}, scene1);
+                var centerGround = new BABYLON.MeshBuilder.CreateBox("southGroundLeft", { height: elevation, width: mazeLength, depth: groundSize }, scene1);
                 centerGround.material = grass;
                 centerGround.position.y = elevation / 2;
                 centerGround.checkCollisions = true;
                 centerGround.physicsImpostor = new BABYLON.PhysicsImpostor(
-                centerGround, BABYLON.PhysicsImpostor.BoxImpostor,
-                { mass: 0, restitution: 1, friction: 0 }, scene1);
+                    centerGround, BABYLON.PhysicsImpostor.BoxImpostor,
+                    { mass: 0, restitution: 1, friction: 0 }, scene1);
 
                 // var lowerWall = new BABYLON.MeshBuilder.CreateBox("lowerWall", {height: elevation, width: mazeLength + wallDepth, depth: trenchSize}, scene1);
                 // lowerWall.checkCollisions = true;
                 // lowerWall.material = hedge;
                 // lowerWall.position.y = elevation / 2;
 
-                var northEdge = new BABYLON.MeshBuilder.CreateBox("northEdge", {height: elevation, width: groundSize, depth: 0.1}, scene1);
+                var northEdge = new BABYLON.MeshBuilder.CreateBox("northEdge", { height: elevation, width: groundSize, depth: 0.1 }, scene1);
                 northEdge.position.z = trenchSize / 2;
                 northEdge.position.y = elevation / 2;
                 northEdge.material = stone2;
 
-                var westEdge = new BABYLON.MeshBuilder.CreateBox("northEdge", {height: elevation - 0.1, width: groundSize, depth: 0.1}, scene1);
+                var westEdge = new BABYLON.MeshBuilder.CreateBox("northEdge", { height: elevation - 0.1, width: groundSize, depth: 0.1 }, scene1);
                 westEdge.position.y = elevation / 2;
                 westEdge.position.x = -(mazeLength / 2 + wallDepth / 2);
                 westEdge.rotation.y = -Math.PI / 2;
                 westEdge.material = stone2;
                 westEdge.setCollisions = true;
 
-                var eastEdge = new BABYLON.MeshBuilder.CreateBox("northEdge", {height: elevation - 0.1, width: groundSize, depth: 0.1}, scene1);
+                var eastEdge = new BABYLON.MeshBuilder.CreateBox("northEdge", { height: elevation - 0.1, width: groundSize, depth: 0.1 }, scene1);
                 eastEdge.position.y = elevation / 2;
                 eastEdge.position.x = mazeLength / 2 + wallDepth / 2;
                 eastEdge.rotation.y = Math.PI / 2;
                 eastEdge.material = stone2;
                 eastEdge.setCollisions = true;
-                
+
             }
 
             // Trees
@@ -370,8 +388,8 @@
                     var xSpot = Math.random() * groundSize - groundSize / 2;
                     var zSpot = Math.random() * groundSize - groundSize / 2;
                 } while (((xSpot > -mazeLength / 2 - 8 && xSpot < mazeLength / 2 + 8) && (zSpot > -mazeLength / 2 - 8 && zSpot < mazeLength / 2 + 8)) ||
-                         ((xSpot < 10 + (sub % 2 - 1) * (subLength / 2) && xSpot > -10 + (sub % 2 - 1) * (subLength / 2)) && (zSpot < -mazeLength / 2 && zSpot > -groundSize / 2)) ||
-                         (zSpot > -(trenchSize + 2) && zSpot < trenchSize + 2));
+                ((xSpot < 10 + (sub % 2 - 1) * (subLength / 2) && xSpot > -10 + (sub % 2 - 1) * (subLength / 2)) && (zSpot < -mazeLength / 2 && zSpot > -groundSize / 2)) ||
+                    (zSpot > -(trenchSize + 2) && zSpot < trenchSize + 2));
 
                 tree = new BABYLON.Sprite("tree", spriteManagerTrees);
                 tree.size = 20;
@@ -483,7 +501,7 @@
             delete wallArray[sub * 2][Math.round(sub / 2) - 1];
             // Exit
             wallArray[0][Math.round(sub / 2) - 1].dispose();
-            delete  wallArray[0][Math.round(sub / 2) - 1];
+            delete wallArray[0][Math.round(sub / 2) - 1];
 
             // set player where maze entrance is
             if (sub % 2 === 1) {
@@ -575,10 +593,10 @@
             scene1.registerBeforeRender(function () {
                 // bird's eye view for z && o
                 if (follow) {
-                    if (window.keyisdown[90] && window.keyisdown[79] 
+                    if (window.keyisdown[90] && window.keyisdown[79]
                         && -mazeLength / 2 < player.position.x && player.position.x < mazeLength / 2    // only lets you zoom out when inside the maze
                         && -mazeLength / 2 < player.position.z && player.position.z < mazeLength / 2
-                        ) {
+                    ) {
                         // Zoom out
                         followCam.radius = sub * 9;
                         followCam.heightOffset = sub * 9;
@@ -832,7 +850,7 @@
 
         engine = createDefaultEngine();
         if (!engine) throw 'engine should not be null.';
-        if (!nextScene) { 
+        if (!nextScene) {
             scene0 = createScene0();
         } else {
             scene1 = createScene1();
@@ -849,7 +867,7 @@
         }
 
         // gui for Home Menu
-        var scene0GUI = function() {             
+        var scene0GUI = function () {
             var cornerRadius = 10;
             var squareSide = 200;
             var buttonPadding = 50;
@@ -857,6 +875,9 @@
             advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI", true, scene0);
             advancedTexture.idealWidth = 1300;
             advancedTexture.idealHeight = 1300;
+
+            var panel3 = new BABYLON.GUI.StackPanel();
+            advancedTexture.addControl(panel3);
 
             var panel = new BABYLON.GUI.StackPanel();
             panel.isVertical = false;
@@ -866,64 +887,79 @@
             var panel2 = new BABYLON.GUI.StackPanel();
             panel2.top = "-200px";
             advancedTexture.addControl(panel2);
-            
-            var button = BABYLON.GUI.Button.CreateImageWithCenterTextButton("but", "", "images/easy.png");
-            button.width = squareSide.toString() + "px";
-            button.height = squareSide.toString() + "px";
-            button.cornerRadius = cornerRadius;
-            button.verticalAlignment = 2
-            button.isPointerBlocker = true
-            button.onPointerUpObservable.add(function () {       
+
+            // Easy Level Button
+            var easyButton = BABYLON.GUI.Button.CreateImageWithCenterTextButton("but", "", "images/easy.png");
+            easyButton.width = squareSide.toString() + "px";
+            easyButton.height = squareSide.toString() + "px";
+            easyButton.cornerRadius = cornerRadius;
+            easyButton.verticalAlignment = 2
+            easyButton.isPointerBlocker = true
+            easyButton.onPointerUpObservable.add(function () {
                 advancedTexture.dispose();
                 nextScene = true;
+                replay = true;
+                soundtrack.pause();
                 sub = 10;
                 scene0 = null;
                 scene1 = createScene1();
                 scene1GUI();
             });
-            panel.addControl(button);
+            panel.addControl(easyButton);
 
-            var button2 = BABYLON.GUI.Button.CreateImageWithCenterTextButton("but2", "", "images/medium.png");
-            button2.width = (squareSide + buttonPadding).toString() + "px";
-            button2.height = squareSide.toString() + "px";
-            button2.paddingLeft = buttonPadding.toString() + "px";
-            button2.cornerRadius = cornerRadius;
-            button2.verticalAlignment = 2
-            button2.isPointerBlocker = true
-            button2.onPointerUpObservable.add(function () {       
+            // Medium Level Button
+            var mediumButton = BABYLON.GUI.Button.CreateImageWithCenterTextButton("but2", "", "images/medium.png");
+            mediumButton.width = (squareSide + buttonPadding).toString() + "px";
+            mediumButton.height = squareSide.toString() + "px";
+            mediumButton.paddingLeft = buttonPadding.toString() + "px";
+            mediumButton.cornerRadius = cornerRadius;
+            mediumButton.verticalAlignment = 2
+            mediumButton.isPointerBlocker = true
+            mediumButton.onPointerUpObservable.add(function () {
                 advancedTexture.dispose();
                 nextScene = true;
+                replay = true;
+                soundtrack.pause();
                 sub = 20;
                 scene0 = null;
                 scene1 = createScene1();
                 scene1GUI();
             });
 
-            panel.addControl(button2);
+            panel.addControl(mediumButton);
 
-            var button3 = BABYLON.GUI.Button.CreateImageWithCenterTextButton("but3", "", "images/hard.png");
-            button3.width = (squareSide + buttonPadding).toString() + "px";
-            button3.height = squareSide.toString() + "px";
-            button3.paddingLeft = buttonPadding.toString() + "px";
-            button3.cornerRadius = cornerRadius;
-            button3.verticalAlignment = 2
-            button3.isPointerBlocker = true
-            button3.onPointerUpObservable.add(function () {       
+            // Hard Level Button
+            var hardButton = BABYLON.GUI.Button.CreateImageWithCenterTextButton("but3", "", "images/hard.png");
+            hardButton.width = (squareSide + buttonPadding).toString() + "px";
+            hardButton.height = squareSide.toString() + "px";
+            hardButton.paddingLeft = buttonPadding.toString() + "px";
+            hardButton.cornerRadius = cornerRadius;
+            hardButton.verticalAlignment = 2
+            hardButton.isPointerBlocker = true
+            hardButton.onPointerUpObservable.add(function () {
                 advancedTexture.dispose();
                 nextScene = true;
+                replay = true;
+                soundtrack.pause();
                 sub = 30;
                 scene0 = null;
                 scene1 = createScene1();
                 scene1GUI();
             });
 
-            panel.addControl(button3);
+            panel.addControl(hardButton);
 
+            // Game Logo
             var logo = new BABYLON.GUI.Image("but4", "images/mazerunner_logo.png");
             logo.width = 0.4;
             logo.height = "200px";
             panel2.addControl(logo);
 
+            // Background
+            var background = new BABYLON.GUI.Image("but5", "spritesheets/running_thor.png");
+            background.width = 1;
+            background.height = "2000px";
+            panel3.addControl(background);
 
             var text1 = new BABYLON.GUI.TextBlock();
             text1.text = "Time: " + time.toString(5) + " s";
@@ -933,13 +969,13 @@
             panel2.textHorizontalAlignment = 1;
             panel2.textVerticalAlignment = 1;
             panel2.addControl(text1);
-        }  
+        }
         if (!nextScene) {
             scene0GUI();
         }
 
         // GUI for Game
-        var scene1GUI = function() {
+        var scene1GUI = function () {
             advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI", true, scene1);
             var panel = new BABYLON.GUI.StackPanel();
             panel.isVertical = false;
@@ -951,40 +987,42 @@
             panel2.top = "-200px";
             advancedTexture.addControl(panel2);
 
-            var button = BABYLON.GUI.Button.CreateImageWithCenterTextButton("but", "Home Menu", "");
-            button.width = "75px";
-            button.height = "50px";
-            button.color = "gray";
-            button.background = "black";
-            button.cornerRadius = 0;
-            button.verticalAlignment = 1;
-            button.horizontalAlignment = 0;
-            button.isPointerBlocker = true
-            button.onPointerUpObservable.add(function () {       
+            var homeButton = BABYLON.GUI.Button.CreateImageWithCenterTextButton("but", "Home Menu", "");
+            homeButton.width = "75px";
+            homeButton.height = "50px";
+            homeButton.color = "gray";
+            homeButton.background = "black";
+            homeButton.cornerRadius = 0;
+            homeButton.verticalAlignment = 1;
+            homeButton.horizontalAlignment = 0;
+            homeButton.isPointerBlocker = true
+            homeButton.onPointerUpObservable.add(function () {
                 advancedTexture.dispose();
                 nextScene = false;
+                soundtrack.pause();
                 scene1 = null;
                 scene0 = createScene0();
                 scene0GUI();
             });
-            panel.addControl(button);
+            panel.addControl(homeButton);
 
-            var button2 = BABYLON.GUI.Button.CreateImageWithCenterTextButton("but", "Reset Maze", "");
-            button2.width = "75px";
-            button2.height = "50px";
-            button2.color = "gray";
-            button2.background = "black";
-            button2.cornerRadius = 0;
-            button2.verticalAlignment = 1;
-            button2.horizontalAlignment = 0;
-            button2.isPointerBlocker = true
-            button2.onPointerUpObservable.add(function () {       
+            var resetButton = BABYLON.GUI.Button.CreateImageWithCenterTextButton("but", "Reset Maze", "");
+            resetButton.width = "75px";
+            resetButton.height = "50px";
+            resetButton.color = "gray";
+            resetButton.background = "black";
+            resetButton.cornerRadius = 0;
+            resetButton.verticalAlignment = 1;
+            resetButton.horizontalAlignment = 0;
+            resetButton.isPointerBlocker = true
+            resetButton.onPointerUpObservable.add(function () {
                 advancedTexture.dispose();
+                replay = false;
                 scene1 = null;
                 scene1 = createScene1();
                 scene1GUI();
             });
-            panel.addControl(button2);
+            panel.addControl(resetButton);
 
 
         }

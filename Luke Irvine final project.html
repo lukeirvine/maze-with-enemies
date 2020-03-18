@@ -873,6 +873,8 @@
             var buttonPadding = 50;
 
             advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI", true, scene0);
+            // advancedTexture.renderAtIdealSize = true;
+            advancedTexture.useSmallestIdeal = true;
             advancedTexture.idealWidth = 1300;
             advancedTexture.idealHeight = 1300;
 
@@ -951,14 +953,14 @@
 
             // Game Logo
             var logo = new BABYLON.GUI.Image("but4", "images/mazerunner_logo.png");
-            logo.width = 0.4;
+            logo.width = "400px";
             logo.height = "200px";
             panel2.addControl(logo);
 
             // Background
-            var background = new BABYLON.GUI.Image("but5", "spritesheets/running_thor.png");
+            var background = new BABYLON.GUI.Image("but5", "images/background.png");
             background.width = 1;
-            background.height = "2000px";
+            background.height = "1500px";
             panel3.addControl(background);
 
             var text1 = new BABYLON.GUI.TextBlock();

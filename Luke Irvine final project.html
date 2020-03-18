@@ -512,7 +512,7 @@
             wallArray[0][Math.round(sub / 2) - 1].dispose();
             delete wallArray[0][Math.round(sub / 2) - 1];
 
-            // set player where maze entrance is
+            // set player where maze entrance is (or end of maze if specified in global variables)
             if (sub % 2 === 1) {
                 if (!end) { player.position = new BABYLON.Vector3(0, 3 + elevation, -mazeLength / 2 - mazeLength * 0.05) }
                 else { player.position = new BABYLON.Vector3(0, 3 + elevation, mazeLength / 2 + mazeLength * 0.05) }
@@ -602,7 +602,8 @@
             var index = 0;
 
             scene1.registerBeforeRender(function () {
-                // bird's eye view for z && o
+                
+                // bird's eye view for z
                 if (follow) {
                     if (window.keyisdown[90]
                         && -mazeLength / 2 < player.position.x && player.position.x < mazeLength / 2    // only lets you zoom out when inside the maze
@@ -630,7 +631,7 @@
                     party(mazeLength, subLength);
                     scene1GUI();
                 }
-                // Player Torch: 
+                // Player Torch: not used. shadows are too cpu intensive
                 // playerLight.position = player.position;
 
 
@@ -726,9 +727,6 @@
                 player.speed = BABYLON.Vector3.Lerp(player.speed, player.nextspeed, 0.1);
                 player.moveWithCollisions(player.speed);
 
-                // if (player.position.x > groundSize / 2 - 5) { player.position.x = groundSize / 2 - 5; }
-                // if (player.position.x < -groundSize / 2 + 5) { player.position.x = -groundSize / 2 + 5; }
-                // if (player.position.z > groundSize / 2 - 5) { player.position.z = groundSize / 2 - 5; }
                 if (player.position.z < -groundSize / 2 + 15) { player.position.z = -groundSize / 2 + 15; }
 
                 // player.nexttorch = lightImpostor.getAbsolutePosition();
@@ -801,6 +799,7 @@
             confettiBlueGreen.updateSpeed = 0.005;
             confettiBlueGreen.start();
 
+            // sparser confetti towards edges
             var confetti = new BABYLON.ParticleSystem("confetti", 500, scene1);
             confetti.particleTexture = new BABYLON.Texture("textures/fire.png", scene1);
             confetti.emitter = new BABYLON.Vector3(-subLength / 2, 18, mazeLength / 2 + subLength * 2);
@@ -822,11 +821,7 @@
         }
 
 
-        /* ==== Recursive Maze Function ====
-        * 
-        * 
-        * 
-        */
+        // ==== Recursive Maze Function ====
         function carve_passages_from(cx, cy, grid, wallArray, myStack, index) {
             // new x and y indices
             var nx;
@@ -912,10 +907,6 @@
                 let j = Math.floor(Math.random() * (i + 1)); // random index from 0 to i
 
                 // swap elements array[i] and array[j]
-                // we use "destructuring assignment" syntax to achieve that
-                // you'll find more details about that syntax in later chapters
-                // same can be written as:
-                // let t = array[i]; array[i] = array[j]; array[j] = t
                 [array[i], array[j]] = [array[j], array[i]];
             }
         }
@@ -939,6 +930,7 @@
             }
         }
 
+        // was for stopwatch, not used yet though
         function sleep(milliseconds) {
             const date = Date.now();
             let currentDate = null;
@@ -956,6 +948,7 @@
             scene1 = createScene1();
         }
 
+        // was for stopwatch. Isn't working yet.
         var time = 0.0;
         function timer() {
             time += 0.001;

@@ -66,6 +66,7 @@
         var madeIt = false;                     // set to true when player reaches end of maze
         var volume = 0.75;
         var difficultyLevel = 0;                // 0 is easy, 1 is medium, 2 is hard
+        var blockZoom = false;                  // when true, zoom is disabled
         // var timerStart = false;
 
 
@@ -606,6 +607,7 @@
                     if (window.keyisdown[90]
                         && -mazeLength / 2 < player.position.x && player.position.x < mazeLength / 2    // only lets you zoom out when inside the maze
                         && -mazeLength / 2 < player.position.z && player.position.z < mazeLength / 2
+                        && !blockZoom
                     ) {
                         // Zoom out
                         followCam.radius = sub * 9;
@@ -624,7 +626,9 @@
                     mazeLength / 2 + 5 < player.position.z && player.position.z < mazeLength / 2 + subLength * 3 && !madeIt) {
                     console.log("player made it to end of maze");
                     madeIt = true;
+                    blockZoom = true;
                     party(mazeLength, subLength);
+                    scene1GUI();
                 }
                 // Player Torch: 
                 // playerLight.position = player.position;
@@ -1095,9 +1099,12 @@
             panel.verticalAlignment = 2;
             advancedTexture.addControl(panel);
 
-            var panel2 = new BABYLON.GUI.StackPanel();
-            panel2.top = "-200px";
-            advancedTexture.addControl(panel2);
+            var textPanel2 = new BABYLON.GUI.Rectangle();
+            textPanel2.verticalAlignment = 0;
+            textPanel2.width = 1;
+            textPanel2.height = "50px";
+            textPanel2.thickness = 0;
+            advancedTexture.addControl(textPanel2);
 
             var homeButton = BABYLON.GUI.Button.CreateImageWithCenterTextButton("but", "Home Menu", "");
             homeButton.width = "75px";
@@ -1145,7 +1152,7 @@
             switch (difficultyLevel) {
                 case 0:
                     var displayDifficulty = BABYLON.GUI.Button.CreateImageWithCenterTextButton("but4", "", "images/new_easy.png");
-                    displayDifficulty.width = "75px";
+                    displayDifficulty.width = "85px";
                     displayDifficulty.height = "50px";
                     displayDifficulty.verticalAlignment = 1;
                     // displayDifficulty.background = "black";
@@ -1163,13 +1170,24 @@
                     break;
                 case 2:
                     var displayDifficulty = BABYLON.GUI.Button.CreateImageWithCenterTextButton("but4", "", "images/new_hard.png");
-                    displayDifficulty.width = "85px";
+                    displayDifficulty.width = "95px";
                     displayDifficulty.height = "50px";
                     displayDifficulty.verticalAlignment = 1;
                     // displayDifficulty.background = "black";
                     displayDifficulty.thickness = 0;
                     panel.addControl(displayDifficulty);
                     break;
+            }
+
+            if (madeIt) {
+                var congrats = new BABYLON.GUI.TextBlock();
+                congrats.text = "Congratulations young squire. You have conquered yon maze with ease.";
+                congrats.color = "white";
+                congrats.fontSize = 20;
+                congrats.lineSpacing = "5px";
+                congrats.verticalAlignment = 1;
+                congrats.textWrapping = true;
+                textPanel2.addControl(congrats);
             }
 
 

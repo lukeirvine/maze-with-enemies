@@ -64,6 +64,7 @@
         var sub = 10;
         var soundtrack;
         var replay = true;
+        var end = false;
 
         // global gui variables
         // var timerStart = false;
@@ -517,10 +518,12 @@
 
             // set player where maze entrance is
             if (sub % 2 === 1) {
-                player.position = new BABYLON.Vector3(0, 3 + elevation, -mazeLength / 2 - mazeLength * 0.05)
+                if (!end) { player.position = new BABYLON.Vector3(0, 3 + elevation, -mazeLength / 2 - mazeLength * 0.05) }
+                else { player.position = new BABYLON.Vector3(0, 3 + elevation, mazeLength / 2 + mazeLength * 0.05) }
             }
             else {
-                player.position = new BABYLON.Vector3(-subLength / 2, 3 + elevation, -mazeLength / 2 - mazeLength * 0.05)
+                if (!end) { player.position = new BABYLON.Vector3(-subLength / 2, 3 + elevation, -mazeLength / 2 - mazeLength * 0.05) }
+                else { player.position = new BABYLON.Vector3(-subLength / 2, 3 + elevation, mazeLength / 2 + mazeLength * 0.05) }
             }
 
             // Torches
@@ -601,6 +604,7 @@
             var totalCells = 64;
             // governs when sprites move
             var index = 0;
+            var madeIt = false;
 
             scene1.registerBeforeRender(function () {
                 // bird's eye view for z && o
@@ -619,6 +623,14 @@
                         followCam.radius = 15;
                         followCam.heightOffset = 30;
                     }
+                }
+
+                // if player is at end of maze, create party
+                if (-(subLength * 2) < player.position.x && player.position.x < subLength * 2 &&
+                    mazeLength / 2 + 5 < player.position.z && player.position.z < mazeLength / 2 + subLength * 3 && !madeIt) {
+                    console.log("player made it to end of maze");
+                    madeIt = true;
+                    party(mazeLength, subLength);
                 }
                 // Player Torch: 
                 // playerLight.position = player.position;
@@ -733,6 +745,69 @@
 
             return scene1;
         }
+
+
+        function party(mazeLength, subLength) {
+            // red/orange
+            var confettiRed = new BABYLON.ParticleSystem("confettiRed", 500, scene1);
+            confettiRed.particleTexture = new BABYLON.Texture("textures/fire.png", scene1);
+            confettiRed.emitter = new BABYLON.Vector3(-subLength / 2, 18, mazeLength / 2 + subLength * 2);
+            confettiRed.minEmitBox = new BABYLON.Vector3(-2 * subLength, 0, 2 * subLength);
+            confettiRed.maxEmitBox = new BABYLON.Vector3(2 * subLength, 0, -2 * subLength);
+            confettiRed.color1 = new BABYLON.Color4(0.7, 0, 0, 1.0);
+            confettiRed.color2 = new BABYLON.Color4(0.5, 0.5, 0, 1.0);
+            confettiRed.minSize = 0.4;
+            confettiRed.maxSize = 1.5;
+            confettiRed.minLifeTime = 0.2;
+            confettiRed.maxLifeTime = 0.5;
+            confettiRed.emitRate = 2000;
+            confettiRed.direction1 = new BABYLON.Vector3(0, -3, 0);
+            confettiRed.direction2 = new BABYLON.Vector3(0, -10, 0);
+            confettiRed.minEmitPower = 1;
+            confettiRed.maxEmitPower = 3;
+            confettiRed.updateSpeed = 0.005;
+            confettiRed.start();
+
+            // blue/green
+            var confettiBlueGreen = new BABYLON.ParticleSystem("confettiBlueGreen", 500, scene1);
+            confettiBlueGreen.particleTexture = new BABYLON.Texture("textures/fire.png", scene1);
+            confettiBlueGreen.emitter = new BABYLON.Vector3(-subLength / 2, 18, mazeLength / 2 + subLength * 2);
+            confettiBlueGreen.minEmitBox = new BABYLON.Vector3(-2 * subLength, 0, 2 * subLength);
+            confettiBlueGreen.maxEmitBox = new BABYLON.Vector3(2 * subLength, 0, -2 * subLength);
+            confettiBlueGreen.color1 = new BABYLON.Color4(0, 0, 1, 1.0);
+            confettiBlueGreen.color2 = new BABYLON.Color4(0.3, 0.7, 1, 1.0);
+            confettiBlueGreen.minSize = 0.4;
+            confettiBlueGreen.maxSize = 1.5;
+            confettiBlueGreen.minLifeTime = 0.2;
+            confettiBlueGreen.maxLifeTime = 0.5;
+            confettiBlueGreen.emitRate = 2000;
+            confettiBlueGreen.direction1 = new BABYLON.Vector3(0, -3, 0);
+            confettiBlueGreen.direction2 = new BABYLON.Vector3(0, -10, 0);
+            confettiBlueGreen.minEmitPower = 1;
+            confettiBlueGreen.maxEmitPower = 3;
+            confettiBlueGreen.updateSpeed = 0.005;
+            confettiBlueGreen.start();
+
+            var confetti = new BABYLON.ParticleSystem("confetti", 500, scene1);
+            confetti.particleTexture = new BABYLON.Texture("textures/fire.png", scene1);
+            confetti.emitter = new BABYLON.Vector3(-subLength / 2, 18, mazeLength / 2 + subLength * 2);
+            confetti.minEmitBox = new BABYLON.Vector3(-4 * subLength, 0, 4 * subLength);
+            confetti.maxEmitBox = new BABYLON.Vector3(4 * subLength, 0, -4 * subLength);
+            confetti.color1 = new BABYLON.Color4(0.7, 0, 0, 1.0);
+            confetti.color2 = new BABYLON.Color4(0.5, 0.5, 0, 1.0);
+            confetti.minSize = 0.4;
+            confetti.maxSize = 1.5;
+            confetti.minLifeTime = 0.2;
+            confetti.maxLifeTime = 0.5;
+            confetti.emitRate = 2000;
+            confetti.direction1 = new BABYLON.Vector3(0, -3, 0);
+            confetti.direction2 = new BABYLON.Vector3(0, -10, 0);
+            confetti.minEmitPower = 1;
+            confetti.maxEmitPower = 3;
+            confetti.updateSpeed = 0.005;
+            confetti.start();
+        }
+
 
         /* ==== Recursive Maze Function ====
         * 

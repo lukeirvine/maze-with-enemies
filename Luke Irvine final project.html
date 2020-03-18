@@ -65,6 +65,8 @@
         var soundtrack;
         var replay = true;
         var end = false;
+        var madeIt = false;
+
 
         // global gui variables
         // var timerStart = false;
@@ -96,8 +98,6 @@
                 }
             );
 
-            // add gui for just scene0
-            var box = new BABYLON.MeshBuilder.CreateBox("box", { width: 1, height: 1, depth: 1 }, scene0);
             return scene0;
         }
 
@@ -604,7 +604,6 @@
             var totalCells = 64;
             // governs when sprites move
             var index = 0;
-            var madeIt = false;
 
             scene1.registerBeforeRender(function () {
                 // bird's eye view for z && o
@@ -748,6 +747,22 @@
 
 
         function party(mazeLength, subLength) {
+            
+            soundtrack.pause();
+            // Music
+            var volume = 1;
+            soundtrack = new BABYLON.Sound(
+                "soundtrack",
+                "sounds/star_wars.wav",
+                scene1,
+                null,
+                {
+                    volume: volume,
+                    autoplay: true,
+                    loop: true
+                }
+            );
+            
             // red/orange
             var confettiRed = new BABYLON.ParticleSystem("confettiRed", 500, scene1);
             confettiRed.particleTexture = new BABYLON.Texture("textures/fire.png", scene1);
@@ -956,8 +971,8 @@
         // gui for Home Menu
         var scene0GUI = function () {
             var cornerRadius = 10;
-            var squareSide = 200;
-            var buttonPadding = 50;
+            var squareSide = 300;
+            var buttonPadding = 100;
 
             advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI", true, scene0);
             // advancedTexture.renderAtIdealSize = true;
@@ -970,19 +985,20 @@
 
             var panel = new BABYLON.GUI.StackPanel();
             panel.isVertical = false;
-            panel.top = "95px";
+            panel.top = "125px";
             advancedTexture.addControl(panel);
 
             var panel2 = new BABYLON.GUI.StackPanel();
-            panel2.top = "-200px";
+            panel2.top = "-300px";
             advancedTexture.addControl(panel2);
 
             // Easy Level Button
-            var easyButton = BABYLON.GUI.Button.CreateImageWithCenterTextButton("but", "", "images/easy.png");
+            var easyButton = BABYLON.GUI.Button.CreateImageWithCenterTextButton("but", "", "images/new_easy.png");
             easyButton.width = squareSide.toString() + "px";
-            easyButton.height = squareSide.toString() + "px";
+            easyButton.height = (squareSide / 2).toString() + "px";
             easyButton.cornerRadius = cornerRadius;
             easyButton.verticalAlignment = 2
+            easyButton.thickness = 0;
             easyButton.isPointerBlocker = true
             easyButton.onPointerUpObservable.add(function () {
                 advancedTexture.dispose();
@@ -997,12 +1013,13 @@
             panel.addControl(easyButton);
 
             // Medium Level Button
-            var mediumButton = BABYLON.GUI.Button.CreateImageWithCenterTextButton("but2", "", "images/medium.png");
+            var mediumButton = BABYLON.GUI.Button.CreateImageWithCenterTextButton("but2", "", "images/new_medium.png");
             mediumButton.width = (squareSide + buttonPadding).toString() + "px";
-            mediumButton.height = squareSide.toString() + "px";
+            mediumButton.height = (squareSide / 2).toString() + "px";
             mediumButton.paddingLeft = buttonPadding.toString() + "px";
             mediumButton.cornerRadius = cornerRadius;
             mediumButton.verticalAlignment = 2
+            mediumButton.thickness = 0;
             mediumButton.isPointerBlocker = true
             mediumButton.onPointerUpObservable.add(function () {
                 advancedTexture.dispose();
@@ -1018,12 +1035,13 @@
             panel.addControl(mediumButton);
 
             // Hard Level Button
-            var hardButton = BABYLON.GUI.Button.CreateImageWithCenterTextButton("but3", "", "images/hard.png");
+            var hardButton = BABYLON.GUI.Button.CreateImageWithCenterTextButton("but3", "", "images/new_hard.png");
             hardButton.width = (squareSide + buttonPadding).toString() + "px";
-            hardButton.height = squareSide.toString() + "px";
+            hardButton.height = (squareSide / 2).toString() + "px";
             hardButton.paddingLeft = buttonPadding.toString() + "px";
             hardButton.cornerRadius = cornerRadius;
             hardButton.verticalAlignment = 2
+            hardButton.thickness = 0;
             hardButton.isPointerBlocker = true
             hardButton.onPointerUpObservable.add(function () {
                 advancedTexture.dispose();
@@ -1039,9 +1057,9 @@
             panel.addControl(hardButton);
 
             // Game Logo
-            var logo = new BABYLON.GUI.Image("but4", "images/mazerunner_logo.png");
-            logo.width = "400px";
-            logo.height = "200px";
+            var logo = new BABYLON.GUI.Image("but4", "images/new_logo.png");
+            logo.width = "800px";
+            logo.height = "400px";
             panel2.addControl(logo);
 
             // Background
@@ -1107,6 +1125,11 @@
             resetButton.onPointerUpObservable.add(function () {
                 advancedTexture.dispose();
                 replay = false;
+                if (madeIt) {
+                    soundtrack.pause();
+                    madeIt = false;
+                    replay = true;
+                }
                 scene1 = null;
                 scene1 = createScene1();
                 scene1GUI();

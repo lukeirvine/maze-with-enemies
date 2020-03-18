@@ -603,7 +603,7 @@
             scene1.registerBeforeRender(function () {
                 // bird's eye view for z && o
                 if (follow) {
-                    if (window.keyisdown[90] && window.keyisdown[79]
+                    if (window.keyisdown[90]
                         && -mazeLength / 2 < player.position.x && player.position.x < mazeLength / 2    // only lets you zoom out when inside the maze
                         && -mazeLength / 2 < player.position.z && player.position.z < mazeLength / 2
                     ) {
@@ -974,17 +974,24 @@
             advancedTexture.idealWidth = 1300;
             advancedTexture.idealHeight = 1300;
 
-            var panel3 = new BABYLON.GUI.StackPanel();
-            advancedTexture.addControl(panel3);
+            var backgroundPanel = new BABYLON.GUI.StackPanel();
+            advancedTexture.addControl(backgroundPanel);
 
-            var panel = new BABYLON.GUI.StackPanel();
-            panel.isVertical = false;
-            panel.top = "125px";
-            advancedTexture.addControl(panel);
+            var difficultyPanel = new BABYLON.GUI.StackPanel();
+            difficultyPanel.isVertical = false;
+            difficultyPanel.top = "125px";
+            advancedTexture.addControl(difficultyPanel);
 
-            var panel2 = new BABYLON.GUI.StackPanel();
-            panel2.top = "-300px";
-            advancedTexture.addControl(panel2);
+            var logoPanel = new BABYLON.GUI.StackPanel();
+            logoPanel.top = "-300px";
+            advancedTexture.addControl(logoPanel);
+
+            var textPanel = new BABYLON.GUI.Rectangle();
+            textPanel.top = "400px";
+            textPanel.width = "1100px";
+            textPanel.height = "300px";
+            textPanel.thickness = 0;
+            advancedTexture.addControl(textPanel);
 
             // Easy Level Button
             var easyButton = BABYLON.GUI.Button.CreateImageWithCenterTextButton("but", "", "images/new_easy.png");
@@ -1005,7 +1012,7 @@
                 scene1 = createScene1();
                 scene1GUI();
             });
-            panel.addControl(easyButton);
+            difficultyPanel.addControl(easyButton);
 
             // Medium Level Button
             var mediumButton = BABYLON.GUI.Button.CreateImageWithCenterTextButton("but2", "", "images/new_medium.png");
@@ -1028,7 +1035,7 @@
                 scene1GUI();
             });
 
-            panel.addControl(mediumButton);
+            difficultyPanel.addControl(mediumButton);
 
             // Hard Level Button
             var hardButton = BABYLON.GUI.Button.CreateImageWithCenterTextButton("but3", "", "images/new_hard.png");
@@ -1051,28 +1058,29 @@
                 scene1GUI();
             });
 
-            panel.addControl(hardButton);
+            difficultyPanel.addControl(hardButton);
 
             // Game Logo
             var logo = new BABYLON.GUI.Image("but4", "images/new_logo.png");
             logo.width = "800px";
             logo.height = "400px";
-            panel2.addControl(logo);
+            logoPanel.addControl(logo);
 
             // Background
             var background = new BABYLON.GUI.Image("but5", "images/background.png");
             background.width = 1;
             background.height = "1500px";
-            panel3.addControl(background);
+            backgroundPanel.addControl(background);
 
-            var text1 = new BABYLON.GUI.TextBlock();
-            text1.text = "Time: " + time.toString(5) + " s";
-            text1.color = "white";
-            text1.fontSize = 24;
-            text1.lineSpacing = "5px";
-            panel2.textHorizontalAlignment = 1;
-            panel2.textVerticalAlignment = 1;
-            panel2.addControl(text1);
+            var directions = new BABYLON.GUI.TextBlock();
+            directions.text = "Welcome young Squire! Select your hardship and use the 'w', 'a', 's', and 'd' keys to move thine avatar. " + 
+                              "Bear the space bar to run and depress the z key to zoom out, obtaining a bird's eye view.";
+            directions.color = "white";
+            directions.fontSize = 34;
+            directions.lineSpacing = "5px";
+            directions.verticalAlignment = 1;
+            directions.textWrapping = true;
+            textPanel.addControl(directions);
         }
         if (!nextScene) {
             scene0GUI();

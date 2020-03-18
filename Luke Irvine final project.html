@@ -56,19 +56,16 @@
         var scene1 = null;
         var createDefaultEngine = function () { return new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true }); };
 
-        // variables to govern scene switching
-        // var clicks = 1;
-        // var showScene = 0;
-        var nextScene = false;
-        var advancedTexture;
-        var sub = 10;
-        var soundtrack;
-        var replay = true;
-        var end = false;
-        var madeIt = false;
-
-
-        // global gui variables
+        // global variables used throughout code
+        var nextScene = false;                  // false sets up welcome screen first
+        var advancedTexture;                    // used for GUIs
+        var sub = 10;                           // default number of maze sub divisions
+        var soundtrack;                         // used for background music throughout
+        var replay = true;                      // used to govern when music is played
+        var end = false;                        // set end to true to have player start at end of maze (debugging)
+        var madeIt = false;                     // set to true when player reaches end of maze
+        var volume = 0.75;
+        var difficultyLevel = 0;                // 0 is easy, 1 is medium, 2 is hard
         // var timerStart = false;
 
 
@@ -85,7 +82,6 @@
             var light = new BABYLON.HemisphericLight("HemiLight", new BABYLON.Vector3(0, 1, 0), scene0);
 
             // Music
-            var volume = 1;
             soundtrack = new BABYLON.Sound(
                 "soundtrack",
                 "sounds/our_universe.wav",
@@ -210,7 +206,6 @@
 
             // Music
             if (replay) {
-                var volume = 1;
                 soundtrack = new BABYLON.Sound(
                     "soundtrack",
                     "sounds/forbidden_valley_gate.wav",
@@ -747,10 +742,9 @@
 
 
         function party(mazeLength, subLength) {
-            
+
             soundtrack.pause();
             // Music
-            var volume = 1;
             soundtrack = new BABYLON.Sound(
                 "soundtrack",
                 "sounds/star_wars.wav",
@@ -762,7 +756,7 @@
                     loop: true
                 }
             );
-            
+
             // red/orange
             var confettiRed = new BABYLON.ParticleSystem("confettiRed", 500, scene1);
             confettiRed.particleTexture = new BABYLON.Texture("textures/fire.png", scene1);
@@ -1006,6 +1000,7 @@
                 replay = true;
                 soundtrack.pause();
                 sub = 10;
+                difficultyLevel = 0;
                 scene0 = null;
                 scene1 = createScene1();
                 scene1GUI();
@@ -1027,6 +1022,7 @@
                 replay = true;
                 soundtrack.pause();
                 sub = 20;
+                difficultyLevel = 1;
                 scene0 = null;
                 scene1 = createScene1();
                 scene1GUI();
@@ -1049,6 +1045,7 @@
                 replay = true;
                 soundtrack.pause();
                 sub = 30;
+                difficultyLevel = 2;
                 scene0 = null;
                 scene1 = createScene1();
                 scene1GUI();
@@ -1135,6 +1132,37 @@
                 scene1GUI();
             });
             panel.addControl(resetButton);
+
+            // Difficulty level
+            switch (difficultyLevel) {
+                case 0:
+                    var displayDifficulty = BABYLON.GUI.Button.CreateImageWithCenterTextButton("but4", "", "images/new_easy.png");
+                    displayDifficulty.width = "75px";
+                    displayDifficulty.height = "50px";
+                    displayDifficulty.verticalAlignment = 1;
+                    // displayDifficulty.background = "black";
+                    displayDifficulty.thickness = 0;
+                    panel.addControl(displayDifficulty);
+                    break;
+                case 1:
+                    var displayDifficulty = BABYLON.GUI.Button.CreateImageWithCenterTextButton("but4", "", "images/new_medium.png");
+                    displayDifficulty.width = "105px";
+                    displayDifficulty.height = "50px";
+                    displayDifficulty.verticalAlignment = 1;
+                    // displayDifficulty.background = "black";
+                    displayDifficulty.thickness = 0;
+                    panel.addControl(displayDifficulty);
+                    break;
+                case 2:
+                    var displayDifficulty = BABYLON.GUI.Button.CreateImageWithCenterTextButton("but4", "", "images/new_hard.png");
+                    displayDifficulty.width = "85px";
+                    displayDifficulty.height = "50px";
+                    displayDifficulty.verticalAlignment = 1;
+                    // displayDifficulty.background = "black";
+                    displayDifficulty.thickness = 0;
+                    panel.addControl(displayDifficulty);
+                    break;
+            }
 
 
         }

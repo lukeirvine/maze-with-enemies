@@ -61,6 +61,7 @@
         var advancedTexture;                    // used for GUIs
         var sub = 10;                           // default number of maze sub divisions
         var soundtrack;                         // used for background music throughout
+        var starWars;
         var replay = true;                      // used to govern when music is played
         var end = false;                        // set end to true to have player start at end of maze (debugging)
         var madeIt = false;                     // set to true when player reaches end of maze
@@ -83,17 +84,20 @@
             var light = new BABYLON.HemisphericLight("HemiLight", new BABYLON.Vector3(0, 1, 0), scene0);
 
             // Music
-            soundtrack = new BABYLON.Sound(
-                "soundtrack",
-                "sounds/our_universe.wav",
-                scene0,
-                null,
-                {
-                    volume: volume,
-                    autoplay: true,
-                    loop: true
-                }
-            );
+            var createSoundtrack = function() {
+                soundtrack = new BABYLON.Sound(
+                    "soundtrack",
+                    "sounds/our_universe.wav",
+                    scene0,
+                    null,
+                    {
+                        volume: volume,
+                        autoplay: true,
+                        loop: true
+                    }
+                );
+            }
+            createSoundtrack();
 
             return scene0;
         }
@@ -221,20 +225,37 @@
             }
             textures();
 
-            // Music
-            if (replay) {
-                soundtrack = new BABYLON.Sound(
-                    "soundtrack",
-                    "sounds/forbidden_valley_gate.wav",
+            // Sounds and Music
+            var createSounds = function() {
+                if (replay) {
+                    soundtrack = new BABYLON.Sound(
+                        "soundtrack",
+                        "sounds/forbidden_valley_gate.wav",
+                        scene1,
+                        null,
+                        {
+                            volume: volume,
+                            autoplay: true,
+                            loop: true
+                        }
+                    );
+                }
+
+                // Party Music
+                starWars = new BABYLON.Sound(
+                    "starWars",
+                    "sounds/star_wars.wav",
                     scene1,
                     null,
                     {
                         volume: volume,
-                        autoplay: true,
+                        autoplay: false,
                         loop: true
                     }
                 );
             }
+            createSounds();
+
 
             // Skybox
             var createSky = function() {
@@ -629,6 +650,72 @@
             }
             createTorches();
 
+            // Party at end
+            var confettiRed;
+            var confettiBlueGreen;
+            var confetti;
+            var createParty = function() {
+
+                // red/orange
+                confettiRed = new BABYLON.ParticleSystem("confettiRed", 500, scene1);
+                confettiRed.particleTexture = new BABYLON.Texture("textures/fire.png", scene1);
+                confettiRed.emitter = new BABYLON.Vector3(-subLength / 2, 18, mazeLength / 2 + subLength * 2);
+                confettiRed.minEmitBox = new BABYLON.Vector3(-2 * subLength, 0, 2 * subLength);
+                confettiRed.maxEmitBox = new BABYLON.Vector3(2 * subLength, 0, -2 * subLength);
+                confettiRed.color1 = new BABYLON.Color4(0.7, 0, 0, 1.0);
+                confettiRed.color2 = new BABYLON.Color4(0.5, 0.5, 0, 1.0);
+                confettiRed.minSize = 0.4;
+                confettiRed.maxSize = 1.5;
+                confettiRed.minLifeTime = 0.2;
+                confettiRed.maxLifeTime = 0.5;
+                confettiRed.emitRate = 2000;
+                confettiRed.direction1 = new BABYLON.Vector3(0, -3, 0);
+                confettiRed.direction2 = new BABYLON.Vector3(0, -10, 0);
+                confettiRed.minEmitPower = 1;
+                confettiRed.maxEmitPower = 3;
+                confettiRed.updateSpeed = 0.005;
+
+                // blue/green
+                confettiBlueGreen = new BABYLON.ParticleSystem("confettiBlueGreen", 500, scene1);
+                confettiBlueGreen.particleTexture = new BABYLON.Texture("textures/fire.png", scene1);
+                confettiBlueGreen.emitter = new BABYLON.Vector3(-subLength / 2, 18, mazeLength / 2 + subLength * 2);
+                confettiBlueGreen.minEmitBox = new BABYLON.Vector3(-2 * subLength, 0, 2 * subLength);
+                confettiBlueGreen.maxEmitBox = new BABYLON.Vector3(2 * subLength, 0, -2 * subLength);
+                confettiBlueGreen.color1 = new BABYLON.Color4(0, 0, 1, 1.0);
+                confettiBlueGreen.color2 = new BABYLON.Color4(0.3, 0.7, 1, 1.0);
+                confettiBlueGreen.minSize = 0.4;
+                confettiBlueGreen.maxSize = 1.5;
+                confettiBlueGreen.minLifeTime = 0.2;
+                confettiBlueGreen.maxLifeTime = 0.5;
+                confettiBlueGreen.emitRate = 2000;
+                confettiBlueGreen.direction1 = new BABYLON.Vector3(0, -3, 0);
+                confettiBlueGreen.direction2 = new BABYLON.Vector3(0, -10, 0);
+                confettiBlueGreen.minEmitPower = 1;
+                confettiBlueGreen.maxEmitPower = 3;
+                confettiBlueGreen.updateSpeed = 0.005;
+
+                // sparser confetti towards edges
+                confetti = new BABYLON.ParticleSystem("confetti", 500, scene1);
+                confetti.particleTexture = new BABYLON.Texture("textures/fire.png", scene1);
+                confetti.emitter = new BABYLON.Vector3(-subLength / 2, 18, mazeLength / 2 + subLength * 2);
+                confetti.minEmitBox = new BABYLON.Vector3(-4 * subLength, 0, 4 * subLength);
+                confetti.maxEmitBox = new BABYLON.Vector3(4 * subLength, 0, -4 * subLength);
+                confetti.color1 = new BABYLON.Color4(0.7, 0, 0, 1.0);
+                confetti.color2 = new BABYLON.Color4(0.5, 0.5, 0, 1.0);
+                confetti.minSize = 0.4;
+                confetti.maxSize = 1.5;
+                confetti.minLifeTime = 0.2;
+                confetti.maxLifeTime = 0.5;
+                confetti.emitRate = 2000;
+                confetti.direction1 = new BABYLON.Vector3(0, -3, 0);
+                confetti.direction2 = new BABYLON.Vector3(0, -10, 0);
+                confetti.minEmitPower = 1;
+                confetti.maxEmitPower = 3;
+                confetti.updateSpeed = 0.005;
+
+            }
+            createParty();
+
             /***********************************************************************************************************************************************************/
 
             // Keypress events
@@ -645,7 +732,6 @@
 
             var totalCells = 64;    // total number of cells in sprite
             var index = 0;          // governs when sprites move
-            var confetti;   
 
             scene1.registerBeforeRender(function () {
                 
@@ -675,7 +761,11 @@
                         console.log("player made it to end of maze");
                         madeIt = true;
                         blockZoom = true;
-                        confetti = party(mazeLength, subLength);
+                        confettiRed.start();
+                        confettiBlueGreen.start();
+                        confetti.start();
+                        soundtrack.pause();
+                        starWars.play();
                         scene1GUI();
                     }
                     // Player Torch: not used. shadows are too cpu intensive
@@ -796,87 +886,6 @@
 
             return scene1;
         }
-
-
-        function party(mazeLength, subLength) {
-
-            soundtrack.pause();
-            // Music
-            soundtrack = new BABYLON.Sound(
-                "soundtrack",
-                "sounds/star_wars.wav",
-                scene1,
-                null,
-                {
-                    volume: volume,
-                    autoplay: true,
-                    loop: true
-                }
-            );
-
-            // red/orange
-            var confettiRed = new BABYLON.ParticleSystem("confettiRed", 500, scene1);
-            confettiRed.particleTexture = new BABYLON.Texture("textures/fire.png", scene1);
-            confettiRed.emitter = new BABYLON.Vector3(-subLength / 2, 18, mazeLength / 2 + subLength * 2);
-            confettiRed.minEmitBox = new BABYLON.Vector3(-2 * subLength, 0, 2 * subLength);
-            confettiRed.maxEmitBox = new BABYLON.Vector3(2 * subLength, 0, -2 * subLength);
-            confettiRed.color1 = new BABYLON.Color4(0.7, 0, 0, 1.0);
-            confettiRed.color2 = new BABYLON.Color4(0.5, 0.5, 0, 1.0);
-            confettiRed.minSize = 0.4;
-            confettiRed.maxSize = 1.5;
-            confettiRed.minLifeTime = 0.2;
-            confettiRed.maxLifeTime = 0.5;
-            confettiRed.emitRate = 2000;
-            confettiRed.direction1 = new BABYLON.Vector3(0, -3, 0);
-            confettiRed.direction2 = new BABYLON.Vector3(0, -10, 0);
-            confettiRed.minEmitPower = 1;
-            confettiRed.maxEmitPower = 3;
-            confettiRed.updateSpeed = 0.005;
-            confettiRed.start();
-
-            // blue/green
-            var confettiBlueGreen = new BABYLON.ParticleSystem("confettiBlueGreen", 500, scene1);
-            confettiBlueGreen.particleTexture = new BABYLON.Texture("textures/fire.png", scene1);
-            confettiBlueGreen.emitter = new BABYLON.Vector3(-subLength / 2, 18, mazeLength / 2 + subLength * 2);
-            confettiBlueGreen.minEmitBox = new BABYLON.Vector3(-2 * subLength, 0, 2 * subLength);
-            confettiBlueGreen.maxEmitBox = new BABYLON.Vector3(2 * subLength, 0, -2 * subLength);
-            confettiBlueGreen.color1 = new BABYLON.Color4(0, 0, 1, 1.0);
-            confettiBlueGreen.color2 = new BABYLON.Color4(0.3, 0.7, 1, 1.0);
-            confettiBlueGreen.minSize = 0.4;
-            confettiBlueGreen.maxSize = 1.5;
-            confettiBlueGreen.minLifeTime = 0.2;
-            confettiBlueGreen.maxLifeTime = 0.5;
-            confettiBlueGreen.emitRate = 2000;
-            confettiBlueGreen.direction1 = new BABYLON.Vector3(0, -3, 0);
-            confettiBlueGreen.direction2 = new BABYLON.Vector3(0, -10, 0);
-            confettiBlueGreen.minEmitPower = 1;
-            confettiBlueGreen.maxEmitPower = 3;
-            confettiBlueGreen.updateSpeed = 0.005;
-            confettiBlueGreen.start();
-
-            // sparser confetti towards edges
-            var confetti = new BABYLON.ParticleSystem("confetti", 500, scene1);
-            confetti.particleTexture = new BABYLON.Texture("textures/fire.png", scene1);
-            confetti.emitter = new BABYLON.Vector3(-subLength / 2, 18, mazeLength / 2 + subLength * 2);
-            confetti.minEmitBox = new BABYLON.Vector3(-4 * subLength, 0, 4 * subLength);
-            confetti.maxEmitBox = new BABYLON.Vector3(4 * subLength, 0, -4 * subLength);
-            confetti.color1 = new BABYLON.Color4(0.7, 0, 0, 1.0);
-            confetti.color2 = new BABYLON.Color4(0.5, 0.5, 0, 1.0);
-            confetti.minSize = 0.4;
-            confetti.maxSize = 1.5;
-            confetti.minLifeTime = 0.2;
-            confetti.maxLifeTime = 0.5;
-            confetti.emitRate = 2000;
-            confetti.direction1 = new BABYLON.Vector3(0, -3, 0);
-            confetti.direction2 = new BABYLON.Vector3(0, -10, 0);
-            confetti.minEmitPower = 1;
-            confetti.maxEmitPower = 3;
-            confetti.updateSpeed = 0.005;
-            confetti.start();
-            
-            return confetti;
-        }
-
 
         // ==== Recursive Maze Function ====
         function recursive_backtracking(cx, cy, grid, wallArray, myStack, index) {
@@ -1060,7 +1069,7 @@
                 nextScene = true;
                 replay = true;
                 soundtrack.pause();
-                sub = 10;
+                sub = 5;
                 difficultyLevel = 0;
                 scene0 = null;
                 scene1 = createScene1();
@@ -1171,6 +1180,7 @@
                 madeIt = false;
                 blockZoom = false;
                 soundtrack.pause();
+                starWars.pause();
                 scene1 = null;
                 scene0 = createScene0();
                 scene0GUI();
@@ -1191,6 +1201,7 @@
                 replay = false;
                 if (madeIt) {
                     soundtrack.pause();
+                    starWars.pause();
                     madeIt = false;
                     blockZoom = false;
                     replay = true;

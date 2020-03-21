@@ -277,11 +277,15 @@
             cameras();
 
             // Scene Lighting
-            var light = new BABYLON.HemisphericLight("HemiLight", new BABYLON.Vector3(0, 100, 0), scene1);
-            // light.diffuse = new BABYLON.Color3(0.3, 0.3, 0.3);
-            // var playerLight = new BABYLON.PointLight("lamplight", new BABYLON.Vector3(-subLength / 2, 3, -mazeLength / 2 - mazeLength * 0.05), scene1);
-            // playerLight.diffuse = new BABYLON.Color3(0.9, 0.7, 0.4);
-            // playerLight.specular = new BABYLON.Color3(0.4, 0.2, 0);
+            var light;
+            var createLighting = function() {
+                light = new BABYLON.HemisphericLight("HemiLight", new BABYLON.Vector3(0, 100, 0), scene1);
+                // light.diffuse = new BABYLON.Color3(0.3, 0.3, 0.3);
+                // var playerLight = new BABYLON.PointLight("lamplight", new BABYLON.Vector3(-subLength / 2, 3, -mazeLength / 2 - mazeLength * 0.05), scene1);
+                // playerLight.diffuse = new BABYLON.Color3(0.9, 0.7, 0.4);
+                // playerLight.specular = new BABYLON.Color3(0.4, 0.2, 0);
+            }
+            createLighting();
 
             // Ground, elevated ground, and surrounding walls
             var trenchSize;
@@ -458,9 +462,8 @@
             }
             createPlayerMesh();
 
-            // Sprites
 
-            // Walking Thor
+            // Sprite Sheets
             var walkingThor;
             var runningThor;
             var createSpriteCycles = function() {
@@ -533,25 +536,27 @@
             }
             createMazeWallGrid();
 
-            // Maze Generator --------
-            var grid = [];
-            // initialize array
-            for (i = 0; i < sub; i++) {
-                grid.push([]);
-                for (j = 0; j < sub; j++) {
-                    grid[i].push(0);
+            // Maze Generator
+            var grid = [];          
+            var myStack = [];       // stack to push previously visited cells to.
+            var generateMaze = function () {
+                // initialize array
+                for (i = 0; i < sub; i++) {
+                    grid.push([]);
+                    for (j = 0; j < sub; j++) {
+                        grid[i].push(0);
+                    }
                 }
+                // start recursive function
+                recursive_backtracking(0, sub - 1, grid, wallArray, myStack, index);
+                // Entrance
+                wallArray[sub * 2][Math.round(sub / 2) - 1].dispose();
+                delete wallArray[sub * 2][Math.round(sub / 2) - 1];
+                // Exit
+                wallArray[0][Math.round(sub / 2) - 1].dispose();
+                delete wallArray[0][Math.round(sub / 2) - 1];
             }
-            // stack to push previously visited cells
-            var myStack = [];
-            // start recursive function
-            carve_passages_from(0, sub - 1, grid, wallArray, myStack, index);
-            // Entrance
-            wallArray[sub * 2][Math.round(sub / 2) - 1].dispose();
-            delete wallArray[sub * 2][Math.round(sub / 2) - 1];
-            // Exit
-            wallArray[0][Math.round(sub / 2) - 1].dispose();
-            delete wallArray[0][Math.round(sub / 2) - 1];
+            generateMaze();
 
             // set player where maze entrance is (or end of maze if specified in global variables)
             if (sub % 2 === 1) {
@@ -564,64 +569,65 @@
             }
 
             // Torches
-            // var light2 = new BABYLON.PointLight("lamplight", new BABYLON.Vector3(-subLength, 3, -mazeLength / 2 - mazeLength * 0.02), scene1);
-            // light2.diffuse = new BABYLON.Color3(0.9, 0.7, 0.4);
-            // light2.specular = new BABYLON.Color3(0.4, 0.2, 0);
-            var lampstand = BABYLON.MeshBuilder.CreateCylinder("lampstand", { height: 6, diameterTop: 3, diameterBottom: 1.75, tessellation: 24 }, scene1);
-            lampstand.position = new BABYLON.Vector3(-subLength + (sub % 2) * (subLength / 2), 3 + elevation, -mazeLength / 2 - 4);
-            // lampstand.rotation.z = Math.PI;
-            lampstand.material = rock;
-            lampstand.checkCollisions = true;
-            //lamp 2
-            // var light3 = new BABYLON.PointLight("lamplight", new BABYLON.Vector3(0, 3, -mazeLength / 2 - mazeLength * 0.02), scene1);
-            // light3.diffuse = new BABYLON.Color3(0.9, 0.7, 0.4);
-            // light3.specular = new BABYLON.Color3(0.4, 0.2, 0);
-            var lampstand2 = BABYLON.MeshBuilder.CreateCylinder("lampstand", { height: 6, diameterTop: 3, diameterBottom: 1.75, tessellation: 24 }, scene1);
-            lampstand2.position = new BABYLON.Vector3((sub % 2) * (subLength / 2), 3 + elevation, -mazeLength / 2 - 4);
-            // lampstand2.rotation.z = Math.PI;
-            lampstand2.material = rock;
-            lampstand2.checkCollisions = true;
+            var createTorches = function() {
+                // var light2 = new BABYLON.PointLight("lamplight", new BABYLON.Vector3(-subLength, 3, -mazeLength / 2 - mazeLength * 0.02), scene1);
+                // light2.diffuse = new BABYLON.Color3(0.9, 0.7, 0.4);
+                // light2.specular = new BABYLON.Color3(0.4, 0.2, 0);
+                var lampstand = BABYLON.MeshBuilder.CreateCylinder("lampstand", { height: 6, diameterTop: 3, diameterBottom: 1.75, tessellation: 24 }, scene1);
+                lampstand.position = new BABYLON.Vector3(-subLength + (sub % 2) * (subLength / 2), 3 + elevation, -mazeLength / 2 - 4);
+                // lampstand.rotation.z = Math.PI;
+                lampstand.material = rock;
+                lampstand.checkCollisions = true;
+                //lamp 2
+                // var light3 = new BABYLON.PointLight("lamplight", new BABYLON.Vector3(0, 3, -mazeLength / 2 - mazeLength * 0.02), scene1);
+                // light3.diffuse = new BABYLON.Color3(0.9, 0.7, 0.4);
+                // light3.specular = new BABYLON.Color3(0.4, 0.2, 0);
+                var lampstand2 = BABYLON.MeshBuilder.CreateCylinder("lampstand", { height: 6, diameterTop: 3, diameterBottom: 1.75, tessellation: 24 }, scene1);
+                lampstand2.position = new BABYLON.Vector3((sub % 2) * (subLength / 2), 3 + elevation, -mazeLength / 2 - 4);
+                // lampstand2.rotation.z = Math.PI;
+                lampstand2.material = rock;
+                lampstand2.checkCollisions = true;
 
-            // Fire
-            var sparks = new BABYLON.ParticleSystem("sparks", 1000, scene1);
-            sparks.particleTexture = new BABYLON.Texture("textures/fire.png", scene1);
-            sparks.emitter = new BABYLON.Vector3(-subLength + (sub % 2) * (subLength / 2), 6 + elevation, -mazeLength / 2 - 4);
-            sparks.minEmitBox = new BABYLON.Vector3(-0.5, 0, 0.5);
-            sparks.maxEmitBox = new BABYLON.Vector3(0.5, 0, -0.5);
-            sparks.color1 = new BABYLON.Color4(0.7, 0, 0, 1.0);
-            sparks.color2 = new BABYLON.Color4(0.5, 0.5, 0, 1.0);
-            sparks.minSize = 0.4;
-            sparks.maxSize = 1.5;
-            sparks.minLifeTime = 0.2;
-            sparks.maxLifeTime = 0.5;
-            sparks.emitRate = 4000;
-            sparks.direction1 = new BABYLON.Vector3(0, 3, 0);
-            sparks.direction2 = new BABYLON.Vector3(0, 1.5, 0);
-            sparks.minEmitPower = 1;
-            sparks.maxEmitPower = 7;
-            sparks.updateSpeed = 0.005;
-            sparks.start();
+                // Fire
+                var sparks = new BABYLON.ParticleSystem("sparks", 1000, scene1);
+                sparks.particleTexture = new BABYLON.Texture("textures/fire.png", scene1);
+                sparks.emitter = new BABYLON.Vector3(-subLength + (sub % 2) * (subLength / 2), 6 + elevation, -mazeLength / 2 - 4);
+                sparks.minEmitBox = new BABYLON.Vector3(-0.5, 0, 0.5);
+                sparks.maxEmitBox = new BABYLON.Vector3(0.5, 0, -0.5);
+                sparks.color1 = new BABYLON.Color4(0.7, 0, 0, 1.0);
+                sparks.color2 = new BABYLON.Color4(0.5, 0.5, 0, 1.0);
+                sparks.minSize = 0.4;
+                sparks.maxSize = 1.5;
+                sparks.minLifeTime = 0.2;
+                sparks.maxLifeTime = 0.5;
+                sparks.emitRate = 4000;
+                sparks.direction1 = new BABYLON.Vector3(0, 3, 0);
+                sparks.direction2 = new BABYLON.Vector3(0, 1.5, 0);
+                sparks.minEmitPower = 1;
+                sparks.maxEmitPower = 7;
+                sparks.updateSpeed = 0.005;
+                sparks.start();
 
-            var sparks2 = new BABYLON.ParticleSystem("sparks", 1000, scene1);
-            sparks2.particleTexture = new BABYLON.Texture("textures/fire.png", scene1);
-            sparks2.emitter = new BABYLON.Vector3((sub % 2) * (subLength / 2), 6 + elevation, -mazeLength / 2 - 4);
-            sparks2.minEmitBox = new BABYLON.Vector3(-0.5, 0, 0.5);
-            sparks2.maxEmitBox = new BABYLON.Vector3(0.5, 0, -0.5);
-            sparks2.color1 = new BABYLON.Color4(0.7, 0, 0, 1.0);
-            sparks2.color2 = new BABYLON.Color4(0.5, 0.5, 0, 1.0);
-            sparks2.minSize = 0.4;
-            sparks2.maxSize = 1.5;
-            sparks2.minLifeTime = 0.2;
-            sparks2.maxLifeTime = 0.5;
-            sparks2.emitRate = 4000;
-            sparks2.direction1 = new BABYLON.Vector3(0, 3, 0);
-            sparks2.direction2 = new BABYLON.Vector3(0, 1.5, 0);
-            sparks2.minEmitPower = 1;
-            sparks2.maxEmitPower = 7;
-            sparks2.updateSpeed = 0.005;
-            sparks2.start();
-
-
+                var sparks2 = new BABYLON.ParticleSystem("sparks", 1000, scene1);
+                sparks2.particleTexture = new BABYLON.Texture("textures/fire.png", scene1);
+                sparks2.emitter = new BABYLON.Vector3((sub % 2) * (subLength / 2), 6 + elevation, -mazeLength / 2 - 4);
+                sparks2.minEmitBox = new BABYLON.Vector3(-0.5, 0, 0.5);
+                sparks2.maxEmitBox = new BABYLON.Vector3(0.5, 0, -0.5);
+                sparks2.color1 = new BABYLON.Color4(0.7, 0, 0, 1.0);
+                sparks2.color2 = new BABYLON.Color4(0.5, 0.5, 0, 1.0);
+                sparks2.minSize = 0.4;
+                sparks2.maxSize = 1.5;
+                sparks2.minLifeTime = 0.2;
+                sparks2.maxLifeTime = 0.5;
+                sparks2.emitRate = 4000;
+                sparks2.direction1 = new BABYLON.Vector3(0, 3, 0);
+                sparks2.direction2 = new BABYLON.Vector3(0, 1.5, 0);
+                sparks2.minEmitPower = 1;
+                sparks2.maxEmitPower = 7;
+                sparks2.updateSpeed = 0.005;
+                sparks2.start();
+            }
+            createTorches();
 
             /***********************************************************************************************************************************************************/
 
@@ -637,150 +643,153 @@
 
             window.tempv = new BABYLON.Vector3.Zero();
 
-            // total number of cells in sprite
-            var totalCells = 64;
-            // governs when sprites move
-            var index = 0;
-            var confetti;
+            var totalCells = 64;    // total number of cells in sprite
+            var index = 0;          // governs when sprites move
+            var confetti;   
 
             scene1.registerBeforeRender(function () {
                 
-                // bird's eye view for z
-                if (follow) {
-                    if (window.keyisdown[90]
-                        && -mazeLength / 2 < player.position.x && player.position.x < mazeLength / 2    // only lets you zoom out when inside the maze
-                        && -mazeLength / 2 < player.position.z && player.position.z < mazeLength / 2
-                        && !blockZoom
-                    ) {
-                        // Zoom out
-                        followCam.radius = sub * 9;
-                        followCam.heightOffset = sub * 9;
-                        followCam.rotationOffset = 180;
+                var makeZoomAndParty = function() {
+                    // bird's eye view for z
+                    if (follow) {
+                        if (window.keyisdown[90]
+                            && -mazeLength / 2 < player.position.x && player.position.x < mazeLength / 2    // only lets you zoom out when inside the maze
+                            && -mazeLength / 2 < player.position.z && player.position.z < mazeLength / 2
+                            && !blockZoom
+                        ) {
+                            // Zoom out
+                            followCam.radius = sub * 9;
+                            followCam.heightOffset = sub * 9;
+                            followCam.rotationOffset = 180;
+                        }
+                        else {
+                            // Zoom in
+                            followCam.radius = 15;
+                            followCam.heightOffset = 30;
+                        }
                     }
-                    else {
-                        // Zoom in
-                        followCam.radius = 15;
-                        followCam.heightOffset = 30;
+
+                    // if player is at end of maze, create party
+                    if (-(subLength * 2) < player.position.x && player.position.x < subLength * 2 &&
+                        mazeLength / 2 + 5 < player.position.z && player.position.z < mazeLength / 2 + subLength * 3 && !madeIt) {
+                        console.log("player made it to end of maze");
+                        madeIt = true;
+                        blockZoom = true;
+                        confetti = party(mazeLength, subLength);
+                        scene1GUI();
                     }
+                    // Player Torch: not used. shadows are too cpu intensive
+                    // playerLight.position = player.position;
                 }
-
-                // if player is at end of maze, create party
-                if (-(subLength * 2) < player.position.x && player.position.x < subLength * 2 &&
-                    mazeLength / 2 + 5 < player.position.z && player.position.z < mazeLength / 2 + subLength * 3 && !madeIt) {
-                    console.log("player made it to end of maze");
-                    madeIt = true;
-                    blockZoom = true;
-                    confetti = party(mazeLength, subLength);
-                    scene1GUI();
-                }
-                // Player Torch: not used. shadows are too cpu intensive
-                // playerLight.position = player.position;
-
+                makeZoomAndParty();
 
                 // Player Walking or Running
-                // delay variable is loop interval at which player sprite operates (uses modulus)
-                // when space bar is pressed, run.
-                if (!window.keyisdown[32]) {
-                    var v = 0.15;
-                    var delay = 6;
-                    walkingThor.position = player.position;
-                    runningThor.position.y = player.position.y - 10;
-                }
-                else {
-                    var v = 0.45;
-                    var delay = 4;
-                    runningThor.position = player.position;
-                    walkingThor.position.y = player.position.y - 10;
-                }
+                var makePlayerMove = function() {
+                    // delay variable is loop interval at which player sprite operates (uses modulus)
+                    // when space bar is pressed, run.
+                    if (!window.keyisdown[32]) {
+                        var v = 0.15;
+                        var delay = 6;
+                        walkingThor.position = player.position;
+                        runningThor.position.y = player.position.y - 10;
+                    }
+                    else {
+                        var v = 0.45;
+                        var delay = 4;
+                        runningThor.position = player.position;
+                        walkingThor.position.y = player.position.y - 10;
+                    }
 
-                if (madeIt) {
-                    confetti.emitter = player.position;
-                }
-                player.nextspeed.x = 0.0;
-                player.nextspeed.z = 0.00001;
-                index += 1;
-                // Left "a"
-                if (window.keyisdown[65] && !window.keyisdown[87] && !window.keyisdown[83]) {
-                    player.nextspeed.x = -v;
-                    moveSprite(8, 15, delay, totalCells, index, walkingThor);
-                    // if running
-                    moveSprite(8, 15, delay, totalCells, index, runningThor);
-                }
-                // Right "d"
-                if (window.keyisdown[68] && !window.keyisdown[87] && !window.keyisdown[83]) {
-                    player.nextspeed.x = v;
-                    moveSprite(16, 23, delay, totalCells, index, walkingThor);
-                    moveSprite(16, 23, delay, totalCells, index, runningThor);
-                }
-                // Up "w"
-                if (window.keyisdown[87] && !window.keyisdown[65] && !window.keyisdown[68]) {
-                    player.nextspeed.z = v;
-                    moveSprite(24, 31, delay, totalCells, index, walkingThor);
-                    moveSprite(24, 31, delay, totalCells, index, runningThor);
-                }
-                // Down "s"
-                if (window.keyisdown[83] && !window.keyisdown[65] && !window.keyisdown[68]) {
-                    player.nextspeed.z = -v;
-                    moveSprite(0, 7, delay, totalCells, index, walkingThor);
-                    moveSprite(0, 7, delay, totalCells, index, runningThor);
-                }
+                    if (madeIt) {
+                        confetti.emitter = player.position;
+                    }
+                    player.nextspeed.x = 0.0;
+                    player.nextspeed.z = 0.00001;
+                    index += 1;
+                    // Left "a"
+                    if (window.keyisdown[65] && !window.keyisdown[87] && !window.keyisdown[83]) {
+                        player.nextspeed.x = -v;
+                        moveSprite(8, 15, delay, totalCells, index, walkingThor);
+                        // if running
+                        moveSprite(8, 15, delay, totalCells, index, runningThor);
+                    }
+                    // Right "d"
+                    if (window.keyisdown[68] && !window.keyisdown[87] && !window.keyisdown[83]) {
+                        player.nextspeed.x = v;
+                        moveSprite(16, 23, delay, totalCells, index, walkingThor);
+                        moveSprite(16, 23, delay, totalCells, index, runningThor);
+                    }
+                    // Up "w"
+                    if (window.keyisdown[87] && !window.keyisdown[65] && !window.keyisdown[68]) {
+                        player.nextspeed.z = v;
+                        moveSprite(24, 31, delay, totalCells, index, walkingThor);
+                        moveSprite(24, 31, delay, totalCells, index, runningThor);
+                    }
+                    // Down "s"
+                    if (window.keyisdown[83] && !window.keyisdown[65] && !window.keyisdown[68]) {
+                        player.nextspeed.z = -v;
+                        moveSprite(0, 7, delay, totalCells, index, walkingThor);
+                        moveSprite(0, 7, delay, totalCells, index, runningThor);
+                    }
 
-                // MultiDirectional
+                    // MultiDirectional
 
-                // UpLeft
-                if (window.keyisdown[65] && window.keyisdown[87]) {
-                    player.nextspeed.x = - Math.sqrt(Math.pow(v, 2) / 2);   // makes trig combination equal to v
-                    player.nextspeed.z = Math.sqrt(Math.pow(v, 2) / 2);
-                    moveSprite(40, 47, delay, totalCells, index, walkingThor);
-                    moveSprite(40, 47, delay, totalCells, index, runningThor);
-                }
-                // UpRight
-                if (window.keyisdown[68] && window.keyisdown[87]) {
-                    player.nextspeed.x = Math.sqrt(Math.pow(v, 2) / 2);
-                    player.nextspeed.z = Math.sqrt(Math.pow(v, 2) / 2);
-                    moveSprite(56, 63, delay, totalCells, index, walkingThor);
-                    moveSprite(56, 63, delay, totalCells, index, runningThor);
-                }
-                // BottomRight
-                if (window.keyisdown[68] && window.keyisdown[83]) {
-                    player.nextspeed.x = Math.sqrt(Math.pow(v, 2) / 2);
-                    player.nextspeed.z = - Math.sqrt(Math.pow(v, 2) / 2);
-                    moveSprite(48, 55, delay, totalCells, index, walkingThor);
-                    moveSprite(48, 55, delay, totalCells, index, runningThor);
-                }
-                // BottomLeft
-                if (window.keyisdown[65] && window.keyisdown[83]) {
-                    player.nextspeed.x = - Math.sqrt(Math.pow(v, 2) / 2);
-                    player.nextspeed.z = - Math.sqrt(Math.pow(v, 2) / 2);
-                    moveSprite(32, 39, delay, totalCells, index, walkingThor);
-                    moveSprite(32, 39, delay, totalCells, index, runningThor);
-                }
-                // Top Three (a, w, d)
-                if (window.keyisdown[87] && window.keyisdown[65] && window.keyisdown[68]) {
-                    player.nextspeed.z = v;
-                    moveSprite(24, 31, delay, totalCells, index, walkingThor);
-                    moveSprite(24, 31, delay, totalCells, index, runningThor);
-                }
-                // Bottom Three (a, s, d)
-                if (window.keyisdown[83] && window.keyisdown[65] && window.keyisdown[68]) {
-                    player.nextspeed.z = -v;
-                    moveSprite(0, 7, delay, totalCells, index, walkingThor);
-                    moveSprite(0, 7, delay, totalCells, index, runningThor);
-                }
+                    // UpLeft
+                    if (window.keyisdown[65] && window.keyisdown[87]) {
+                        player.nextspeed.x = - Math.sqrt(Math.pow(v, 2) / 2);   // makes trig combination equal to v
+                        player.nextspeed.z = Math.sqrt(Math.pow(v, 2) / 2);
+                        moveSprite(40, 47, delay, totalCells, index, walkingThor);
+                        moveSprite(40, 47, delay, totalCells, index, runningThor);
+                    }
+                    // UpRight
+                    if (window.keyisdown[68] && window.keyisdown[87]) {
+                        player.nextspeed.x = Math.sqrt(Math.pow(v, 2) / 2);
+                        player.nextspeed.z = Math.sqrt(Math.pow(v, 2) / 2);
+                        moveSprite(56, 63, delay, totalCells, index, walkingThor);
+                        moveSprite(56, 63, delay, totalCells, index, runningThor);
+                    }
+                    // BottomRight
+                    if (window.keyisdown[68] && window.keyisdown[83]) {
+                        player.nextspeed.x = Math.sqrt(Math.pow(v, 2) / 2);
+                        player.nextspeed.z = - Math.sqrt(Math.pow(v, 2) / 2);
+                        moveSprite(48, 55, delay, totalCells, index, walkingThor);
+                        moveSprite(48, 55, delay, totalCells, index, runningThor);
+                    }
+                    // BottomLeft
+                    if (window.keyisdown[65] && window.keyisdown[83]) {
+                        player.nextspeed.x = - Math.sqrt(Math.pow(v, 2) / 2);
+                        player.nextspeed.z = - Math.sqrt(Math.pow(v, 2) / 2);
+                        moveSprite(32, 39, delay, totalCells, index, walkingThor);
+                        moveSprite(32, 39, delay, totalCells, index, runningThor);
+                    }
+                    // Top Three (a, w, d)
+                    if (window.keyisdown[87] && window.keyisdown[65] && window.keyisdown[68]) {
+                        player.nextspeed.z = v;
+                        moveSprite(24, 31, delay, totalCells, index, walkingThor);
+                        moveSprite(24, 31, delay, totalCells, index, runningThor);
+                    }
+                    // Bottom Three (a, s, d)
+                    if (window.keyisdown[83] && window.keyisdown[65] && window.keyisdown[68]) {
+                        player.nextspeed.z = -v;
+                        moveSprite(0, 7, delay, totalCells, index, walkingThor);
+                        moveSprite(0, 7, delay, totalCells, index, runningThor);
+                    }
 
 
 
-                player.speed = BABYLON.Vector3.Lerp(player.speed, player.nextspeed, 0.1);
-                player.moveWithCollisions(player.speed);
+                    player.speed = BABYLON.Vector3.Lerp(player.speed, player.nextspeed, 0.1);
+                    player.moveWithCollisions(player.speed);
 
-                if (player.position.z < -groundSize / 2 + 15) { player.position.z = -groundSize / 2 + 15; }
+                    if (player.position.z < -groundSize / 2 + 15) { player.position.z = -groundSize / 2 + 15; }
 
-                // player.nexttorch = lightImpostor.getAbsolutePosition();
-                // torch.position.copyFrom(player.nexttorch);
-                // torch.intensity = 0.7 + Math.random() * 0.1;
-                // torch.position.x += Math.random() * 0.125 - 0.0625;
-                // torch.position.z += Math.random() * 0.125 - 0.0625;
-                // camera.target = player;
+                    // player.nexttorch = lightImpostor.getAbsolutePosition();
+                    // torch.position.copyFrom(player.nexttorch);
+                    // torch.intensity = 0.7 + Math.random() * 0.1;
+                    // torch.position.x += Math.random() * 0.125 - 0.0625;
+                    // torch.position.z += Math.random() * 0.125 - 0.0625;
+                    // camera.target = player;
+                }
+                makePlayerMove();
             });
 
             // /*********************************************************************************************************************/
@@ -870,7 +879,7 @@
 
 
         // ==== Recursive Maze Function ====
-        function carve_passages_from(cx, cy, grid, wallArray, myStack, index) {
+        function recursive_backtracking(cx, cy, grid, wallArray, myStack, index) {
             // new x and y indices
             var nx;
             var ny;
@@ -937,7 +946,7 @@
                     }
                     index++;
                     // console.log("moving forward");
-                    carve_passages_from(nx, ny, grid, wallArray, myStack, index);
+                    recursive_backtracking(nx, ny, grid, wallArray, myStack, index);
                 }
             }
             // if no options available - not in for loop
@@ -947,7 +956,7 @@
             var py = myStack.pop();
             var px = myStack.pop();
             index++;
-            carve_passages_from(px, py, grid, wallArray, myStack, index);
+            recursive_backtracking(px, py, grid, wallArray, myStack, index);
         }
 
         function shuffle(array) {

@@ -277,17 +277,35 @@
                 pMat.emissiveColor = new BABYLON.Color3(1, 1, 0);
                 pMat.alpha = 0;
 
+                var badGuyAlpha = 0.75;
+
                 badGuyRed = new BABYLON.StandardMaterial("badGuyRed", scene1);
                 badGuyRed.diffuseColor = new BABYLON.Color3(1, 0, 0);
-                badGuyRed.alpha = 0.75;
+                badGuyRed.alpha = badGuyAlpha;
 
                 badGuyBlue = new BABYLON.StandardMaterial("badGuyBlue", scene1);
                 badGuyBlue.diffuseColor = new BABYLON.Color3(0, 0, 1);
-                badGuyBlue.alpha = 0.75;
+                badGuyBlue.alpha = badGuyAlpha;
 
                 badGuyMagenta = new BABYLON.StandardMaterial("badGuyMagenta", scene1);
                 badGuyMagenta.diffuseColor = new BABYLON.Color3(1, 0, 1);
-                badGuyMagenta.alpha = 0.75;
+                badGuyMagenta.alpha = badGuyAlpha;
+
+                badGuyYellow = new BABYLON.StandardMaterial("badGuyYellow", scene1);
+                badGuyYellow.diffuseColor = new BABYLON.Color3(1, 1, 0);
+                badGuyYellow.alpha = badGuyAlpha;
+
+                badGuyGreen = new BABYLON.StandardMaterial("badGuyGreen", scene1);
+                badGuyGreen.diffuseColor = new BABYLON.Color3(0, 1, 0);
+                badGuyGreen.alpha = badGuyAlpha;
+
+                badGuyWhite = new BABYLON.StandardMaterial("badGuyWhite", scene1);
+                badGuyWhite.diffuseColor = new BABYLON.Color3(1, 1, 1);
+                badGuyWhite.alpha = badGuyAlpha;
+
+                badGuyBlack = new BABYLON.StandardMaterial("badGuyBlack", scene1);
+                badGuyBlack.diffuseColor = new BABYLON.Color3(0, 0, 0);
+                badGuyBlack.alpha = badGuyAlpha;
             }
             textures();
 
@@ -789,6 +807,14 @@
             var badGuy2Vars = {oldCell: null, currentCell: null, nextCell: null};
             var badGuy3;
             var badGuy3Vars = {oldCell: null, currentCell: null, nextCell: null};
+            var badGuy4;
+            var badGuy4Vars = {oldCell: null, currentCell: null, nextCell: null};
+            var badGuy5;
+            var badGuy5Vars = {oldCell: null, currentCell: null, nextCell: null};
+            var badGuy6;
+            var badGuy6Vars = {oldCell: null, currentCell: null, nextCell: null};
+            var badGuy7;
+            var badGuy7Vars = {oldCell: null, currentCell: null, nextCell: null};
             var createBadGuys = function() {
                 badGuy1 = new BABYLON.MeshBuilder.CreateBox("badGuy1", {width: 3, height: 6, depth: 3}, scene1);
                 badGuy1Vars.currentCell = grid[sub - 1][Math.floor(sub / 2 - 1)];
@@ -807,6 +833,34 @@
                 badGuy3.position = new BABYLON.Vector3(badGuy3Vars.currentCell.getXCoord, elevation + 3, badGuy3Vars.currentCell.getZCoord);
                 badGuy3.checkCollisions = true;
                 badGuy3.material = badGuyMagenta;
+
+                if (difficultyLevel >= 1) {
+                    badGuy4 = new BABYLON.MeshBuilder.CreateBox("badGuy4", {width: 3, height: 6, depth: 3}, scene1);
+                    badGuy4Vars.currentCell = grid[sub - 1][0];
+                    badGuy4.position = new BABYLON.Vector3(badGuy4Vars.currentCell.getXCoord, elevation + 3, badGuy4Vars.currentCell.getZCoord);
+                    badGuy4.checkCollisions = true;
+                    badGuy4.material = badGuyYellow;
+
+                    badGuy5 = new BABYLON.MeshBuilder.CreateBox("badGuy5", {width: 3, height: 6, depth: 3}, scene1);
+                    badGuy5Vars.currentCell = grid[sub - 1][sub - 1];
+                    badGuy5.position = new BABYLON.Vector3(badGuy5Vars.currentCell.getXCoord, elevation + 3, badGuy5Vars.currentCell.getZCoord);
+                    badGuy5.checkCollisions = true;
+                    badGuy5.material = badGuyGreen;
+
+                    if (difficultyLevel === 2) {
+                        badGuy6 = new BABYLON.MeshBuilder.CreateBox("badGuy6", {width: 3, height: 6, depth: 3}, scene1);
+                        badGuy6Vars.currentCell = grid[Math.floor(sub / 2)][0];
+                        badGuy6.position = new BABYLON.Vector3(badGuy6Vars.currentCell.getXCoord, elevation + 3, badGuy6Vars.currentCell.getZCoord);
+                        badGuy6.checkCollisions = true;
+                        badGuy6.material = badGuyWhite;
+
+                        badGuy7 = new BABYLON.MeshBuilder.CreateBox("badGuy7", {width: 3, height: 6, depth: 3}, scene1);
+                        badGuy7Vars.currentCell = grid[Math.floor(sub / 2)][sub - 1];
+                        badGuy7.position = new BABYLON.Vector3(badGuy7Vars.currentCell.getXCoord, elevation + 3, badGuy7Vars.currentCell.getZCoord);
+                        badGuy7.checkCollisions = true;
+                        badGuy7.material = badGuyBlack;
+                    }
+                }
 
             }
             createBadGuys();
@@ -982,6 +1036,14 @@
                 createBadGuyMovement(index, grid, badGuy1Vars, badGuy1, badGuySpeed);
                 createBadGuyMovement(index, grid, badGuy2Vars, badGuy2, badGuySpeed);
                 createBadGuyMovement(index, grid, badGuy3Vars, badGuy3, badGuySpeed);
+                if (difficultyLevel >= 1) {
+                    createBadGuyMovement(index, grid, badGuy3Vars, badGuy4, badGuySpeed);
+                    createBadGuyMovement(index, grid, badGuy3Vars, badGuy5, badGuySpeed);
+                    if (difficultyLevel === 2) {
+                        createBadGuyMovement(index, grid, badGuy3Vars, badGuy6, badGuySpeed);
+                        createBadGuyMovement(index, grid, badGuy3Vars, badGuy7, badGuySpeed);
+                    }
+                }
             });
 
             // /*********************************************************************************************************************/
@@ -1017,6 +1079,11 @@
                             break;
                         }
                     }
+                }
+                else if(grid[badGuyVars.currentCell.getY][badGuyVars.currentCell.getX].getLinkLength > 2) {
+                    do {
+                        badGuyVars.nextCell = grid[badGuyVars.currentCell.getY][badGuyVars.currentCell.getX].randomLink;
+                    } while(badGuyVars.nextCell.getX === badGuyVars.oldCell.getX && badGuyVars.nextCell.getY === badGuyVars.oldCell.getY && index % 3 === 0);
                 }
                 else {
                     // just pick a random next cell
@@ -1232,7 +1299,7 @@
                 nextScene = true;
                 replay = true;
                 soundtrack.pause();
-                sub = 6;
+                sub = 10;
                 difficultyLevel = 0;
                 scene0 = null;
                 scene1 = createScene1();

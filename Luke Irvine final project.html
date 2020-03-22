@@ -56,6 +56,35 @@
         var scene1 = null;
         var createDefaultEngine = function () { return new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true }); };
 
+        class Cell {
+            constructor(y, x, visited, links) {
+                this.y = y;
+                this.x = x;
+                this.visited = visited;
+                this.links = links;
+            }
+            // returns random link
+            get randomLink() {
+                var randNum = Math.floor(Math.random() * (this.links.length));
+                return this.links[randNum];
+            }
+            setVisited(x) {
+                this.visited = x;
+            }
+            pushLinks(x) {
+                this.links.push(x);
+            }
+            get getVisited() {
+                return this.visited;
+            }
+            get getX() {
+                return this.x;
+            }
+            get getY() {
+                return this.y;
+            }
+        };
+
         // global variables used throughout code
         var nextScene = false;                  // false sets up welcome screen first
         var advancedTexture;                    // used for GUIs
@@ -68,6 +97,10 @@
         var volume = 0.75;
         var difficultyLevel = 0;                // 0 is easy, 1 is medium, 2 is hard
         var blockZoom = false;                  // when true, zoom is disabled
+        var player;                             // used to create protagonist player mesh
+        var subLength;
+        var elevation;
+        var mazeLength;
         // var timerStart = false;
 
 
@@ -112,11 +145,11 @@
             scene1.enablePhysics(new BABYLON.Vector3(0, -50, 0), new BABYLON.OimoJSPlugin());
 
             // Tweaking Variables
-            var elevation = 10;
+            elevation = 10;
             var wallHeight = 10;                // don't adjust
             var wallDepth = 4;                  // don't adjust
-            var mazeLength = sub * 10;
-            var subLength = mazeLength / sub;
+            mazeLength = sub * 10;
+            subLength = mazeLength / sub;
             var groundSize = mazeLength + sub * 20;
             var follow = true;                  // true makes camera follow player. False gives bird's eye
             var cameraGravity = true;           // only works for Universal Camera
@@ -464,7 +497,6 @@
             placeTrees();
 
             // Player Mesh
-            var player;
             var createPlayerMesh = function() {
                 player = BABYLON.MeshBuilder.CreateSphere("player", { diameterY: 6, diameterX: 3, diameterZ: 3 }, scene1);
                 player.material = pMat;
@@ -566,7 +598,7 @@
                 for (i = 0; i < sub; i++) {
                     grid.push([]);
                     for (j = 0; j < sub; j++) {
-                        grid[i].push(0);
+                        grid[i].push(new Cell(i, j, 0, []));
                     }
                 }
                 // start recursive function
@@ -903,7 +935,7 @@
             var directions = [N, S, W, E];
             shuffle(directions);
             // set 1 at current cell so we know we've been here
-            grid[cy][cx] = 1;
+            grid[cy][cx].setVisited(1);
 
             // console.log("cy");
             // console.log(cy);
@@ -922,10 +954,12 @@
                     ny = cy + directions[i];
                 }
                 // if new cell is inbounds and not visitied previously
-                if ((nx >= 0 && nx < grid[0].length) && (ny >= 0 && ny < grid.length) && grid[ny][nx] === 0) {
+                if ((nx >= 0 && nx < grid[0].length) && (ny >= 0 && ny < grid.length) && grid[ny][nx].getVisited === 0) {
                     myStack.push(cx);
                     myStack.push(cy);
-                    // Tear down wall
+                    grid[cy][cx].pushLinks(new Cell(ny, nx, 0, null));
+                    grid[ny][nx].pushLinks(new Cell(cy, cx, 0, null));
+                    // Tear down wall and add link between old cell and new
                     if (directions[i] === N) {
                         wallArray[2 * cy + 1 + N][cx].dispose();
                         delete wallArray[2 * cy + 1 + N][cx];
@@ -968,6 +1002,7 @@
             index++;
             recursive_backtracking(px, py, grid, wallArray, myStack, index);
         }
+
 
         function shuffle(array) {
             for (let i = array.length - 1; i > 0; i--) {
@@ -1070,7 +1105,7 @@
                 nextScene = true;
                 replay = true;
                 soundtrack.pause();
-                sub = 5;
+                sub = 6;
                 difficultyLevel = 0;
                 scene0 = null;
                 scene1 = createScene1();
@@ -1188,16 +1223,44 @@
             });
             panel.addControl(homeButton);
 
-            var resetButton = BABYLON.GUI.Button.CreateImageWithCenterTextButton("but", "Reset Maze", "");
-            resetButton.width = "75px";
-            resetButton.height = "50px";
-            resetButton.color = "gray";
-            resetButton.background = "black";
-            resetButton.cornerRadius = 0;
-            resetButton.verticalAlignment = 1;
-            resetButton.horizontalAlignment = 0;
-            resetButton.isPointerBlocker = true
-            resetButton.onPointerUpObservable.add(function () {
+            var resetPlayerButton = BABYLON.GUI.Button.CreateImageWithCenterTextButton("but", "Reset Player", "");
+            resetPlayerButton.width = "75px";
+            resetPlayerButton.height = "50px";
+            resetPlayerButton.color = "gray";
+            resetPlayerButton.background = "black";
+            resetPlayerButton.cornerRadius = 0;
+            resetPlayerButton.verticalAlignment = 1;
+            resetPlayerButton.horizontalAlignment = 0;
+            resetPlayerButton.isPointerBlocker = true
+            resetPlayerButton.onPointerUpObservable.add(function () {
+                replay = false;
+                if (madeIt) {
+                    soundtrack.pause();
+                    starWars.pause();
+                    madeIt = false;
+                    blockZoom = false;
+                    replay = true;
+                }
+                // set player position
+                if (sub % 2 === 1) {
+                    player.position = new BABYLON.Vector3(0, 3 + elevation, -mazeLength / 2 - mazeLength * 0.05)
+                }
+                else {
+                    player.position = new BABYLON.Vector3(-subLength / 2, 3 + elevation, -mazeLength / 2 - mazeLength * 0.05)
+                }
+            });
+            panel.addControl(resetPlayerButton);
+
+            var newMazeButton = BABYLON.GUI.Button.CreateImageWithCenterTextButton("but", "New Maze", "");
+            newMazeButton.width = "75px";
+            newMazeButton.height = "50px";
+            newMazeButton.color = "gray";
+            newMazeButton.background = "black";
+            newMazeButton.cornerRadius = 0;
+            newMazeButton.verticalAlignment = 1;
+            newMazeButton.horizontalAlignment = 0;
+            newMazeButton.isPointerBlocker = true
+            newMazeButton.onPointerUpObservable.add(function () {
                 advancedTexture.dispose();
                 replay = false;
                 if (madeIt) {
@@ -1211,7 +1274,9 @@
                 scene1 = createScene1();
                 scene1GUI();
             });
-            panel.addControl(resetButton);
+            panel.addControl(newMazeButton);
+
+
 
             // Difficulty level
             switch (difficultyLevel) {

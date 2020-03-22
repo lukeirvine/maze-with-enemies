@@ -183,6 +183,8 @@
             var stone2;
             var pMat;
             var badGuyRed;
+            var badGuyBlue;
+            var badGuyMagenta
             var tileCount;
             var tileCount2;
             var tileCount3;
@@ -278,6 +280,14 @@
                 badGuyRed = new BABYLON.StandardMaterial("badGuyRed", scene1);
                 badGuyRed.diffuseColor = new BABYLON.Color3(1, 0, 0);
                 badGuyRed.alpha = 0.75;
+
+                badGuyBlue = new BABYLON.StandardMaterial("badGuyBlue", scene1);
+                badGuyBlue.diffuseColor = new BABYLON.Color3(0, 0, 1);
+                badGuyBlue.alpha = 0.75;
+
+                badGuyMagenta = new BABYLON.StandardMaterial("badGuyMagenta", scene1);
+                badGuyMagenta.diffuseColor = new BABYLON.Color3(1, 0, 1);
+                badGuyMagenta.alpha = 0.75;
             }
             textures();
 
@@ -774,14 +784,30 @@
 
             // Bad Guys
             var badGuy1;
-            var currentCell1;
-            var nextCell1;
+            var badGuy1Vars = {oldCell: null, currentCell: null, nextCell: null};
+            var badGuy2;
+            var badGuy2Vars = {oldCell: null, currentCell: null, nextCell: null};
+            var badGuy3;
+            var badGuy3Vars = {oldCell: null, currentCell: null, nextCell: null};
             var createBadGuys = function() {
                 badGuy1 = new BABYLON.MeshBuilder.CreateBox("badGuy1", {width: 3, height: 6, depth: 3}, scene1);
-                currentCell1 = grid[sub - 1][Math.floor(sub / 2 - 1)]
-                badGuy1.position = new BABYLON.Vector3(currentCell1.getXCoord, elevation + 3, currentCell1.getZCoord);
+                badGuy1Vars.currentCell = grid[sub - 1][Math.floor(sub / 2 - 1)];
+                badGuy1.position = new BABYLON.Vector3(badGuy1Vars.currentCell.getXCoord, elevation + 3, badGuy1Vars.currentCell.getZCoord);
                 badGuy1.checkCollisions = true;
                 badGuy1.material = badGuyRed;
+
+                badGuy2 = new BABYLON.MeshBuilder.CreateBox("badGuy2", {width: 3, height: 6, depth: 3}, scene1);
+                badGuy2Vars.currentCell = grid[0][sub - 1];
+                badGuy2.position = new BABYLON.Vector3(badGuy2Vars.currentCell.getXCoord, elevation + 3, badGuy2Vars.currentCell.getZCoord);
+                badGuy2.checkCollisions = true;
+                badGuy2.material = badGuyBlue;
+
+                badGuy3 = new BABYLON.MeshBuilder.CreateBox("badGuy3", {width: 3, height: 6, depth: 3}, scene1);
+                badGuy3Vars.currentCell = grid[0][0];
+                badGuy3.position = new BABYLON.Vector3(badGuy3Vars.currentCell.getXCoord, elevation + 3, badGuy3Vars.currentCell.getZCoord);
+                badGuy3.checkCollisions = true;
+                badGuy3.material = badGuyMagenta;
+
             }
             createBadGuys();
 
@@ -951,73 +977,69 @@
                 makePlayerMove();
 
                 // Bad Guys
-                // if (index % 10 === 0) {
-                //     badGuy1.position.x += 0.1;
-                // }
-                var N = -1;
-                var S = 1;
-                var W = -2;
-                var E = 2;
                 var badGuySpeed = 0.5;
-                var currentDirection1;
-                if (index === 1) {
-                    nextCell1 = currentCell1.randomLink;
-                    console.log("Current Cell coords: " + currentCell1.getZCoord.toString() + ", " + currentCell1.getXCoord.toString());                    
-                    console.log("Next Cell coords: " + nextCell1.getZCoord.toString() + ", " + nextCell1.getXCoord.toString());
-                }
-                if (Math.round(100 * badGuy1.position.x) / 100 === nextCell1.getXCoord && Math.round(100 * badGuy1.position.z) / 100 === nextCell1.getZCoord) {
-                    // Bad Guy is at Next Cell Position
-                    // console.log("reached next cell");
-                    // Set new currentCell and new nextCell
-                    currentDirection1 = nextCell1.getLinkDirection;
-                    currentCell1 = grid[nextCell1.getY][nextCell1.getX];
-                    // console.log("link length: " + grid[currentCell1.getY][currentCell1.getX].getLinkLength.toString())
-                    // set comparison to 0 if you want to see it work ------------vvv---------------
-                    if (grid[currentCell1.getY][currentCell1.getX].getLinkLength > 2) {
-                        // just pick a random next cell
-                        nextCell1 = grid[currentCell1.getY][currentCell1.getX].randomLink;
-                    }
-                    else {
-                        // get link of next cell in the current direction
-                        console.log("link length = 2");
-                        // nextCell1 = grid[currentCell1.getY][currentCell1.getX].getLinks[0];
-                        for (i = 0; i < 2; i++) {
-                            var nextLink = grid[currentCell1.getY][currentCell1.getX].getLinks[i];
-                            var linkDirection = nextLink.getLinkDirection;
-                            console.log("link direction: " + linkDirection.toString());
-                            if (linkDirection === currentDirection1) {
-                                console.log("set new cell");
-                                nextCell1 = grid[currentCell1.getY][currentCell1.getX].getLinks[i];
-                            }
-                            else {
-                                console.log("didn't work");
-                            }
-                        }
-                    }
-                }
-                else {
-                    // Bad Guy isn't at next cell position yet.
-                    // console.log("badGuy position (y, x): " + (Math.round(100 * badGuy1.position.z) / 100).toString() + ", " + (Math.round(100 * badGuy1.position.x) / 100).toString());
-                    switch (nextCell1.getLinkDirection) {
-                        case N:
-                            badGuy1.position.z += badGuySpeed;
-                            break;
-                        case S:
-                            badGuy1.position.z -= badGuySpeed;
-                            break;
-                        case E:
-                            badGuy1.position.x += badGuySpeed;
-                            break;
-                        case W:
-                            badGuy1.position.x -= badGuySpeed;
-                            break;
-                    }
-                }
+                // Bad Guy 1
+                createBadGuyMovement(index, grid, badGuy1Vars, badGuy1, badGuySpeed);
+                createBadGuyMovement(index, grid, badGuy2Vars, badGuy2, badGuySpeed);
+                createBadGuyMovement(index, grid, badGuy3Vars, badGuy3, badGuySpeed);
             });
 
             // /*********************************************************************************************************************/
 
             return scene1;
+        }
+
+        function createBadGuyMovement(index, grid, badGuyVars, badGuy, badGuySpeed) {
+            var N = -1;
+            var S = 1;
+            var W = -2;
+            var E = 2;
+            if (index === 1) {
+                console.log("reached index = 1");
+                badGuyVars.nextCell = badGuyVars.currentCell.randomLink;
+                console.log("Current Cell coords: " + badGuyVars.currentCell.getZCoord.toString() + ", " + badGuyVars.currentCell.getXCoord.toString());                    
+                console.log("Next Cell coords: " + badGuyVars.nextCell.getZCoord.toString() + ", " + badGuyVars.nextCell.getXCoord.toString());
+            }
+            // Bad Guy is at Next Cell Position
+            // console.log("next cell, index = " + index.toString());
+            // console.log(badGuyVars.nextCell); 
+            // console.log("nextCell.getXCoord: " + badGuyVars.nextCell.getXCoord.toString());
+            if (Math.round(100 * badGuy.position.x) / 100 === badGuyVars.nextCell.getXCoord && Math.round(100 * badGuy.position.z) / 100 === badGuyVars.nextCell.getZCoord) {
+                // Set new currentCell and new nextCell
+                badGuyVars.oldCell = badGuyVars.currentCell;
+                badGuyVars.currentCell = badGuyVars.nextCell;
+                // if cell has exactly 2 links
+                if (grid[badGuyVars.currentCell.getY][badGuyVars.currentCell.getX].getLinkLength === 2) {
+                    // set next cell to the link that isn't the old cell
+                    for (i = 0; i < 2; i++) {
+                        badGuyVars.nextCell = grid[badGuyVars.currentCell.getY][badGuyVars.currentCell.getX].getLinks[i];
+                        if (badGuyVars.nextCell.getX != badGuyVars.oldCell.getX || badGuyVars.nextCell.getY != badGuyVars.oldCell.getY) {
+                            break;
+                        }
+                    }
+                }
+                else {
+                    // just pick a random next cell
+                    badGuyVars.nextCell = grid[badGuyVars.currentCell.getY][badGuyVars.currentCell.getX].randomLink;
+                }
+            }
+            else {
+                // Bad Guy isn't at next cell position yet.
+                switch (badGuyVars.nextCell.getLinkDirection) {
+                    case N:
+                        badGuy.position.z += badGuySpeed;
+                        break;
+                    case S:
+                        badGuy.position.z -= badGuySpeed;
+                        break;
+                    case E:
+                        badGuy.position.x += badGuySpeed;
+                        break;
+                    case W:
+                        badGuy.position.x -= badGuySpeed;
+                        break;
+                }
+            }
         }
 
         // ==== Recursive Maze Function ====

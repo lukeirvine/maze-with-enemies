@@ -560,6 +560,7 @@
             // Maze Generator
             var grid = [];          
             var myStack = [];       // stack to push previously visited cells to.
+            var mazeIndex = 0;
             var generateMaze = function () {
                 // initialize array
                 for (i = 0; i < sub; i++) {
@@ -569,7 +570,7 @@
                     }
                 }
                 // start recursive function
-                recursive_backtracking(0, sub - 1, grid, wallArray, myStack, index);
+                recursive_backtracking(0, sub - 1, grid, wallArray, myStack, mazeIndex);
                 // Entrance
                 wallArray[sub * 2][Math.round(sub / 2) - 1].dispose();
                 delete wallArray[sub * 2][Math.round(sub / 2) - 1];

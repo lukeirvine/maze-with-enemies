@@ -57,11 +57,14 @@
         var createDefaultEngine = function () { return new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true }); };
 
         class Cell {
-            constructor(y, x, visited, links) {
+            constructor(y, x, visited, links, linkDirection) {
                 this.y = y;
                 this.x = x;
+                this.zCoord = mazeLength / 2 - y * (subLength) - subLength / 2;
+                this.xCoord = -mazeLength / 2 + x * (subLength) + subLength / 2;
                 this.visited = visited;
                 this.links = links;
+                this.linkDirection = linkDirection;
             }
             // returns random link
             get randomLink() {
@@ -82,6 +85,21 @@
             }
             get getY() {
                 return this.y;
+            }
+            get getXCoord() {
+                return this.xCoord;
+            }
+            get getZCoord() {
+                return this.zCoord;
+            }
+            get getLinkDirection() {
+                return this.linkDirection;
+            }
+            get getLinkLength() {
+                return this.links.length;
+            }
+            get getLinks() {
+                return this.links;
             }
         };
 
@@ -164,6 +182,7 @@
             var rockTile;
             var stone2;
             var pMat;
+            var badGuyRed;
             var tileCount;
             var tileCount2;
             var tileCount3;
@@ -255,6 +274,10 @@
                 pMat = new BABYLON.StandardMaterial("pMat", scene1);
                 pMat.emissiveColor = new BABYLON.Color3(1, 1, 0);
                 pMat.alpha = 0;
+
+                badGuyRed = new BABYLON.StandardMaterial("badGuyRed", scene1);
+                badGuyRed.diffuseColor = new BABYLON.Color3(1, 0, 0);
+                badGuyRed.alpha = 0.75;
             }
             textures();
 
@@ -598,7 +621,7 @@
                 for (i = 0; i < sub; i++) {
                     grid.push([]);
                     for (j = 0; j < sub; j++) {
-                        grid[i].push(new Cell(i, j, 0, []));
+                        grid[i].push(new Cell(i, j, 0, [], null));
                     }
                 }
                 // start recursive function
@@ -748,6 +771,19 @@
 
             }
             createParty();
+
+            // Bad Guys
+            var badGuy1;
+            var currentCell1;
+            var nextCell1;
+            var createBadGuys = function() {
+                badGuy1 = new BABYLON.MeshBuilder.CreateBox("badGuy1", {width: 3, height: 6, depth: 3}, scene1);
+                currentCell1 = grid[sub - 1][Math.floor(sub / 2 - 1)]
+                badGuy1.position = new BABYLON.Vector3(currentCell1.getXCoord, elevation + 3, currentCell1.getZCoord);
+                badGuy1.checkCollisions = true;
+                badGuy1.material = badGuyRed;
+            }
+            createBadGuys();
 
             /***********************************************************************************************************************************************************/
 
@@ -913,6 +949,70 @@
                     // camera.target = player;
                 }
                 makePlayerMove();
+
+                // Bad Guys
+                // if (index % 10 === 0) {
+                //     badGuy1.position.x += 0.1;
+                // }
+                var N = -1;
+                var S = 1;
+                var W = -2;
+                var E = 2;
+                var badGuySpeed = 0.5;
+                var currentDirection1;
+                if (index === 1) {
+                    nextCell1 = currentCell1.randomLink;
+                    console.log("Current Cell coords: " + currentCell1.getZCoord.toString() + ", " + currentCell1.getXCoord.toString());                    
+                    console.log("Next Cell coords: " + nextCell1.getZCoord.toString() + ", " + nextCell1.getXCoord.toString());
+                }
+                if (Math.round(100 * badGuy1.position.x) / 100 === nextCell1.getXCoord && Math.round(100 * badGuy1.position.z) / 100 === nextCell1.getZCoord) {
+                    // Bad Guy is at Next Cell Position
+                    // console.log("reached next cell");
+                    // Set new currentCell and new nextCell
+                    currentDirection1 = nextCell1.getLinkDirection;
+                    currentCell1 = grid[nextCell1.getY][nextCell1.getX];
+                    // console.log("link length: " + grid[currentCell1.getY][currentCell1.getX].getLinkLength.toString())
+                    // set comparison to 0 if you want to see it work ------------vvv---------------
+                    if (grid[currentCell1.getY][currentCell1.getX].getLinkLength > 2) {
+                        // just pick a random next cell
+                        nextCell1 = grid[currentCell1.getY][currentCell1.getX].randomLink;
+                    }
+                    else {
+                        // get link of next cell in the current direction
+                        console.log("link length = 2");
+                        // nextCell1 = grid[currentCell1.getY][currentCell1.getX].getLinks[0];
+                        for (i = 0; i < 2; i++) {
+                            var nextLink = grid[currentCell1.getY][currentCell1.getX].getLinks[i];
+                            var linkDirection = nextLink.getLinkDirection;
+                            console.log("link direction: " + linkDirection.toString());
+                            if (linkDirection === currentDirection1) {
+                                console.log("set new cell");
+                                nextCell1 = grid[currentCell1.getY][currentCell1.getX].getLinks[i];
+                            }
+                            else {
+                                console.log("didn't work");
+                            }
+                        }
+                    }
+                }
+                else {
+                    // Bad Guy isn't at next cell position yet.
+                    // console.log("badGuy position (y, x): " + (Math.round(100 * badGuy1.position.z) / 100).toString() + ", " + (Math.round(100 * badGuy1.position.x) / 100).toString());
+                    switch (nextCell1.getLinkDirection) {
+                        case N:
+                            badGuy1.position.z += badGuySpeed;
+                            break;
+                        case S:
+                            badGuy1.position.z -= badGuySpeed;
+                            break;
+                        case E:
+                            badGuy1.position.x += badGuySpeed;
+                            break;
+                        case W:
+                            badGuy1.position.x -= badGuySpeed;
+                            break;
+                    }
+                }
             });
 
             // /*********************************************************************************************************************/
@@ -957,10 +1057,10 @@
                 if ((nx >= 0 && nx < grid[0].length) && (ny >= 0 && ny < grid.length) && grid[ny][nx].getVisited === 0) {
                     myStack.push(cx);
                     myStack.push(cy);
-                    grid[cy][cx].pushLinks(new Cell(ny, nx, 0, null));
-                    grid[ny][nx].pushLinks(new Cell(cy, cx, 0, null));
                     // Tear down wall and add link between old cell and new
                     if (directions[i] === N) {
+                        grid[cy][cx].pushLinks(new Cell(ny, nx, 0, null, N));
+                        grid[ny][nx].pushLinks(new Cell(cy, cx, 0, null, S));
                         wallArray[2 * cy + 1 + N][cx].dispose();
                         delete wallArray[2 * cy + 1 + N][cx];
                         // console.log("tear down wall at:");
@@ -968,6 +1068,8 @@
                         // console.log(cx);
                     }
                     if (directions[i] === S) {
+                        grid[cy][cx].pushLinks(new Cell(ny, nx, 0, null, S));
+                        grid[ny][nx].pushLinks(new Cell(cy, cx, 0, null, N));
                         wallArray[2 * cy + 1 + S][cx].dispose();
                         delete wallArray[2 * cy + 1 + S][cx];
                         // console.log("tear down wall at:");
@@ -975,6 +1077,8 @@
                         // console.log(cx);
                     }
                     if (directions[i] === E) {
+                        grid[cy][cx].pushLinks(new Cell(ny, nx, 0, null, E));
+                        grid[ny][nx].pushLinks(new Cell(cy, cx, 0, null, W));
                         wallArray[2 * cy + 1][cx + E / 2].dispose();
                         delete wallArray[2 * cy + 1][cx + E / 2];
                         // console.log("tear down wall at:");
@@ -982,6 +1086,8 @@
                         // console.log(cx + E / 2);
                     }
                     if (directions[i] === W) {
+                        grid[cy][cx].pushLinks(new Cell(ny, nx, 0, null, W));
+                        grid[ny][nx].pushLinks(new Cell(cy, cx, 0, null, E));
                         wallArray[2 * cy + 1][cx].dispose();
                         delete wallArray[2 * cy + 1][cx];
                         // console.log("tear down wall at:");
@@ -1002,7 +1108,6 @@
             index++;
             recursive_backtracking(px, py, grid, wallArray, myStack, index);
         }
-
 
         function shuffle(array) {
             for (let i = array.length - 1; i > 0; i--) {

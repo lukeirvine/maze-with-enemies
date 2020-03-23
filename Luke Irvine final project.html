@@ -48,29 +48,6 @@
         // flag
         var simple = true;
 
-        // var testArray = [];
-        // var testArray2 = [];
-        // for (i = 0; i < 10; i++) {
-        //     testArray.push([]);
-        //     for (j = 0; j < 10; j++) {
-        //         testArray[i].push(j);
-        //     }
-        // }
-        // console.log("initial test array: ");
-        // console.log(testArray);
-
-        // testArray2 = Object.assign({}, testArray);
-        // for (i = 0; i < 10; i++) {
-        //     for (j = 0; j < 10; j++) {
-        //         if (testArray2[i][j] % 2 === 0) {
-        //             testArray2[i][j] = -1;
-        //         }
-        //     }
-        // }
-        // console.log("test array after splicing: ");
-        // console.log(testArray2);
-
-
         var canvas = document.getElementById("renderCanvas");
 
         var engine = null;
@@ -665,9 +642,6 @@
             }
             createMazeWallGrid();
 
-            console.log("wallArray before initial maze cut: ");
-            console.log(wallArray);
-
             // Maze Generator
             var grid = [];          
             var myStack = [];       // stack to push previously visited cells to.
@@ -690,9 +664,6 @@
                 wallArray[0][Math.round(sub / 2) - 1].dispose();
                 delete wallArray[0][Math.round(sub / 2) - 1];
                 wallArray[0][Math.round(sub / 2) - 1] = 0;
-                console.log("WallArray before splicing: ");
-                console.log(wallArray);
-
 
                 // splice out undefined walls
                 for (i = 0; i < wallArray.length; i++) {
@@ -703,11 +674,11 @@
                             j -= 1;
                         }
                     }
-                    console.log("i: " + i.toString())
-                    console.log("j after splicing: " + (j).toString());
+                    // console.log("i: " + i.toString())
+                    // console.log("j after splicing: " + (j).toString());
                 }
-                console.log("WallArray after splicing");
-                console.log(wallArray);
+                // console.log("WallArray after splicing");
+                // console.log(wallArray);
                 // Random Cuts
                 for (i = 0; i < mazeCuts; i++) {
                     var randX;
@@ -719,7 +690,7 @@
                     else {
                         randX = Math.floor(Math.random() * (wallArray[randY].length - 2) + 1);
                     }
-                    console.log("Disposing: " + randY.toString() + ", " + randX.toString());
+                    // console.log("Disposing: " + randY.toString() + ", " + randX.toString());
                     wallArray[randY][randX].dispose();
                     delete wallArray[randY][randX];
                     wallArray[randY].splice(randX, 1);

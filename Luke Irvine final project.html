@@ -170,8 +170,8 @@
             subLength = mazeLength / sub;
             mazeCuts = sub + Math.floor((sub - 10) * 1.25);
             var groundSize = mazeLength + sub * 20;
-            var follow = false;                  // true makes camera follow player. False gives bird's eye
-            var cameraGravity = false;           // only works for Universal Camera
+            var follow = true;                  // true makes camera follow player. False gives bird's eye
+            var cameraGravity = true;           // only works for Universal Camera
 
             // textures
             var hedge;
@@ -1339,7 +1339,7 @@
                 nextScene = true;
                 replay = true;
                 soundtrack.pause();
-                sub = 5;
+                sub = 10;
                 difficultyLevel = 0;
                 scene0 = null;
                 scene1 = createScene1();

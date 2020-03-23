@@ -48,6 +48,28 @@
         // flag
         var simple = true;
 
+        // var testArray = [];
+        // var testArray2 = [];
+        // for (i = 0; i < 10; i++) {
+        //     testArray.push([]);
+        //     for (j = 0; j < 10; j++) {
+        //         testArray[i].push(j);
+        //     }
+        // }
+        // console.log("initial test array: ");
+        // console.log(testArray);
+
+        // testArray2 = Object.assign({}, testArray);
+        // for (i = 0; i < 10; i++) {
+        //     for (j = 0; j < 10; j++) {
+        //         if (testArray2[i][j] % 2 === 0) {
+        //             testArray2[i][j] = -1;
+        //         }
+        //     }
+        // }
+        // console.log("test array after splicing: ");
+        // console.log(testArray2);
+
 
         var canvas = document.getElementById("renderCanvas");
 
@@ -119,6 +141,7 @@
         var subLength;
         var elevation;
         var mazeLength;
+        var mazeCuts;
         // var timerStart = false;
 
 
@@ -168,9 +191,10 @@
             var wallDepth = 4;                  // don't adjust
             mazeLength = sub * 10;
             subLength = mazeLength / sub;
+            mazeCuts = sub + Math.floor((sub - 10) * 1.25);
             var groundSize = mazeLength + sub * 20;
-            var follow = true;                  // true makes camera follow player. False gives bird's eye
-            var cameraGravity = true;           // only works for Universal Camera
+            var follow = false;                  // true makes camera follow player. False gives bird's eye
+            var cameraGravity = false;           // only works for Universal Camera
 
             // textures
             var hedge;
@@ -600,7 +624,7 @@
 
             // Maze Wall Grid
             var wallArray = [];
-            var createMazeWallGrid = function() {
+            var createMazeWallGrid = function() {                
                 var i = 0;
                 var j = 0;
                 var index = 0;
@@ -616,29 +640,33 @@
                         mazeWall.material = hedge;
                         mazeWall.checkCollisions = true;
                         mazeWall.position.y = wallHeight / 2 + elevation;
-                        mazeWall.position.z = mazeLength - subLength / 2 * i - mazeLength / 2;
+                        mazeWall.position.z = mazeLength / 2 - subLength / 2 * i;
                         // console.log("placed wall at z:")
                         // console.log(mazeLength - subLength / 2 * i + 50);
-                        if (i % 2 === 0) {
-                            if (j < sub) {
-                                mazeWall.position.x = subLength / 2 + subLength * j - mazeLength / 2;
-                                // console.log("placed horizontal wall at:");
-                                // console.log(mazeLength - subLength / 2 * i + 50);
-                                // console.log(subLength / 2 + subLength * j + 50);
-                            }
+                        if (i % 2 === 0 && j < sub) {
+                            mazeWall.position.x =  -mazeLength / 2 + subLength / 2 + subLength * j;
+                            // console.log("placed horizontal wall at:");
+                            // console.log(mazeLength - subLength / 2 * i + 50);
+                            // console.log(subLength / 2 + subLength * j + 50);
                         }
                         if (i % 2 === 1) {
-                            mazeWall.position.x = subLength * j - mazeLength / 2;
+                            mazeWall.position.x = -mazeLength / 2 + subLength * j ;
                             mazeWall.rotation.y = Math.PI / 2;
                             // console.log("placed vertical wall at:");
                             // console.log(mazeLength - subLength / 2 * i + 50);
                             // console.log(subLength * j + 50);
+                        }
+                        if (i % 2 === 0 && j === sub) {
+                            continue;
                         }
                         wallArray[i].push(mazeWall);
                     }
                 }
             }
             createMazeWallGrid();
+
+            console.log("wallArray before initial maze cut: ");
+            console.log(wallArray);
 
             // Maze Generator
             var grid = [];          
@@ -657,9 +685,45 @@
                 // Entrance
                 wallArray[sub * 2][Math.round(sub / 2) - 1].dispose();
                 delete wallArray[sub * 2][Math.round(sub / 2) - 1];
+                wallArray[sub * 2][Math.round(sub / 2) - 1] = 0;
                 // Exit
                 wallArray[0][Math.round(sub / 2) - 1].dispose();
                 delete wallArray[0][Math.round(sub / 2) - 1];
+                wallArray[0][Math.round(sub / 2) - 1] = 0;
+                console.log("WallArray before splicing: ");
+                console.log(wallArray);
+
+
+                // splice out undefined walls
+                for (i = 0; i < wallArray.length; i++) {
+                    var j;
+                    for (j = 0; j < wallArray[i].length; j++) {
+                        if (wallArray[i][j] === 0) {
+                            wallArray[i].splice(j, 1);
+                            j -= 1;
+                        }
+                    }
+                    console.log("i: " + i.toString())
+                    console.log("j after splicing: " + (j).toString());
+                }
+                console.log("WallArray after splicing");
+                console.log(wallArray);
+                // Random Cuts
+                for (i = 0; i < mazeCuts; i++) {
+                    var randX;
+                    var randY = Math.floor(Math.random() * (sub * 2 - 1) + 1);
+                    if (randY % 2 === 0) {
+                        // 0 to (sub - 1)
+                        randX = Math.floor(Math.random() * wallArray[randY].length);
+                    }
+                    else {
+                        randX = Math.floor(Math.random() * (wallArray[randY].length - 2) + 1);
+                    }
+                    console.log("Disposing: " + randY.toString() + ", " + randX.toString());
+                    wallArray[randY][randX].dispose();
+                    delete wallArray[randY][randX];
+                    wallArray[randY].splice(randX, 1);
+                }
             }
             generateMaze();
 
@@ -801,6 +865,7 @@
             createParty();
 
             // Bad Guys
+            var badGuyHeight = 10;
             var badGuy1;
             var badGuy1Vars = {oldCell: null, currentCell: null, nextCell: null};
             var badGuy2;
@@ -816,47 +881,47 @@
             var badGuy7;
             var badGuy7Vars = {oldCell: null, currentCell: null, nextCell: null};
             var createBadGuys = function() {
-                badGuy1 = new BABYLON.MeshBuilder.CreateBox("badGuy1", {width: 3, height: 6, depth: 3}, scene1);
+                badGuy1 = new BABYLON.MeshBuilder.CreateBox("badGuy1", {width: 3, height: badGuyHeight, depth: 3}, scene1);
                 badGuy1Vars.currentCell = grid[sub - 1][Math.floor(sub / 2 - 1)];
-                badGuy1.position = new BABYLON.Vector3(badGuy1Vars.currentCell.getXCoord, elevation + 3, badGuy1Vars.currentCell.getZCoord);
+                badGuy1.position = new BABYLON.Vector3(badGuy1Vars.currentCell.getXCoord, elevation + badGuyHeight / 2, badGuy1Vars.currentCell.getZCoord);
                 badGuy1.checkCollisions = true;
                 badGuy1.material = badGuyRed;
 
-                badGuy2 = new BABYLON.MeshBuilder.CreateBox("badGuy2", {width: 3, height: 6, depth: 3}, scene1);
+                badGuy2 = new BABYLON.MeshBuilder.CreateBox("badGuy2", {width: 3, height: badGuyHeight, depth: 3}, scene1);
                 badGuy2Vars.currentCell = grid[0][sub - 1];
-                badGuy2.position = new BABYLON.Vector3(badGuy2Vars.currentCell.getXCoord, elevation + 3, badGuy2Vars.currentCell.getZCoord);
+                badGuy2.position = new BABYLON.Vector3(badGuy2Vars.currentCell.getXCoord, elevation + badGuyHeight / 2, badGuy2Vars.currentCell.getZCoord);
                 badGuy2.checkCollisions = true;
                 badGuy2.material = badGuyBlue;
 
-                badGuy3 = new BABYLON.MeshBuilder.CreateBox("badGuy3", {width: 3, height: 6, depth: 3}, scene1);
+                badGuy3 = new BABYLON.MeshBuilder.CreateBox("badGuy3", {width: 3, height: badGuyHeight, depth: 3}, scene1);
                 badGuy3Vars.currentCell = grid[0][0];
-                badGuy3.position = new BABYLON.Vector3(badGuy3Vars.currentCell.getXCoord, elevation + 3, badGuy3Vars.currentCell.getZCoord);
+                badGuy3.position = new BABYLON.Vector3(badGuy3Vars.currentCell.getXCoord, elevation + badGuyHeight / 2, badGuy3Vars.currentCell.getZCoord);
                 badGuy3.checkCollisions = true;
                 badGuy3.material = badGuyMagenta;
 
                 if (difficultyLevel >= 1) {
-                    badGuy4 = new BABYLON.MeshBuilder.CreateBox("badGuy4", {width: 3, height: 6, depth: 3}, scene1);
+                    badGuy4 = new BABYLON.MeshBuilder.CreateBox("badGuy4", {width: 3, height: badGuyHeight, depth: 3}, scene1);
                     badGuy4Vars.currentCell = grid[sub - 1][0];
-                    badGuy4.position = new BABYLON.Vector3(badGuy4Vars.currentCell.getXCoord, elevation + 3, badGuy4Vars.currentCell.getZCoord);
+                    badGuy4.position = new BABYLON.Vector3(badGuy4Vars.currentCell.getXCoord, elevation + badGuyHeight / 2, badGuy4Vars.currentCell.getZCoord);
                     badGuy4.checkCollisions = true;
                     badGuy4.material = badGuyYellow;
 
-                    badGuy5 = new BABYLON.MeshBuilder.CreateBox("badGuy5", {width: 3, height: 6, depth: 3}, scene1);
+                    badGuy5 = new BABYLON.MeshBuilder.CreateBox("badGuy5", {width: 3, height: badGuyHeight, depth: 3}, scene1);
                     badGuy5Vars.currentCell = grid[sub - 1][sub - 1];
-                    badGuy5.position = new BABYLON.Vector3(badGuy5Vars.currentCell.getXCoord, elevation + 3, badGuy5Vars.currentCell.getZCoord);
+                    badGuy5.position = new BABYLON.Vector3(badGuy5Vars.currentCell.getXCoord, elevation + badGuyHeight / 2, badGuy5Vars.currentCell.getZCoord);
                     badGuy5.checkCollisions = true;
                     badGuy5.material = badGuyGreen;
 
                     if (difficultyLevel === 2) {
-                        badGuy6 = new BABYLON.MeshBuilder.CreateBox("badGuy6", {width: 3, height: 6, depth: 3}, scene1);
-                        badGuy6Vars.currentCell = grid[Math.floor(sub / 2)][0];
-                        badGuy6.position = new BABYLON.Vector3(badGuy6Vars.currentCell.getXCoord, elevation + 3, badGuy6Vars.currentCell.getZCoord);
+                        badGuy6 = new BABYLON.MeshBuilder.CreateBox("badGuy6", {width: 3, height: badGuyHeight, depth: 3}, scene1);
+                        badGuy6Vars.currentCell = grid[Math.floor(sub / 2)][Math.floor(sub / 2)];
+                        badGuy6.position = new BABYLON.Vector3(badGuy6Vars.currentCell.getXCoord, elevation + badGuyHeight / 2, badGuy6Vars.currentCell.getZCoord);
                         badGuy6.checkCollisions = true;
                         badGuy6.material = badGuyWhite;
 
-                        badGuy7 = new BABYLON.MeshBuilder.CreateBox("badGuy7", {width: 3, height: 6, depth: 3}, scene1);
+                        badGuy7 = new BABYLON.MeshBuilder.CreateBox("badGuy7", {width: 3, height: badGuyHeight, depth: 3}, scene1);
                         badGuy7Vars.currentCell = grid[Math.floor(sub / 2)][sub - 1];
-                        badGuy7.position = new BABYLON.Vector3(badGuy7Vars.currentCell.getXCoord, elevation + 3, badGuy7Vars.currentCell.getZCoord);
+                        badGuy7.position = new BABYLON.Vector3(badGuy7Vars.currentCell.getXCoord, elevation + badGuyHeight / 2, badGuy7Vars.currentCell.getZCoord);
                         badGuy7.checkCollisions = true;
                         badGuy7.material = badGuyBlack;
                     }
@@ -1037,11 +1102,11 @@
                 createBadGuyMovement(index, grid, badGuy2Vars, badGuy2, badGuySpeed);
                 createBadGuyMovement(index, grid, badGuy3Vars, badGuy3, badGuySpeed);
                 if (difficultyLevel >= 1) {
-                    createBadGuyMovement(index, grid, badGuy3Vars, badGuy4, badGuySpeed);
-                    createBadGuyMovement(index, grid, badGuy3Vars, badGuy5, badGuySpeed);
+                    createBadGuyMovement(index, grid, badGuy4Vars, badGuy4, badGuySpeed);
+                    createBadGuyMovement(index, grid, badGuy5Vars, badGuy5, badGuySpeed);
                     if (difficultyLevel === 2) {
-                        createBadGuyMovement(index, grid, badGuy3Vars, badGuy6, badGuySpeed);
-                        createBadGuyMovement(index, grid, badGuy3Vars, badGuy7, badGuySpeed);
+                        createBadGuyMovement(index, grid, badGuy6Vars, badGuy6, badGuySpeed);
+                        createBadGuyMovement(index, grid, badGuy7Vars, badGuy7, badGuySpeed);
                     }
                 }
             });
@@ -1152,6 +1217,7 @@
                         grid[ny][nx].pushLinks(new Cell(cy, cx, 0, null, S));
                         wallArray[2 * cy + 1 + N][cx].dispose();
                         delete wallArray[2 * cy + 1 + N][cx];
+                        wallArray[2 * cy + 1 + N][cx] = 0;
                         // console.log("tear down wall at:");
                         // console.log(2 * cy + 1 + N);
                         // console.log(cx);
@@ -1161,6 +1227,7 @@
                         grid[ny][nx].pushLinks(new Cell(cy, cx, 0, null, N));
                         wallArray[2 * cy + 1 + S][cx].dispose();
                         delete wallArray[2 * cy + 1 + S][cx];
+                        wallArray[2 * cy + 1 + S][cx] = 0;
                         // console.log("tear down wall at:");
                         // console.log(2 * cy + 1 + + S);
                         // console.log(cx);
@@ -1170,6 +1237,7 @@
                         grid[ny][nx].pushLinks(new Cell(cy, cx, 0, null, W));
                         wallArray[2 * cy + 1][cx + E / 2].dispose();
                         delete wallArray[2 * cy + 1][cx + E / 2];
+                        wallArray[2 * cy + 1][cx + E / 2] = 0;
                         // console.log("tear down wall at:");
                         // console.log(2 * cy + 1);
                         // console.log(cx + E / 2);
@@ -1179,6 +1247,7 @@
                         grid[ny][nx].pushLinks(new Cell(cy, cx, 0, null, E));
                         wallArray[2 * cy + 1][cx].dispose();
                         delete wallArray[2 * cy + 1][cx];
+                        wallArray[2 * cy + 1][cx] = 0;
                         // console.log("tear down wall at:");
                         // console.log(2 * cy + 1);
                         // console.log(cx);
@@ -1299,7 +1368,7 @@
                 nextScene = true;
                 replay = true;
                 soundtrack.pause();
-                sub = 10;
+                sub = 5;
                 difficultyLevel = 0;
                 scene0 = null;
                 scene1 = createScene1();

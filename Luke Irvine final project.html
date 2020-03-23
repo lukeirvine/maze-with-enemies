@@ -857,18 +857,24 @@
                 badGuy1.position = new BABYLON.Vector3(badGuy1Vars.currentCell.getXCoord, elevation + badGuyHeight / 2, badGuy1Vars.currentCell.getZCoord);
                 badGuy1.checkCollisions = true;
                 badGuy1.material = badGuyRed;
+                badGuy1.speed = new BABYLON.Vector3(0, 0, 0);
+                badGuy1.nextspeed = new BABYLON.Vector3.Zero();
 
                 badGuy2 = new BABYLON.MeshBuilder.CreateBox("badGuy2", {width: 3, height: badGuyHeight, depth: 3}, scene1);
                 badGuy2Vars.currentCell = grid[0][sub - 1];
                 badGuy2.position = new BABYLON.Vector3(badGuy2Vars.currentCell.getXCoord, elevation + badGuyHeight / 2, badGuy2Vars.currentCell.getZCoord);
                 badGuy2.checkCollisions = true;
                 badGuy2.material = badGuyBlue;
+                badGuy2.speed = new BABYLON.Vector3(0, 0, 0);
+                badGuy2.nextspeed = new BABYLON.Vector3.Zero();
 
                 badGuy3 = new BABYLON.MeshBuilder.CreateBox("badGuy3", {width: 3, height: badGuyHeight, depth: 3}, scene1);
                 badGuy3Vars.currentCell = grid[0][0];
                 badGuy3.position = new BABYLON.Vector3(badGuy3Vars.currentCell.getXCoord, elevation + badGuyHeight / 2, badGuy3Vars.currentCell.getZCoord);
                 badGuy3.checkCollisions = true;
                 badGuy3.material = badGuyMagenta;
+                badGuy3.speed = new BABYLON.Vector3(0, 0, 0);
+                badGuy3.nextspeed = new BABYLON.Vector3.Zero();
 
                 if (difficultyLevel >= 1) {
                     badGuy4 = new BABYLON.MeshBuilder.CreateBox("badGuy4", {width: 3, height: badGuyHeight, depth: 3}, scene1);
@@ -876,12 +882,16 @@
                     badGuy4.position = new BABYLON.Vector3(badGuy4Vars.currentCell.getXCoord, elevation + badGuyHeight / 2, badGuy4Vars.currentCell.getZCoord);
                     badGuy4.checkCollisions = true;
                     badGuy4.material = badGuyYellow;
+                    badGuy4.speed = new BABYLON.Vector3(0, 0, 0);
+                    badGuy4.nextspeed = new BABYLON.Vector3.Zero();
 
                     badGuy5 = new BABYLON.MeshBuilder.CreateBox("badGuy5", {width: 3, height: badGuyHeight, depth: 3}, scene1);
                     badGuy5Vars.currentCell = grid[sub - 1][sub - 1];
                     badGuy5.position = new BABYLON.Vector3(badGuy5Vars.currentCell.getXCoord, elevation + badGuyHeight / 2, badGuy5Vars.currentCell.getZCoord);
                     badGuy5.checkCollisions = true;
                     badGuy5.material = badGuyGreen;
+                    badGuy5.speed = new BABYLON.Vector3(0, 0, 0);
+                    badGuy5.nextspeed = new BABYLON.Vector3.Zero();
 
                     if (difficultyLevel === 2) {
                         badGuy6 = new BABYLON.MeshBuilder.CreateBox("badGuy6", {width: 3, height: badGuyHeight, depth: 3}, scene1);
@@ -889,12 +899,16 @@
                         badGuy6.position = new BABYLON.Vector3(badGuy6Vars.currentCell.getXCoord, elevation + badGuyHeight / 2, badGuy6Vars.currentCell.getZCoord);
                         badGuy6.checkCollisions = true;
                         badGuy6.material = badGuyWhite;
+                        badGuy6.speed = new BABYLON.Vector3(0, 0, 0);
+                        badGuy6.nextspeed = new BABYLON.Vector3.Zero();
 
                         badGuy7 = new BABYLON.MeshBuilder.CreateBox("badGuy7", {width: 3, height: badGuyHeight, depth: 3}, scene1);
                         badGuy7Vars.currentCell = grid[Math.floor(sub / 2)][sub - 1];
                         badGuy7.position = new BABYLON.Vector3(badGuy7Vars.currentCell.getXCoord, elevation + badGuyHeight / 2, badGuy7Vars.currentCell.getZCoord);
                         badGuy7.checkCollisions = true;
                         badGuy7.material = badGuyBlack;
+                        badGuy7.speed = new BABYLON.Vector3(0, 0, 0);
+                        badGuy7.nextspeed = new BABYLON.Vector3.Zero();
                     }
                 }
 
@@ -1067,7 +1081,7 @@
                 makePlayerMove();
 
                 // Bad Guys
-                var badGuySpeed = 0.5;
+                var badGuySpeed = 0.15;
                 // Bad Guy 1
                 createBadGuyMovement(index, grid, badGuy1Vars, badGuy1, badGuySpeed);
                 createBadGuyMovement(index, grid, badGuy2Vars, badGuy2, badGuySpeed);
@@ -1087,22 +1101,26 @@
             return scene1;
         }
 
-        function createBadGuyMovement(index, grid, badGuyVars, badGuy, badGuySpeed) {
+        function createBadGuyMovement(index, grid, badGuyVars, badGuy, v) {
             var N = -1;
             var S = 1;
             var W = -2;
             var E = 2;
+            badGuy.nextspeed.x = 0.0;
+            badGuy.nextspeed.z = 0.0;
             if (index === 1) {
                 console.log("reached index = 1");
                 badGuyVars.nextCell = badGuyVars.currentCell.randomLink;
                 console.log("Current Cell coords: " + badGuyVars.currentCell.getZCoord.toString() + ", " + badGuyVars.currentCell.getXCoord.toString());                    
                 console.log("Next Cell coords: " + badGuyVars.nextCell.getZCoord.toString() + ", " + badGuyVars.nextCell.getXCoord.toString());
             }
+            // console.log((Math.round(1 * badGuy.position.z) / 1).toString() + ", " + (Math.round(1 * badGuy.position.x) / 1).toString());
             // Bad Guy is at Next Cell Position
             // console.log("next cell, index = " + index.toString());
             // console.log(badGuyVars.nextCell); 
             // console.log("nextCell.getXCoord: " + badGuyVars.nextCell.getXCoord.toString());
-            if (Math.round(100 * badGuy.position.x) / 100 === badGuyVars.nextCell.getXCoord && Math.round(100 * badGuy.position.z) / 100 === badGuyVars.nextCell.getZCoord) {
+            if (Math.round(0.2 * badGuy.position.x) / 0.2 === badGuyVars.nextCell.getXCoord && Math.round(badGuy.position.z * 0.2) / 0.2 === badGuyVars.nextCell.getZCoord) {
+                // console.log("-----------------setting new next cell");
                 // Set new currentCell and new nextCell
                 badGuyVars.oldCell = badGuyVars.currentCell;
                 badGuyVars.currentCell = badGuyVars.nextCell;
@@ -1125,24 +1143,28 @@
                     // just pick a random next cell
                     badGuyVars.nextCell = grid[badGuyVars.currentCell.getY][badGuyVars.currentCell.getX].randomLink;
                 }
+                // console.log("-----------------Next cell: " + badGuyVars.nextCell.getZCoord.toString() + ", " + badGuyVars.nextCell.getXCoord.toString());
             }
             else {
                 // Bad Guy isn't at next cell position yet.
                 switch (badGuyVars.nextCell.getLinkDirection) {
                     case N:
-                        badGuy.position.z += badGuySpeed;
+                        badGuy.nextspeed.z = v;
                         break;
                     case S:
-                        badGuy.position.z -= badGuySpeed;
+                        badGuy.nextspeed.z = -v;
                         break;
                     case E:
-                        badGuy.position.x += badGuySpeed;
+                        badGuy.nextspeed.x = v;
                         break;
                     case W:
-                        badGuy.position.x -= badGuySpeed;
+                        badGuy.nextspeed.x = -v;
                         break;
                 }
             }
+            badGuy.speed = BABYLON.Vector3.Lerp(badGuy.speed, badGuy.nextspeed, 0.1);
+            badGuy.moveWithCollisions(badGuy.speed);
+
         }
 
         // ==== Recursive Maze Function ====

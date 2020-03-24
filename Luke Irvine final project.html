@@ -119,6 +119,7 @@
         var elevation;
         var mazeLength;
         var mazeCuts;
+        var caught = false;
         // var timerStart = false;
 
 
@@ -855,7 +856,7 @@
                 badGuy1 = new BABYLON.MeshBuilder.CreateBox("badGuy1", {width: 3, height: badGuyHeight, depth: 3}, scene1);
                 badGuy1Vars.currentCell = grid[sub - 1][Math.floor(sub / 2 - 1)];
                 badGuy1.position = new BABYLON.Vector3(badGuy1Vars.currentCell.getXCoord, elevation + badGuyHeight / 2, badGuy1Vars.currentCell.getZCoord);
-                badGuy1.checkCollisions = true;
+                // badGuy1.checkCollisions = true;
                 badGuy1.material = badGuyRed;
                 badGuy1.speed = new BABYLON.Vector3(0, 0, 0);
                 badGuy1.nextspeed = new BABYLON.Vector3.Zero();
@@ -863,7 +864,7 @@
                 badGuy2 = new BABYLON.MeshBuilder.CreateBox("badGuy2", {width: 3, height: badGuyHeight, depth: 3}, scene1);
                 badGuy2Vars.currentCell = grid[0][sub - 1];
                 badGuy2.position = new BABYLON.Vector3(badGuy2Vars.currentCell.getXCoord, elevation + badGuyHeight / 2, badGuy2Vars.currentCell.getZCoord);
-                badGuy2.checkCollisions = true;
+                // badGuy2.checkCollisions = true;
                 badGuy2.material = badGuyBlue;
                 badGuy2.speed = new BABYLON.Vector3(0, 0, 0);
                 badGuy2.nextspeed = new BABYLON.Vector3.Zero();
@@ -871,7 +872,7 @@
                 badGuy3 = new BABYLON.MeshBuilder.CreateBox("badGuy3", {width: 3, height: badGuyHeight, depth: 3}, scene1);
                 badGuy3Vars.currentCell = grid[0][0];
                 badGuy3.position = new BABYLON.Vector3(badGuy3Vars.currentCell.getXCoord, elevation + badGuyHeight / 2, badGuy3Vars.currentCell.getZCoord);
-                badGuy3.checkCollisions = true;
+                // badGuy3.checkCollisions = true;
                 badGuy3.material = badGuyMagenta;
                 badGuy3.speed = new BABYLON.Vector3(0, 0, 0);
                 badGuy3.nextspeed = new BABYLON.Vector3.Zero();
@@ -880,7 +881,7 @@
                     badGuy4 = new BABYLON.MeshBuilder.CreateBox("badGuy4", {width: 3, height: badGuyHeight, depth: 3}, scene1);
                     badGuy4Vars.currentCell = grid[sub - 1][0];
                     badGuy4.position = new BABYLON.Vector3(badGuy4Vars.currentCell.getXCoord, elevation + badGuyHeight / 2, badGuy4Vars.currentCell.getZCoord);
-                    badGuy4.checkCollisions = true;
+                    // badGuy4.checkCollisions = true;
                     badGuy4.material = badGuyYellow;
                     badGuy4.speed = new BABYLON.Vector3(0, 0, 0);
                     badGuy4.nextspeed = new BABYLON.Vector3.Zero();
@@ -888,7 +889,7 @@
                     badGuy5 = new BABYLON.MeshBuilder.CreateBox("badGuy5", {width: 3, height: badGuyHeight, depth: 3}, scene1);
                     badGuy5Vars.currentCell = grid[sub - 1][sub - 1];
                     badGuy5.position = new BABYLON.Vector3(badGuy5Vars.currentCell.getXCoord, elevation + badGuyHeight / 2, badGuy5Vars.currentCell.getZCoord);
-                    badGuy5.checkCollisions = true;
+                    // badGuy5.checkCollisions = true;
                     badGuy5.material = badGuyGreen;
                     badGuy5.speed = new BABYLON.Vector3(0, 0, 0);
                     badGuy5.nextspeed = new BABYLON.Vector3.Zero();
@@ -897,7 +898,7 @@
                         badGuy6 = new BABYLON.MeshBuilder.CreateBox("badGuy6", {width: 3, height: badGuyHeight, depth: 3}, scene1);
                         badGuy6Vars.currentCell = grid[Math.floor(sub / 2)][Math.floor(sub / 2)];
                         badGuy6.position = new BABYLON.Vector3(badGuy6Vars.currentCell.getXCoord, elevation + badGuyHeight / 2, badGuy6Vars.currentCell.getZCoord);
-                        badGuy6.checkCollisions = true;
+                        // badGuy6.checkCollisions = true;
                         badGuy6.material = badGuyWhite;
                         badGuy6.speed = new BABYLON.Vector3(0, 0, 0);
                         badGuy6.nextspeed = new BABYLON.Vector3.Zero();
@@ -905,7 +906,7 @@
                         badGuy7 = new BABYLON.MeshBuilder.CreateBox("badGuy7", {width: 3, height: badGuyHeight, depth: 3}, scene1);
                         badGuy7Vars.currentCell = grid[Math.floor(sub / 2)][sub - 1];
                         badGuy7.position = new BABYLON.Vector3(badGuy7Vars.currentCell.getXCoord, elevation + badGuyHeight / 2, badGuy7Vars.currentCell.getZCoord);
-                        badGuy7.checkCollisions = true;
+                        // badGuy7.checkCollisions = true;
                         badGuy7.material = badGuyBlack;
                         badGuy7.speed = new BABYLON.Vector3(0, 0, 0);
                         badGuy7.nextspeed = new BABYLON.Vector3.Zero();
@@ -931,6 +932,22 @@
 
             var totalCells = 64;    // total number of cells in sprite
             var index = 0;          // governs when sprites move
+            var timeDelay = 0;
+            var messageTimerOn = false;
+            var caughtByBadGuy = function() {
+                    replay = false;
+                    // set player position
+                    if (sub % 2 === 1) {
+                        player.position = new BABYLON.Vector3(0, 3 + elevation, -mazeLength / 2 - mazeLength * 0.05)
+                    }
+                    else {
+                        player.position = new BABYLON.Vector3(-subLength / 2, 3 + elevation, -mazeLength / 2 - mazeLength * 0.05)
+                    }
+                    messageTimerOn = true;
+                    caught = true;
+                    advancedTexture.dispose();
+                    scene1GUI();
+                }
 
             scene1.registerBeforeRender(function () {
                 
@@ -1082,18 +1099,60 @@
 
                 // Bad Guys
                 var badGuySpeed = 0.15;
-                // Bad Guy 1
-                createBadGuyMovement(index, grid, badGuy1Vars, badGuy1, badGuySpeed);
-                createBadGuyMovement(index, grid, badGuy2Vars, badGuy2, badGuySpeed);
-                createBadGuyMovement(index, grid, badGuy3Vars, badGuy3, badGuySpeed);
-                if (difficultyLevel >= 1) {
-                    createBadGuyMovement(index, grid, badGuy4Vars, badGuy4, badGuySpeed);
-                    createBadGuyMovement(index, grid, badGuy5Vars, badGuy5, badGuySpeed);
-                    if (difficultyLevel === 2) {
-                        createBadGuyMovement(index, grid, badGuy6Vars, badGuy6, badGuySpeed);
-                        createBadGuyMovement(index, grid, badGuy7Vars, badGuy7, badGuySpeed);
+                var makeBadGuysMove = function() {
+                    createBadGuyMovement(index, grid, badGuy1Vars, badGuy1, badGuySpeed);
+                    createBadGuyMovement(index, grid, badGuy2Vars, badGuy2, badGuySpeed);
+                    createBadGuyMovement(index, grid, badGuy3Vars, badGuy3, badGuySpeed);
+                    if (difficultyLevel >= 1) {
+                        createBadGuyMovement(index, grid, badGuy4Vars, badGuy4, badGuySpeed);
+                        createBadGuyMovement(index, grid, badGuy5Vars, badGuy5, badGuySpeed);
+                        if (difficultyLevel === 2) {
+                            createBadGuyMovement(index, grid, badGuy6Vars, badGuy6, badGuySpeed);
+                            createBadGuyMovement(index, grid, badGuy7Vars, badGuy7, badGuySpeed);
+                        }
                     }
+                    if (index % 4 === 0) {
+                        // if caught by a bad guy
+                        if ((Math.round(0.2 * player.position.x) / 0.2 === Math.round(0.2 * badGuy1.position.x) / 0.2 && 
+                            Math.round(0.2 * player.position.z) / 0.2 === Math.round(0.2 * badGuy1.position.z) / 0.2) ||
+                            (Math.round(0.2 * player.position.x) / 0.2 === Math.round(0.2 * badGuy2.position.x) / 0.2 && 
+                            Math.round(0.2 * player.position.z) / 0.2 === Math.round(0.2 * badGuy2.position.z) / 0.2) ||
+                            (Math.round(0.2 * player.position.x) / 0.2 === Math.round(0.2 * badGuy3.position.x) / 0.2 && 
+                            Math.round(0.2 * player.position.z) / 0.2 === Math.round(0.2 * badGuy3.position.z) / 0.2))
+                            {
+                            caughtByBadGuy();
+                        }
+                        if (difficultyLevel === 1) {
+                            if ((Math.round(0.2 * player.position.x) / 0.2 === Math.round(0.2 * badGuy4.position.x) / 0.2 && 
+                                Math.round(0.2 * player.position.z) / 0.2 === Math.round(0.2 * badGuy4.position.z) / 0.2) ||
+                                (Math.round(0.2 * player.position.x) / 0.2 === Math.round(0.2 * badGuy5.position.x) / 0.2 && 
+                                Math.round(0.2 * player.position.z) / 0.2 === Math.round(0.2 * badGuy5.position.z) / 0.2))
+                                {
+                                caughtByBadGuy();
+                            }
+                        }
+                        if (difficultyLevel === 2) {
+                            if ((Math.round(0.2 * player.position.x) / 0.2 === Math.round(0.2 * badGuy6.position.x) / 0.2 && 
+                                Math.round(0.2 * player.position.z) / 0.2 === Math.round(0.2 * badGuy6.position.z) / 0.2) ||
+                                (Math.round(0.2 * player.position.x) / 0.2 === Math.round(0.2 * badGuy7.position.x) / 0.2 && 
+                                Math.round(0.2 * player.position.z) / 0.2 === Math.round(0.2 * badGuy7.position.z) / 0.2))
+                                {
+                                caughtByBadGuy();
+                            }
+                        }
+                        if (messageTimerOn) {
+                            timeDelay += 1;
+                        }
+                        if (timeDelay > 60) {
+                            caught = false;
+                            messageTimerOn = false;
+                            advancedTexture.dispose();
+                            scene1GUI();
+                            timeDelay = 0;
+                        }
+                    } 
                 }
+                makeBadGuysMove();
             });
 
             // /*********************************************************************************************************************/
@@ -1489,7 +1548,6 @@
             resetPlayerButton.horizontalAlignment = 0;
             resetPlayerButton.isPointerBlocker = true
             resetPlayerButton.onPointerUpObservable.add(function () {
-                replay = false;
                 if (madeIt) {
                     soundtrack.pause();
                     starWars.pause();
@@ -1497,6 +1555,7 @@
                     blockZoom = false;
                     replay = true;
                 }
+                replay = false;
                 // set player position
                 if (sub % 2 === 1) {
                     player.position = new BABYLON.Vector3(0, 3 + elevation, -mazeLength / 2 - mazeLength * 0.05)
@@ -1574,6 +1633,17 @@
                 congrats.verticalAlignment = 1;
                 congrats.textWrapping = true;
                 textPanel2.addControl(congrats);
+            }
+
+            if (caught) {
+                var youreCaught = new BABYLON.GUI.TextBlock();
+                youreCaught.text = "You've been caught!! You'll have to start over!";
+                youreCaught.color = "white";
+                youreCaught.fontSize = 20;
+                youreCaught.lineSpacing = "5px";
+                youreCaught.verticalAlignment = 1;
+                youreCaught.textWrapping = true;
+                textPanel2.addControl(youreCaught);
             }
 
 

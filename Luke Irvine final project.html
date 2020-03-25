@@ -976,6 +976,11 @@
                     }
                     messageTimerOn = true;
                     caught = true;
+                    numItems = 0;
+                    for (i = 0; i < itemsArray.length; i++) {
+                        var randCell = grid[Math.floor(Math.random() * sub)][Math.floor(Math.random() * sub)];
+                        itemsArray[i].position = new BABYLON.Vector3(randCell.getXCoord, elevation + wallHeight, randCell.getZCoord);
+                    }
                     advancedTexture.dispose();
                     scene1GUI();
             }
@@ -987,7 +992,6 @@
                             numItems += 1;
                             itemTimerOn = true;
                         }
-                        itemsArray[i].dispose();
                         itemsArray[i].position.z = 1000;
                         advancedTexture.dispose();
                         scene1GUI();

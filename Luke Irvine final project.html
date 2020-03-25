@@ -107,19 +107,22 @@
         var advancedTexture;                    // used for GUIs
         var sub = 10;                           // default number of maze sub divisions
         var soundtrack;                         // used for background music throughout
-        var starWars;
+        var starWars;                           // holds music to play upon victory
         var replay = true;                      // used to govern when music is played
         var end = false;                        // set end to true to have player start at end of maze (debugging)
         var madeIt = false;                     // set to true when player reaches end of maze
-        var volume = 0.75;
+        var volume = 0.75;                      // volume for all music
         var difficultyLevel = 0;                // 0 is easy, 1 is medium, 2 is hard
         var blockZoom = false;                  // when true, zoom is disabled
         var player;                             // used to create protagonist player mesh
-        var subLength;
-        var elevation;
-        var mazeLength;
-        var mazeCuts;
-        var caught = false;
+        var subLength;                          // length of each cell in maze
+        var elevation;                          // how high fake ground is above base ground
+        var mazeLength;                         // width of entire maze
+        var mazeCuts;                           // number of random walls to remove from maze
+        var caught = false;                     // true if player comes in contact with bad guy
+        var maxItems;                           // number of items to collect
+        var numItems = 0;                       // number of items player has collected;
+        var nearGate = false;                   // triggers if player is near gate and tells player to get rest of keys
         // var timerStart = false;
 
 
@@ -186,7 +189,8 @@
             var pMat;
             var badGuyRed;
             var badGuyBlue;
-            var badGuyMagenta
+            var badGuyMagenta;
+            var itemMat;
             var tileCount;
             var tileCount2;
             var tileCount3;
@@ -308,6 +312,11 @@
                 badGuyBlack = new BABYLON.StandardMaterial("badGuyBlack", scene1);
                 badGuyBlack.diffuseColor = new BABYLON.Color3(0, 0, 0);
                 badGuyBlack.alpha = badGuyAlpha;
+
+                itemMat = new BABYLON.StandardMaterial("itemMat", scene1);
+                itemMat.diffuseColor = new BABYLON.Color3(1, 0.5, 0.1);
+                itemMat.alpha = badGuyAlpha;
+
             }
             textures();
 
@@ -647,6 +656,7 @@
             var grid = [];          
             var myStack = [];       // stack to push previously visited cells to.
             var mazeIndex = 0;
+            var gate;
             var generateMaze = function () {
                 // initialize array
                 for (i = 0; i < sub; i++) {
@@ -663,8 +673,14 @@
                 wallArray[sub * 2][Math.round(sub / 2) - 1] = 0;
                 // Exit
                 wallArray[0][Math.round(sub / 2) - 1].dispose();
+                // wallArray[0][Math.round(sub / 2)].dispose();
                 delete wallArray[0][Math.round(sub / 2) - 1];
+                // delete wallArray[0][Math.round(sub / 2)];
                 wallArray[0][Math.round(sub / 2) - 1] = 0;
+                // wallArray[0][Math.round(sub / 2)] = 0;
+                gate = new BABYLON.MeshBuilder.CreateBox("gate", {width: subLength, height: wallHeight, depth: 0.5}, scene1);
+                gate.position = new BABYLON.Vector3(-subLength / 2, elevation + wallHeight / 2, mazeLength / 2);
+                gate.checkCollisions = true;
 
                 // splice out undefined walls
                 for (i = 0; i < wallArray.length; i++) {
@@ -916,6 +932,19 @@
             }
             createBadGuys();
 
+            // Items
+            var itemsArray = [];
+            var createItems = function() {
+                for (i = 0; i < maxItems; i++) {
+                    var item = new BABYLON.MeshBuilder.CreateSphere("itemSphere", {diameter: 3}, scene1);
+                    var randCell = grid[Math.floor(Math.random() * sub)][Math.floor(Math.random() * sub)];
+                    item.position = new BABYLON.Vector3(randCell.getXCoord, elevation + wallHeight, randCell.getZCoord);
+                    item.material = itemMat;
+                    itemsArray.push(item);
+                }
+            }
+            createItems();
+
             /***********************************************************************************************************************************************************/
 
             // Keypress events
@@ -934,6 +963,8 @@
             var index = 0;          // governs when sprites move
             var timeDelay = 0;
             var messageTimerOn = false;
+            var itemTimerOn = false;
+            var itemTimeDelay = 0;
             var caughtByBadGuy = function() {
                     replay = false;
                     // set player position
@@ -947,7 +978,22 @@
                     caught = true;
                     advancedTexture.dispose();
                     scene1GUI();
+            }
+            var checkItems = function() {
+                for (i = 0; i < itemsArray.length; i++) {
+                    if (Math.round(0.5 * player.position.x) / 0.5 === Math.round(0.5 * itemsArray[i].position.x) / 0.5 &&
+                        Math.round(0.5 * player.position.z) / 0.5 === Math.round(0.5 * itemsArray[i].position.z) / 0.5) {
+                        if (!itemTimerOn) {
+                            numItems += 1;
+                            itemTimerOn = true;
+                        }
+                        itemsArray[i].dispose();
+                        itemsArray[i].position.z = 1000;
+                        advancedTexture.dispose();
+                        scene1GUI();
+                    }
                 }
+            }
 
             scene1.registerBeforeRender(function () {
                 
@@ -1146,6 +1192,7 @@
                         if (timeDelay > 60) {
                             caught = false;
                             messageTimerOn = false;
+                            nearGate = false;
                             advancedTexture.dispose();
                             scene1GUI();
                             timeDelay = 0;
@@ -1153,6 +1200,34 @@
                     } 
                 }
                 makeBadGuysMove();
+
+                // Items
+                if (index % 4 === 0) {
+                    checkItems();
+                }
+                if (itemTimerOn) {
+                    itemTimeDelay += 1;
+                }
+                if (itemTimeDelay > 30) {
+                    itemTimerOn = false;
+                    itemTimeDelay = 0;
+                }
+                if (numItems === maxItems) {
+                    gate.dispose();
+                }
+
+                // Near Gate
+                if (index % 40 === 0) {
+                    if (Math.round(0.1 * player.position.x) / 0.1 === Math.round(0.1 * gate.position.x) / 0.1 &&
+                        Math.round(0.1 * player.position.z) / 0.1 === Math.round(0.1 * gate.position.z) / 0.1 && numItems != maxItems) {
+                        nearGate = true;
+                        messageTimerOn = true;
+                        // console.log("near gate");
+                        advancedTexture.dispose();
+                        scene1GUI();
+                    }
+                }
+
             });
 
             // /*********************************************************************************************************************/
@@ -1421,6 +1496,7 @@
                 replay = true;
                 soundtrack.pause();
                 sub = 10;
+                maxItems = 4;
                 difficultyLevel = 0;
                 scene0 = null;
                 scene1 = createScene1();
@@ -1443,6 +1519,7 @@
                 replay = true;
                 soundtrack.pause();
                 sub = 20;
+                maxItems = 6;
                 difficultyLevel = 1;
                 scene0 = null;
                 scene1 = createScene1();
@@ -1465,7 +1542,8 @@
                 nextScene = true;
                 replay = true;
                 soundtrack.pause();
-                sub = 30;
+                sub = 20;
+                maxItems = 10;
                 difficultyLevel = 2;
                 scene0 = null;
                 scene1 = createScene1();
@@ -1510,11 +1588,19 @@
             advancedTexture.addControl(panel);
 
             var textPanel2 = new BABYLON.GUI.Rectangle();
-            textPanel2.verticalAlignment = 0;
+            textPanel2.verticalAlignment = 2;
             textPanel2.width = 1;
             textPanel2.height = "50px";
             textPanel2.thickness = 0;
             advancedTexture.addControl(textPanel2);
+
+            var textPanel3 = new BABYLON.GUI.Rectangle();
+            textPanel3.verticalAlignment = 0;
+            textPanel3.horizontalAlignment = 0;
+            textPanel3.height = "50px";
+            textPanel3.width = 0.45;
+            textPanel3.thickness = 0;
+            advancedTexture.addControl(textPanel3);
 
             var homeButton = BABYLON.GUI.Button.CreateImageWithCenterTextButton("but", "Home Menu", "");
             homeButton.width = "75px";
@@ -1587,10 +1673,21 @@
                 }
                 scene1 = null;
                 scene1 = createScene1();
+                numItems = 0;
                 scene1GUI();
             });
             panel.addControl(newMazeButton);
 
+            // Items text display
+            var itemsDisplay = new BABYLON.GUI.TextBlock();
+            itemsDisplay.text = "  Items found: " + numItems.toString() + " / " + maxItems.toString();
+            itemsDisplay.color = "white";
+            itemsDisplay.fontSize = 30;
+            itemsDisplay.lineSpacing = "5px";
+            // itemsDisplay.verticalAlignment = 1;
+            itemsDisplay.textHorizontalAlignment = 0;
+            itemsDisplay.textWrapping = true;
+            textPanel3.addControl(itemsDisplay);
 
 
             // Difficulty level
@@ -1644,6 +1741,17 @@
                 youreCaught.verticalAlignment = 1;
                 youreCaught.textWrapping = true;
                 textPanel2.addControl(youreCaught);
+            }
+
+            if (nearGate) {
+                var getKeys = new BABYLON.GUI.TextBlock();
+                getKeys.text = "You need to collect all the keys first!";
+                getKeys.color = "white";
+                getKeys.fontSize = 20;
+                getKeys.lineSpacing = "5px";
+                getKeys.verticalAlignment = 1;
+                getKeys.textWrapping = true;
+                textPanel2.addControl(getKeys);
             }
 
 

@@ -126,6 +126,7 @@
         var numBadGuys = 0;                     // number of badguys triggered
         var gateOpen = false;                           // triggered when gate is down
         var pillarAlpha = 0.25
+        var maxLights;
         // var timerStart = false;
 
 
@@ -206,6 +207,7 @@
                 hedge.specularTexture = new BABYLON.Texture("textures/hedge.png", scene1);
                 hedge.ambientTexture = new BABYLON.Texture("textures/hedge.png", scene1);
                 hedge.alpha = 1;
+                hedge.maxSimultaneousLights = maxLights;
 
                 rock = new BABYLON.StandardMaterial("rock", scene1);
                 rock.diffuseTexture = new BABYLON.Texture("textures/rock.jpg", scene1);
@@ -223,6 +225,7 @@
                 stone.specularTexture.vScale = tileCount;
                 stone.ambientTexture.uScale = tileCount;
                 stone.ambientTexture.vScale = tileCount;
+                stone.maxSimultaneousLights = maxLights;
 
                 bigHedge = new BABYLON.StandardMaterial("bigHedge", scene1);
                 tileCount2 = Math.round(groundSize / (sub * 4));
@@ -247,6 +250,7 @@
                 grass.specularTexture.vScale = tileCount4 / 3;
                 grass.ambientTexture.uScale = tileCount4;
                 grass.ambientTexture.vScale = tileCount4 / 3;
+                grass.maxSimultaneousLights = maxLights;
 
                 dirt = new BABYLON.StandardMaterial("dirt", scene1);
                 dirt.diffuseTexture = new BABYLON.Texture("textures/dirt.jpg", scene1);
@@ -323,7 +327,7 @@
                 badGuyHaloMat.alpha = 0;
 
                 itemMat = new BABYLON.StandardMaterial("itemMat", scene1);
-                itemMat.emissiveColor = new BABYLON.Color3(1, 1, 0);
+                itemMat.emissiveColor = new BABYLON.Color3(1, 1, 0.4);
                 itemMat.alpha = pillarAlpha;
 
                 keyMat = new BABYLON.StandardMaterial("keyMat", scene1);
@@ -409,6 +413,7 @@
             var light;
             var createLighting = function () {
                 light = new BABYLON.HemisphericLight("HemiLight", new BABYLON.Vector3(0, 100, 0), scene1);
+                light.intensity = 0.5;
                 // light.diffuse = new BABYLON.Color3(0.3, 0.3, 0.3);
                 // var playerLight = new BABYLON.PointLight("lamplight", new BABYLON.Vector3(-subLength / 2, 3, -mazeLength / 2 - mazeLength * 0.05), scene1);
                 // playerLight.diffuse = new BABYLON.Color3(0.9, 0.7, 0.4);
@@ -873,22 +878,30 @@
 
                 for (i = 0; i < numBadGuys; i++) {
                     var badGuy = new BABYLON.MeshBuilder.CreateBox("badGuy1", { width: 3, height: badGuyHeight, depth: 3 }, scene1);
-                    var halo = new BABYLON.MeshBuilder.CreateCylinder("badGuyHalo", {diameter: 40, height: haloHeight}, scene1);
                     if (i === 0) {
                         var bgCurrentCell = grid[sub - 1][sub / 2 - 1];
                     } else {
                         var bgCurrentCell = grid[Math.floor(Math.random() * sub)][Math.floor(Math.random() * sub)];
                     }
                     badGuy.position = new BABYLON.Vector3(bgCurrentCell.getXCoord, elevation + badGuyHeight / 2, bgCurrentCell.getZCoord);
-                    halo.position = new BABYLON.Vector3(bgCurrentCell.getXCoord, elevation + haloHeight / 2, bgCurrentCell.getZCoord);
+                    if (difficultyLevel != 2) {
+                        var halo = new BABYLON.SpotLight(
+                            "spotLight", 
+                            new BABYLON.Vector3(bgCurrentCell.getXCoord, elevation + 300, bgCurrentCell.getZCoord), 
+                            new BABYLON.Vector3(0, -1, 0), 
+                            Math.PI / 30, 
+                            2, 
+                            scene1
+                        );
+                    }
+                    // halo.diffuseColor = new BABYLON.Color3(1, 0, 0);
                     // badGuy1.checkCollisions = true;
                     badGuy.material = badGuyRed;
-                    halo.material = badGuyHaloMat;
                     badGuy.speed = new BABYLON.Vector3(0, 0, 0);
                     badGuy.nextspeed = new BABYLON.Vector3.Zero();
-                    halo.speed = new BABYLON.Vector3(0, 0, 0);
-                    halo.nextspeed = new BABYLON.Vector3.Zero();
                     badGuyArray.push({ badGuy: badGuy, halo: halo, oldCell: null, currentCell: bgCurrentCell, nextCell: null });
+                    console.log(badGuy);
+                    console.log(halo);
                 }
             }
             createBadGuys();
@@ -1131,7 +1144,11 @@
                 var badGuySpeed = 0.15;
                 var makeBadGuysMove = function () {
                     for (i = 0; i < badGuyArray.length; i++) {
-                        createBadGuyMovement(index, grid, badGuyArray[i], badGuyArray[i].badGuy, badGuySpeed, badGuyArray[i].halo);
+                        createBadGuyMovement(index, grid, badGuyArray[i], badGuyArray[i].badGuy, badGuySpeed);
+                        if (difficultyLevel != 2) {
+                            badGuyArray[i].halo.position.x = badGuyArray[i].badGuy.position.x;
+                            badGuyArray[i].halo.position.z = badGuyArray[i].badGuy.position.z;
+                        }
                     }
                     if (index % 4 === 0) {
                         // if caught by a bad guy
@@ -1194,15 +1211,13 @@
             return scene1;
         }
 
-        function createBadGuyMovement(index, grid, badGuyVars, badGuy, v, halo) {
+        function createBadGuyMovement(index, grid, badGuyVars, badGuy, v) {
             var N = -1;
             var S = 1;
             var W = -2;
             var E = 2;
             badGuy.nextspeed.x = 0.0;
             badGuy.nextspeed.z = 0.0;
-            halo.nextspeed.x = 0.0;
-            halo.nextspeed.z = 0.0;
             if (index === 1) {
                 console.log("reached index = 1");
                 badGuyVars.nextCell = badGuyVars.currentCell.randomLink;
@@ -1245,27 +1260,20 @@
                 switch (badGuyVars.nextCell.getLinkDirection) {
                     case N:
                         badGuy.nextspeed.z = v;
-                        halo.nextspeed.z = v;
                         break;
                     case S:
                         badGuy.nextspeed.z = -v;
-                        halo.nextspeed.z = -v;
                         break;
                     case E:
                         badGuy.nextspeed.x = v;
-                        halo.nextspeed.x = v;
                         break;
                     case W:
                         badGuy.nextspeed.x = -v;
-                        halo.nextspeed.x = -v;
                         break;
                 }
             }
             badGuy.speed = BABYLON.Vector3.Lerp(badGuy.speed, badGuy.nextspeed, 0.1);
             badGuy.moveWithCollisions(badGuy.speed);
-            halo.speed = BABYLON.Vector3.Lerp(badGuy.speed, badGuy.nextspeed, 0.1);
-            halo.moveWithCollisions(badGuy.speed);
-
         }
 
         // ==== Recursive Maze Function ====
@@ -1465,6 +1473,7 @@
                 sub = 10;
                 maxItems = 4;
                 numBadGuys = 5;
+                maxLights = 6;
                 difficultyLevel = 0;
                 scene0 = null;
                 scene1 = createScene1();
@@ -1489,6 +1498,7 @@
                 sub = 16;
                 maxItems = 10;
                 numBadGuys = 7;
+                maxLights = 8;
                 difficultyLevel = 1;
                 scene0 = null;
                 scene1 = createScene1();
@@ -1514,6 +1524,7 @@
                 sub = 20;
                 maxItems = 10;
                 numBadGuys = 20;
+                maxLights = 1;
                 difficultyLevel = 2;
                 scene0 = null;
                 scene1 = createScene1();

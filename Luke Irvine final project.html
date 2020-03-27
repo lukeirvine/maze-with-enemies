@@ -127,6 +127,8 @@
         var gateOpen = false;                           // triggered when gate is down
         var pillarAlpha = 0.25
         var maxLights;
+        var zoomRadius = 25;
+        var zoomHeight = 75;
         // var timerStart = false;
 
 
@@ -997,12 +999,22 @@
                 var makeZoomAndParty = function () {
                     // bird's eye view for z
                     if (follow) {
-                        if (window.keyisdown[90]
+                        if (window.keyisdown[90] && !window.keyisdown[79]
                             && -mazeLength / 2 < player.position.x && player.position.x < mazeLength / 2    // only lets you zoom out when inside the maze
                             && -mazeLength / 2 < player.position.z && player.position.z < mazeLength / 2
                             && !blockZoom
                         ) {
-                            // Zoom out
+                            // Hard Zoom out
+                            followCam.radius = zoomRadius;
+                            followCam.heightOffset = zoomHeight;
+                            followCam.rotationOffset = 180;
+                        }
+                        else if (window.keyisdown[90] && window.keyisdown[79]
+                            && -mazeLength / 2 < player.position.x && player.position.x < mazeLength / 2    // only lets you zoom out when inside the maze
+                            && -mazeLength / 2 < player.position.z && player.position.z < mazeLength / 2
+                            && !blockZoom
+                        ) {
+                            // Cheat Zoom out
                             followCam.radius = sub * 9;
                             followCam.heightOffset = sub * 9;
                             followCam.rotationOffset = 180;
@@ -1474,6 +1486,7 @@
                 maxItems = 4;
                 numBadGuys = 5;
                 maxLights = 6;
+                zoomHeight = 55;
                 difficultyLevel = 0;
                 scene0 = null;
                 scene1 = createScene1();
@@ -1525,6 +1538,8 @@
                 maxItems = 10;
                 numBadGuys = 20;
                 maxLights = 1;
+                zoomRadius = 25;
+                zoomHeight = 60;
                 difficultyLevel = 2;
                 scene0 = null;
                 scene1 = createScene1();

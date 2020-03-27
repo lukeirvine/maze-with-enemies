@@ -193,6 +193,7 @@
             var badGuyRed;
             var badGuyBlue;
             var badGuyMagenta;
+            var badGuyHaloMat
             var itemMat;
             var keymat;
             var tileCount;
@@ -316,6 +317,10 @@
                 badGuyBlack = new BABYLON.StandardMaterial("badGuyBlack", scene1);
                 badGuyBlack.diffuseColor = new BABYLON.Color3(0, 0, 0);
                 badGuyBlack.alpha = badGuyAlpha;
+
+                badGuyHaloMat = new BABYLON.StandardMaterial("haloMat", scene1);
+                badGuyHaloMat.diffuseColor = new BABYLON.Color3(1, 0.2, 0.2);
+                badGuyHaloMat.alpha = 0;
 
                 itemMat = new BABYLON.StandardMaterial("itemMat", scene1);
                 itemMat.emissiveColor = new BABYLON.Color3(1, 1, 0);
@@ -862,36 +867,28 @@
 
             // Bad Guys
             var badGuyHeight = 10;
+            var haloHeight = 0.5;
             var badGuyArray = [];
-            var badGuy1;
-            var badGuy1Vars = { oldCell: null, currentCell: null, nextCell: null };
-            var badGuy2;
-            var badGuy2Vars = { oldCell: null, currentCell: null, nextCell: null };
-            var badGuy3;
-            var badGuy3Vars = { oldCell: null, currentCell: null, nextCell: null };
-            var badGuy4;
-            var badGuy4Vars = { oldCell: null, currentCell: null, nextCell: null };
-            var badGuy5;
-            var badGuy5Vars = { oldCell: null, currentCell: null, nextCell: null };
-            var badGuy6;
-            var badGuy6Vars = { oldCell: null, currentCell: null, nextCell: null };
-            var badGuy7;
-            var badGuy7Vars = { oldCell: null, currentCell: null, nextCell: null };
             var createBadGuys = function () {
 
                 for (i = 0; i < numBadGuys; i++) {
                     var badGuy = new BABYLON.MeshBuilder.CreateBox("badGuy1", { width: 3, height: badGuyHeight, depth: 3 }, scene1);
+                    var halo = new BABYLON.MeshBuilder.CreateCylinder("badGuyHalo", {diameter: 40, height: haloHeight}, scene1);
                     if (i === 0) {
                         var bgCurrentCell = grid[sub - 1][sub / 2 - 1];
                     } else {
                         var bgCurrentCell = grid[Math.floor(Math.random() * sub)][Math.floor(Math.random() * sub)];
                     }
                     badGuy.position = new BABYLON.Vector3(bgCurrentCell.getXCoord, elevation + badGuyHeight / 2, bgCurrentCell.getZCoord);
+                    halo.position = new BABYLON.Vector3(bgCurrentCell.getXCoord, elevation + haloHeight / 2, bgCurrentCell.getZCoord);
                     // badGuy1.checkCollisions = true;
                     badGuy.material = badGuyRed;
+                    halo.material = badGuyHaloMat;
                     badGuy.speed = new BABYLON.Vector3(0, 0, 0);
                     badGuy.nextspeed = new BABYLON.Vector3.Zero();
-                    badGuyArray.push({ badGuy: badGuy, oldCell: null, currentCell: bgCurrentCell, nextCell: null });
+                    halo.speed = new BABYLON.Vector3(0, 0, 0);
+                    halo.nextspeed = new BABYLON.Vector3.Zero();
+                    badGuyArray.push({ badGuy: badGuy, halo: halo, oldCell: null, currentCell: bgCurrentCell, nextCell: null });
                 }
             }
             createBadGuys();
@@ -1134,7 +1131,7 @@
                 var badGuySpeed = 0.15;
                 var makeBadGuysMove = function () {
                     for (i = 0; i < badGuyArray.length; i++) {
-                        createBadGuyMovement(index, grid, badGuyArray[i], badGuyArray[i].badGuy, badGuySpeed);
+                        createBadGuyMovement(index, grid, badGuyArray[i], badGuyArray[i].badGuy, badGuySpeed, badGuyArray[i].halo);
                     }
                     if (index % 4 === 0) {
                         // if caught by a bad guy
@@ -1197,13 +1194,15 @@
             return scene1;
         }
 
-        function createBadGuyMovement(index, grid, badGuyVars, badGuy, v) {
+        function createBadGuyMovement(index, grid, badGuyVars, badGuy, v, halo) {
             var N = -1;
             var S = 1;
             var W = -2;
             var E = 2;
             badGuy.nextspeed.x = 0.0;
             badGuy.nextspeed.z = 0.0;
+            halo.nextspeed.x = 0.0;
+            halo.nextspeed.z = 0.0;
             if (index === 1) {
                 console.log("reached index = 1");
                 badGuyVars.nextCell = badGuyVars.currentCell.randomLink;
@@ -1246,20 +1245,26 @@
                 switch (badGuyVars.nextCell.getLinkDirection) {
                     case N:
                         badGuy.nextspeed.z = v;
+                        halo.nextspeed.z = v;
                         break;
                     case S:
                         badGuy.nextspeed.z = -v;
+                        halo.nextspeed.z = -v;
                         break;
                     case E:
                         badGuy.nextspeed.x = v;
+                        halo.nextspeed.x = v;
                         break;
                     case W:
                         badGuy.nextspeed.x = -v;
+                        halo.nextspeed.x = -v;
                         break;
                 }
             }
             badGuy.speed = BABYLON.Vector3.Lerp(badGuy.speed, badGuy.nextspeed, 0.1);
             badGuy.moveWithCollisions(badGuy.speed);
+            halo.speed = BABYLON.Vector3.Lerp(badGuy.speed, badGuy.nextspeed, 0.1);
+            halo.moveWithCollisions(badGuy.speed);
 
         }
 

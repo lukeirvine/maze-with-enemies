@@ -980,12 +980,9 @@
             }
             var checkItems = function () {
                 for (i = 0; i < itemsArray.length; i++) {
-                    if (Math.round(0.5 * player.position.x) / 0.5 === Math.round(0.5 * itemsArray[i].key.position.x) / 0.5 &&
-                        Math.round(0.5 * player.position.z) / 0.5 === Math.round(0.5 * itemsArray[i].key.position.z) / 0.5) {
-                        if (!itemTimerOn) {
-                            numItems += 1;
-                            itemTimerOn = true;
-                        }
+                    if (itemsArray[i].key.intersectsMesh(player, false)) {
+                        console.log("collision detection worked");
+                        numItems += 1;
                         itemsArray[i].key.position.z = 1000;
                         itemsArray[i].pillar.position.z = 1000;
                         advancedTexture.dispose();
@@ -1019,7 +1016,7 @@
                             followCam.heightOffset = sub * 9;
                             followCam.rotationOffset = 180;
                         }
-                        else {
+                        else if (!madeIt) {
                             // Zoom in
                             followCam.radius = 15;
                             followCam.heightOffset = 30;
@@ -1030,6 +1027,8 @@
                     if (-(subLength * 2) < player.position.x && player.position.x < subLength * 2 &&
                         mazeLength / 2 + 5 < player.position.z && player.position.z < mazeLength / 2 + subLength * 3 && !madeIt) {
                         console.log("player made it to end of maze");
+                        followCam.radius = 13;
+                        followCam.heightOffset = 2;
                         madeIt = true;
                         blockZoom = true;
                         confettiRed.start();
@@ -1041,6 +1040,9 @@
                     }
                     // Player Torch: not used. shadows are too cpu intensive
                     // playerLight.position = player.position;
+                    if (madeIt && light.intensity < 1) {
+                        light.intensity += 0.05;
+                    }
                 }
                 makeZoomAndParty();
 
@@ -1165,8 +1167,7 @@
                     if (index % 4 === 0) {
                         // if caught by a bad guy
                         for (i = 0; i < badGuyArray.length; i++) {
-                            if (Math.round(0.2 * player.position.x) / 0.2 === Math.round(0.2 * badGuyArray[i].badGuy.position.x) / 0.2 &&
-                                Math.round(0.2 * player.position.z) / 0.2 === Math.round(0.2 * badGuyArray[i].badGuy.position.z) / 0.2) {
+                            if (player.intersectsMesh(badGuyArray[i].badGuy, false)) {
                                 caughtByBadGuy();
                             }
                         }
@@ -1189,13 +1190,6 @@
                 var checkItemsAndGate = function() {
                     if (index % 4 === 0) {
                         checkItems();
-                    }
-                    if (itemTimerOn) {
-                        itemTimeDelay += 1;
-                    }
-                    if (itemTimeDelay > 30) {
-                        itemTimerOn = false;
-                        itemTimeDelay = 0;
                     }
                     if (numItems === maxItems) {
                         gate.dispose();
@@ -1484,7 +1478,7 @@
                 soundtrack.pause();
                 sub = 10;
                 maxItems = 4;
-                numBadGuys = 5;
+                numBadGuys = 4;
                 maxLights = 6;
                 zoomHeight = 55;
                 difficultyLevel = 0;
@@ -1611,6 +1605,8 @@
                 advancedTexture.dispose();
                 nextScene = false;
                 madeIt = false;
+                caught = false;
+                nearGate = false;
                 blockZoom = false;
                 soundtrack.pause();
                 starWars.pause();
@@ -1637,7 +1633,12 @@
                     madeIt = false;
                     blockZoom = false;
                     replay = true;
+                    followCam.radius = 15;
+                    followCam.heightOffset = 30;
+                    light.intensity = 0.5
                 }
+                caught = false;
+                nearGate = false;
                 replay = false;
                 // set player position
                 if (sub % 2 === 1) {
@@ -1668,6 +1669,8 @@
                     blockZoom = false;
                     replay = true;
                 }
+                caught = false;
+                nearGate = false;
                 scene1 = null;
                 scene1 = createScene1();
                 numItems = 0;

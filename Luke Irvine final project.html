@@ -825,9 +825,9 @@
                 // red/orange
                 confettiRed = new BABYLON.ParticleSystem("confettiRed", 500, scene1);
                 confettiRed.particleTexture = new BABYLON.Texture("textures/fire.png", scene1);
-                confettiRed.emitter = new BABYLON.Vector3(-subLength / 2, 18, mazeLength / 2 + subLength * 2);
+                confettiRed.emitter = new BABYLON.Vector3(-subLength / 2, 20, mazeLength / 2 + subLength * 2);
                 confettiRed.minEmitBox = new BABYLON.Vector3(-2 * subLength, 0, 2 * subLength);
-                confettiRed.maxEmitBox = new BABYLON.Vector3(2 * subLength, 0, -2 * subLength);
+                confettiRed.maxEmitBox = new BABYLON.Vector3(2 * subLength, 3, -2 * subLength);
                 confettiRed.color1 = new BABYLON.Color4(0.7, 0, 0, 1.0);
                 confettiRed.color2 = new BABYLON.Color4(0.5, 0.5, 0, 1.0);
                 confettiRed.minSize = 0.4;
@@ -844,9 +844,9 @@
                 // blue/green
                 confettiBlueGreen = new BABYLON.ParticleSystem("confettiBlueGreen", 500, scene1);
                 confettiBlueGreen.particleTexture = new BABYLON.Texture("textures/fire.png", scene1);
-                confettiBlueGreen.emitter = new BABYLON.Vector3(-subLength / 2, 18, mazeLength / 2 + subLength * 2);
+                confettiBlueGreen.emitter = new BABYLON.Vector3(-subLength / 2, 20, mazeLength / 2 + subLength * 2);
                 confettiBlueGreen.minEmitBox = new BABYLON.Vector3(-2 * subLength, 0, 2 * subLength);
-                confettiBlueGreen.maxEmitBox = new BABYLON.Vector3(2 * subLength, 0, -2 * subLength);
+                confettiBlueGreen.maxEmitBox = new BABYLON.Vector3(2 * subLength, 3, -2 * subLength);
                 confettiBlueGreen.color1 = new BABYLON.Color4(0, 0, 1, 1.0);
                 confettiBlueGreen.color2 = new BABYLON.Color4(0.3, 0.7, 1, 1.0);
                 confettiBlueGreen.minSize = 0.4;
@@ -863,9 +863,9 @@
                 // sparser confetti towards edges
                 confetti = new BABYLON.ParticleSystem("confetti", 500, scene1);
                 confetti.particleTexture = new BABYLON.Texture("textures/fire.png", scene1);
-                confetti.emitter = new BABYLON.Vector3(-subLength / 2, 18, mazeLength / 2 + subLength * 2);
+                confetti.emitter = new BABYLON.Vector3(-subLength / 2, 21, mazeLength / 2 + subLength * 2);
                 confetti.minEmitBox = new BABYLON.Vector3(-4 * subLength, 0, 4 * subLength);
-                confetti.maxEmitBox = new BABYLON.Vector3(4 * subLength, 0, -4 * subLength);
+                confetti.maxEmitBox = new BABYLON.Vector3(4 * subLength, 3, -4 * subLength);
                 confetti.color1 = new BABYLON.Color4(0.7, 0, 0, 1.0);
                 confetti.color2 = new BABYLON.Color4(0.5, 0.5, 0, 1.0);
                 confetti.minSize = 0.4;
@@ -1078,7 +1078,8 @@
                     }
 
                     if (madeIt) {
-                        confetti.emitter = player.position;
+                        confetti.emitter.x = player.position.x;
+                        confetti.emitter.z = player.position.z;
                     }
                     player.nextspeed.x = 0.0;
                     player.nextspeed.z = 0.00001;

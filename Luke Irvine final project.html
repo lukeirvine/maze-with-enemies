@@ -101,6 +101,67 @@
                 return this.links;
             }
         };
+        function Stopwatch() {
+            var time = 0;
+            var interval;
+            var offset;
+
+            function update() {
+                time += delta();
+                formattedTime = timeformatter(time);
+                // console.log(formattedTime);
+                stopwatchTexture.dispose();
+                stopwatchGUI();
+            }
+            function delta() {
+                var now = Date.now();
+                var timePassed = now - offset;
+                offset = now;
+                return timePassed;
+            }
+            function timeformatter(timeInMilliseconds) {
+                var time = new Date(timeInMilliseconds);
+                var minutes = time.getMinutes().toString();
+                var seconds = time.getSeconds().toString();
+                var milliseconds = time.getMilliseconds().toString();
+
+                if (minutes.length < 2) {
+                minutes = '0' + minutes;
+                }
+
+                if (seconds.length < 2) {
+                seconds = '0' + seconds;
+                }
+
+                while (milliseconds.length < 3) {
+                milliseconds = '0' + milliseconds;
+                }
+                
+                return minutes + ' : ' + seconds + '.' + milliseconds;
+            }
+
+            this.isOn = false;
+            this.start = function() {
+                if (!this.isOn) {
+                    interval = setInterval(update, 10);
+                    offset = Date.now();
+                    this.isON = true;
+                }
+            };
+            this.stop = function() {
+                if (this.isON) {
+                    clearInterval(interval);
+                    interval = null;
+                    this.isOn = false;
+                }
+            };
+            this.reset = function() {
+                time = 0;
+                formattedTime = "00 : 00.000";
+                stopwatchTexture.dispose();
+                stopwatchGUI();
+            };
+        }
 
         // global variables used throughout code
         var nextScene = false;                  // false sets up welcome screen first
@@ -120,7 +181,7 @@
         var mazeLength;                         // width of entire maze
         var mazeCuts;                           // number of random walls to remove from maze
         var caught = false;                     // true if player comes in contact with bad guy
-        var maxItems;                           // number of items to collect
+        var maxItems = 0;                           // number of items to collect
         var numItems = 0;                       // number of items player has collected;
         var nearGate = false;                   // triggers if player is near gate and tells player to get rest of keys
         var numBadGuys = 0;                     // number of badguys triggered
@@ -130,7 +191,11 @@
         var zoomRadius = 25;                    // used for hard zoom settings
         var zoomHeight = 75;                    // ^^^
         var knockCount = 0;                     // used to count how many walls are knocked down by player
-        var maxKnock;
+        var maxKnock = 0;                           // max number of times a player can cut down a hedge
+        var formattedTime = "00 : 00.000";
+        var watch = new Stopwatch();
+        var stopwatchTexture;
+        var playerStarted = false;
         // var timerStart = false;
 
 
@@ -687,6 +752,7 @@
             var myStack = [];       // stack to push previously visited cells to.
             var mazeIndex = 0;
             var gate;
+            var startPlane;
             var generateMaze = function () {
                 // initialize array
                 for (i = 0; i < sub; i++) {
@@ -701,6 +767,9 @@
                 wallArray[sub * 2][Math.round(sub / 2) - 1].dispose();
                 delete wallArray[sub * 2][Math.round(sub / 2) - 1];
                 wallArray[sub * 2][Math.round(sub / 2) - 1] = 0;
+                startPlane = new BABYLON.MeshBuilder.CreateBox("startPlane", {width: subLength, height: wallHeight, depth: wallDepth}, scene1);
+                startPlane.position = new BABYLON.Vector3(-subLength / 2, wallHeight / 2 + elevation, -mazeLength / 2)
+                startPlane.material = pMat;
                 // Exit
                 wallArray[0][Math.round(sub / 2) - 1].dispose();
                 // wallArray[0][Math.round(sub / 2)].dispose();
@@ -1041,6 +1110,7 @@
                     if (-(subLength * 2) < player.position.x && player.position.x < subLength * 2 &&
                         mazeLength / 2 + 5 < player.position.z && player.position.z < mazeLength / 2 + subLength * 3 && !madeIt) {
                         console.log("player made it to end of maze");
+                        watch.stop();
                         followCam.radius = 13;
                         followCam.heightOffset = 2;
                         madeIt = true;
@@ -1184,6 +1254,11 @@
                         for (i = 0; i < badGuyArray.length; i++) {
                             if (player.intersectsMesh(badGuyArray[i].badGuy, false)) {
                                 caughtByBadGuy();
+                                watch.stop();
+                                watch.reset();
+                                playerStarted = false;
+                                stopwatchTexture.dispose();
+                                stopwatchGUI();
                             }
                         }
                         if (messageTimerOn) {
@@ -1225,19 +1300,32 @@
                 }
                 checkItemsAndGate();
 
+                // stop watch
+                if (player.intersectsMesh(startPlane, false) && !playerStarted) {
+                    watch.start();
+                    console.log("player starting");
+                    playerStarted = true;
+                }
+                
+
             });
 
             //When pointer down event is raised
-            scene1.onPointerDown = function (evt, pickResult) {
-                // if the click hits the ground object, we change the impact position
-                if (pickResult.hit && pickResult.pickedMesh.name == "mazeWall" && knockCount < maxKnock) {
-                    knockCount += 1;
-                    advancedTexture.dispose();
-                    scene1GUI();
-                    pickResult.pickedMesh.dispose();
-                    console.log("picked mesh " + pickResult.pickedMesh.name.toString());
-                }
-            };
+            var cutHedges = function() {
+                scene1.onPointerDown = function (evt, pickResult) {
+                    // if the click hits the ground object, we change the impact position
+                    if (pickResult.hit && pickResult.pickedMesh.name == "mazeWall" && knockCount < maxKnock) {
+                        knockCount += 1;
+                        advancedTexture.dispose();
+                        scene1GUI();
+                        pickResult.pickedMesh.dispose();
+                        console.log("picked mesh " + pickResult.pickedMesh.name.toString());
+                    }
+                };
+            }
+            cutHedges();
+
+
 
             // /*********************************************************************************************************************/
 
@@ -1512,6 +1600,7 @@
                 difficultyLevel = 0;
                 scene0 = null;
                 scene1 = createScene1();
+                stopwatchGUI();
                 scene1GUI();
             });
             difficultyPanel.addControl(easyButton);
@@ -1539,6 +1628,7 @@
                 scene0 = null;
                 scene1 = createScene1();
                 scene1GUI();
+                stopwatchGUI();
             });
 
             difficultyPanel.addControl(mediumButton);
@@ -1557,9 +1647,9 @@
                 nextScene = true;
                 replay = true;
                 soundtrack.pause();
-                sub = 20;
+                sub = 18;
                 maxItems = 10;
-                numBadGuys = 20;
+                numBadGuys = 16;
                 maxLights = 1;
                 maxKnock = 1;
                 zoomRadius = 25;
@@ -1568,6 +1658,7 @@
                 scene0 = null;
                 scene1 = createScene1();
                 scene1GUI();
+                stopwatchGUI();
             });
 
             difficultyPanel.addControl(hardButton);
@@ -1633,11 +1724,16 @@
             homeButton.isPointerBlocker = true
             homeButton.onPointerUpObservable.add(function () {
                 advancedTexture.dispose();
+                stopwatchTexture.dispose();
+                watch.stop();
+                watch.reset();
+                formattedTime = "00 : 00.000";
                 nextScene = false;
                 madeIt = false;
                 caught = false;
                 nearGate = false;
                 blockZoom = false;
+                playerStarted = false;
                 soundtrack.pause();
                 starWars.pause();
                 numItems = 0;
@@ -1692,6 +1788,10 @@
             newMazeButton.isPointerBlocker = true
             newMazeButton.onPointerUpObservable.add(function () {
                 advancedTexture.dispose();
+                stopwatchTexture.dispose();
+                watch.stop();
+                watch.reset();
+                formattedTime = "00 : 00.000";
                 replay = false;
                 if (madeIt) {
                     soundtrack.pause();
@@ -1702,10 +1802,12 @@
                 }
                 caught = false;
                 nearGate = false;
+                playerStarted = false;
                 scene1 = null;
                 scene1 = createScene1();
                 numItems = 0;
                 knockCount = 0;
+                stopwatchGUI();
                 scene1GUI();
             });
             panel.addControl(newMazeButton);
@@ -1799,6 +1901,30 @@
         }
         if (nextScene) {
             scene1GUI();
+        }
+
+        // stopwatch GUI
+        var stopwatchGUI = function() {
+            stopwatchTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI", true, scene1);
+            
+            var panel = new BABYLON.GUI.Rectangle();
+            panel.verticalAlignment = 1;
+            panel.width = 1;
+            panel.height = "50px";
+            panel.thickness = 0;
+            stopwatchTexture.addControl(panel);
+
+            var stopwatchDisplay = new BABYLON.GUI.TextBlock();
+            stopwatchDisplay.text = "Time: " + formattedTime + "  ";
+            stopwatchDisplay.color = "white";
+            stopwatchDisplay.fontSize = 30;
+            stopwatchDisplay.lineSpacing = "5px";
+            stopwatchDisplay.textHorizontalAlignment = 1;
+            stopwatchDisplay.textWrapping = true;
+            panel.addControl(stopwatchDisplay);
+        }
+        if (nextScene) {
+            stopwatchGUI();
         }
 
         engine.runRenderLoop(function () {

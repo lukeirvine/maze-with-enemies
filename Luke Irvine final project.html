@@ -1131,14 +1131,14 @@
                     // delay variable is loop interval at which player sprite operates (uses modulus)
                     // when space bar is pressed, run.
                     if (!window.keyisdown[32]) {
-                        var v = 0.15;
-                        var delay = 6;
+                        var v = 0.12;
+                        var delay = 8;
                         walkingThor.position = player.position;
                         runningThor.position.y = player.position.y - 10;
                     }
                     else {
                         var v = 0.45;
-                        var delay = 4;
+                        var delay = 5;
                         runningThor.position = player.position;
                         walkingThor.position.y = player.position.y - 10;
                     }

@@ -129,6 +129,8 @@
         var maxLights;                          // max lights a mesh can have shone on it
         var zoomRadius = 25;                    // used for hard zoom settings
         var zoomHeight = 75;                    // ^^^
+        var knockCount = 0;                     // used to count how many walls are knocked down by player
+        var maxKnock;
         // var timerStart = false;
 
 
@@ -639,10 +641,18 @@
                     wallArray.push([]);
                     for (j = 0; j <= sub; j++) {
                         if (!(i % 2 === 0 && j === sub)) {
-                            var mazeWall = new BABYLON.MeshBuilder.CreateBox(
+                            if (i === 0 || i === sub * 2 || (j === 0 && i % 2 === 1) || (j === sub && i % 2 === 1)) {
+                                var mazeWall = new BABYLON.MeshBuilder.CreateBox(
+                                "borderWall",
+                                { height: wallHeight + Math.random() * 0.5, width: subLength + subLength * 0.4, depth: wallDepth + Math.random() * 0.2 },
+                                scene1);
+                            }
+                            else {
+                                var mazeWall = new BABYLON.MeshBuilder.CreateBox(
                                 "mazeWall",
                                 { height: wallHeight + Math.random() * 0.5, width: subLength + subLength * 0.4, depth: wallDepth + Math.random() * 0.2 },
                                 scene1);
+                            }
                         }
                         mazeWall.material = hedge;
                         mazeWall.checkCollisions = true;
@@ -939,6 +949,10 @@
                 window.keyisdown[event.keyCode] = false;
             });
 
+            window.addEventListener("click", function () {
+                var pickResult = scene1.pick(scene1.pointerX, scene1.pointerY);
+            });
+
             window.tempv = new BABYLON.Vector3.Zero();
 
             var totalCells = 64;    // total number of cells in sprite
@@ -1212,6 +1226,18 @@
 
             });
 
+            //When pointer down event is raised
+            scene1.onPointerDown = function (evt, pickResult) {
+                // if the click hits the ground object, we change the impact position
+                if (pickResult.hit && pickResult.pickedMesh.name == "mazeWall" && knockCount < maxKnock) {
+                    knockCount += 1;
+                    advancedTexture.dispose();
+                    scene1GUI();
+                    pickResult.pickedMesh.dispose();
+                    console.log("picked mesh " + pickResult.pickedMesh.name.toString());
+                }
+            };
+
             // /*********************************************************************************************************************/
 
             return scene1;
@@ -1481,6 +1507,7 @@
                 numBadGuys = 4;
                 maxLights = 6;
                 zoomHeight = 55;
+                maxKnock = 3;
                 difficultyLevel = 0;
                 scene0 = null;
                 scene1 = createScene1();
@@ -1506,6 +1533,7 @@
                 maxItems = 10;
                 numBadGuys = 7;
                 maxLights = 8;
+                maxKnock = 2;
                 difficultyLevel = 1;
                 scene0 = null;
                 scene1 = createScene1();
@@ -1532,6 +1560,7 @@
                 maxItems = 10;
                 numBadGuys = 20;
                 maxLights = 1;
+                maxKnock = 1;
                 zoomRadius = 25;
                 zoomHeight = 60;
                 difficultyLevel = 2;
@@ -1588,7 +1617,7 @@
             textPanel3.verticalAlignment = 0;
             textPanel3.horizontalAlignment = 0;
             textPanel3.height = "50px";
-            textPanel3.width = 0.45;
+            textPanel3.width = 1;
             textPanel3.thickness = 0;
             advancedTexture.addControl(textPanel3);
 
@@ -1611,6 +1640,7 @@
                 soundtrack.pause();
                 starWars.pause();
                 numItems = 0;
+                knockCount = 0;
                 scene1 = null;
                 scene0 = createScene0();
                 scene0GUI();
@@ -1674,6 +1704,7 @@
                 scene1 = null;
                 scene1 = createScene1();
                 numItems = 0;
+                knockCount = 0;
                 scene1GUI();
             });
             panel.addControl(newMazeButton);
@@ -1689,6 +1720,15 @@
             itemsDisplay.textWrapping = true;
             textPanel3.addControl(itemsDisplay);
 
+            // knock text display
+            var knocksDisplay = new BABYLON.GUI.TextBlock();
+            knocksDisplay.text = "Hedges cut: " + knockCount.toString() + " / " + maxKnock.toString() + "  ";
+            knocksDisplay.color = "white";
+            knocksDisplay.fontSize = 30;
+            knocksDisplay.lineSpacing = "5px";
+            knocksDisplay.textHorizontalAlignment = 1;
+            knocksDisplay.textWrapping = true;
+            textPanel3.addControl(knocksDisplay);
 
             // Difficulty level
             switch (difficultyLevel) {

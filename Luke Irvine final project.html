@@ -405,6 +405,9 @@
             textures();
 
             // Sounds and Music
+            var coinSound;
+            var wallBreak;
+            var playerDies;
             var createSounds = function () {
                 if (replay) {
                     soundtrack = new BABYLON.Sound(
@@ -432,6 +435,45 @@
                         loop: true
                     }
                 );
+
+                // Coin
+                coinSound = new BABYLON.Sound(
+                    "coinSound",
+                    "sounds/soundFX/coin.wav",
+                    scene1,
+                    null,
+                    {
+                        volume: volume,
+                        autoplay: false,
+                        loop: false
+                    }
+                );
+
+                // wallBreak
+                wallBreak = new BABYLON.Sound(
+                    "wallBreak",
+                    "sounds/soundFX/break_block.wav",
+                    scene1,
+                    null,
+                    {
+                        volume: volume,
+                        autoplay: false,
+                        loop: false
+                    }
+                );          
+
+                // player caught by bad guy
+                playerDies = new BABYLON.Sound(
+                    "wallBreak",
+                    "sounds/soundFX/bowser_falls.wav",
+                    scene1,
+                    null,
+                    {
+                        volume: volume,
+                        autoplay: false,
+                        loop: false
+                    }
+                );                
             }
             createSounds();
 
@@ -1061,6 +1103,7 @@
                 for (i = 0; i < itemsArray.length; i++) {
                     if (itemsArray[i].key.intersectsMesh(player, false)) {
                         console.log("collision detection worked");
+                        coinSound.play();
                         numItems += 1;
                         itemsArray[i].key.position.z = 1000;
                         itemsArray[i].pillar.position.z = 1000;
@@ -1249,6 +1292,7 @@
                         // if caught by a bad guy
                         for (i = 0; i < badGuyArray.length; i++) {
                             if (player.intersectsMesh(badGuyArray[i].badGuy, false)) {
+                                playerDies.play();
                                 caughtByBadGuy();
                                 watch.stop();
                                 watch.reset();
@@ -1310,6 +1354,7 @@
                 scene1.onPointerDown = function (evt, pickResult) {
                     // if the click hits the ground object, we change the impact position
                     if (pickResult.hit && pickResult.pickedMesh.name == "mazeWall" && knockCount < maxKnock) {
+                        wallBreak.play();
                         knockCount += 1;
                         advancedTexture.dispose();
                         scene1GUI();

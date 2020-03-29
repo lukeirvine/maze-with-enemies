@@ -136,14 +136,15 @@
                 while (milliseconds.length < 3) {
                 milliseconds = '0' + milliseconds;
                 }
-                
-                return minutes + ' : ' + seconds + '.' + milliseconds;
+                formattedTime2 = minutes + ' : ' + seconds + "." + milliseconds;
+                return minutes + ' : ' + seconds;
+                //  + '.' + milliseconds;
             }
 
             this.isOn = false;
             this.start = function() {
                 if (!this.isOn) {
-                    interval = setInterval(update, 10);
+                    interval = setInterval(update, 1000);
                     offset = Date.now();
                     this.isON = true;
                 }
@@ -157,7 +158,7 @@
             };
             this.reset = function() {
                 time = 0;
-                formattedTime = "00 : 00.000";
+                formattedTime = "00 : 00";
                 stopwatchTexture.dispose();
                 stopwatchGUI();
             };
@@ -192,7 +193,10 @@
         var zoomHeight = 75;                    // ^^^
         var knockCount = 0;                     // used to count how many walls are knocked down by player
         var maxKnock = 0;                       // max number of times a player can cut down a hedge
-        var formattedTime = "00 : 00.000";      // used in stopwatch GUI
+        var knockTimerOn = false;
+        var knockTimerCount = 0;
+        var formattedTime = "00 : 00";      // used in stopwatch GUI
+        var formattedTime2;
         var watch = new Stopwatch();            // holds global stopwatch object
         var stopwatchTexture;                   // used in stopwatch GUI
         var playerStarted = false;              // true if player has started the game and entered the maze
@@ -408,6 +412,7 @@
             var coinSound;
             var wallBreak;
             var playerDies;
+            var powerUp;
             var createSounds = function () {
                 if (replay) {
                     soundtrack = new BABYLON.Sound(
@@ -466,6 +471,19 @@
                 playerDies = new BABYLON.Sound(
                     "wallBreak",
                     "sounds/soundFX/bowser_falls.wav",
+                    scene1,
+                    null,
+                    {
+                        volume: volume,
+                        autoplay: false,
+                        loop: false
+                    }
+                );         
+
+                // all items collected
+                powerUp = new BABYLON.Sound(
+                    "wallBreak",
+                    "sounds/soundFX/power_up.wav",
                     scene1,
                     null,
                     {
@@ -1103,8 +1121,13 @@
                 for (i = 0; i < itemsArray.length; i++) {
                     if (itemsArray[i].key.intersectsMesh(player, false)) {
                         console.log("collision detection worked");
-                        coinSound.play();
                         numItems += 1;
+                        if (numItems === maxItems) {
+                            powerUp.play();
+                        }
+                        else {
+                            coinSound.play();
+                        }
                         itemsArray[i].key.position.z = 1000;
                         itemsArray[i].pillar.position.z = 1000;
                         advancedTexture.dispose();
@@ -1291,7 +1314,9 @@
                     if (index % 4 === 0) {
                         // if caught by a bad guy
                         for (i = 0; i < badGuyArray.length; i++) {
-                            if (player.intersectsMesh(badGuyArray[i].badGuy, false)) {
+                            if (Math.round(0.2 * player.position.x) / 0.2 === Math.round(0.2 * badGuyArray[i].badGuy.position.x) / 0.2 &&
+                                Math.round(0.2 * player.position.z) / 0.2 === Math.round(0.2 * badGuyArray[i].badGuy.position.z) / 0.2) 
+                                {
                                 playerDies.play();
                                 caughtByBadGuy();
                                 watch.stop();
@@ -1347,23 +1372,33 @@
                     playerStarted = true;
                 }
                 
+                if (knockTimerOn) {
+                    knockTimerCount += 1;
+                }
+                if (knockTimerCount > 10) {
+                    knockTimerCount = 0;
+                    knockTimerOn = false;
+                }
             });
 
             //When pointer down event is raised
-            var cutHedges = function() {
-                scene1.onPointerDown = function (evt, pickResult) {
-                    // if the click hits the ground object, we change the impact position
-                    if (pickResult.hit && pickResult.pickedMesh.name == "mazeWall" && knockCount < maxKnock) {
-                        wallBreak.play();
-                        knockCount += 1;
-                        advancedTexture.dispose();
-                        scene1GUI();
-                        pickResult.pickedMesh.dispose();
-                        console.log("picked mesh " + pickResult.pickedMesh.name.toString());
-                    }
-                };
-            }
-            cutHedges();
+            // var cutHedges = function() {
+            scene1.onPointerDown = function (evt, pickResult) {
+                // if the click hits the ground object, we change the impact position
+                if (pickResult.hit && pickResult.pickedMesh.name == "mazeWall" && knockCount < maxKnock && nextScene && !knockTimerOn) {
+                    wallBreak.play();
+                    knockCount += 1;
+                    pickResult.pickedMesh.dispose();
+                    console.log("picked mesh " + pickResult.pickedMesh.name.toString());
+                    advancedTexture.dispose();
+                    pickResult = null;
+                    evt = null;
+                    knockTimerOn = true;
+                    scene1GUI();
+                }
+            };
+            // }
+            // cutHedges();
 
             // /*********************************************************************************************************************/
 
@@ -1635,7 +1670,7 @@
                 nextScene = true;
                 replay = true;
                 soundtrack.pause();
-                sub = 16;
+                sub = 14;
                 maxItems = 10;
                 numBadGuys = 7;
                 maxLights = 8;
@@ -1663,7 +1698,7 @@
                 nextScene = true;
                 replay = true;
                 soundtrack.pause();
-                sub = 18;
+                sub = 12;
                 maxItems = 10;
                 numBadGuys = 16;
                 maxLights = 1;
@@ -1743,7 +1778,7 @@
                 stopwatchTexture.dispose();
                 watch.stop();
                 watch.reset();
-                formattedTime = "00 : 00.000";
+                formattedTime = "00 : 00";
                 nextScene = false;
                 madeIt = false;
                 caught = false;
@@ -1754,6 +1789,8 @@
                 starWars.pause();
                 numItems = 0;
                 knockCount = 0;
+                knockTimerOn = false;
+                knockTimerCount = 0;
                 scene1 = null;
                 scene0 = createScene0();
                 scene0GUI();
@@ -1807,7 +1844,7 @@
                 stopwatchTexture.dispose();
                 watch.stop();
                 watch.reset();
-                formattedTime = "00 : 00.000";
+                formattedTime = "00 : 00";
                 replay = false;
                 if (madeIt) {
                     soundtrack.pause();
@@ -1823,6 +1860,8 @@
                 scene1 = createScene1();
                 numItems = 0;
                 knockCount = 0;
+                knockTimerOn = false;
+                knockTimerCount = 0;
                 stopwatchGUI();
                 scene1GUI();
             });
@@ -1882,7 +1921,7 @@
 
             if (madeIt) {
                 var congrats = new BABYLON.GUI.TextBlock();
-                congrats.text = "Congratulations young squire. You have conquered yon maze with ease.\n" + "Your time: " + formattedTime;
+                congrats.text = "Congratulations young squire. You have conquered yon maze with ease.\n" + "Your time --> " + formattedTime2;
                 congrats.color = "white";
                 congrats.fontSize = 20;
                 congrats.lineSpacing = "5px";

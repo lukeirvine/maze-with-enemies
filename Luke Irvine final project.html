@@ -173,7 +173,7 @@
         var replay = true;                      // used to govern when music is played
         var end = false;                        // set end to true to have player start at end of maze (debugging)
         var madeIt = false;                     // set to true when player reaches end of maze
-        var volume = 0.75;                      // volume for all music
+        var volume = 0.65;                      // volume for all music
         var difficultyLevel = 0;                // 0 is easy, 1 is medium, 2 is hard
         var blockZoom = false;                  // when true, zoom is disabled
         var player;                             // used to create protagonist player mesh
@@ -195,7 +195,7 @@
         var maxKnock = 0;                       // max number of times a player can cut down a hedge
         var knockTimerOn = false;
         var knockTimerCount = 0;
-        var formattedTime = "00 : 00";      // used in stopwatch GUI
+        var formattedTime = "00 : 00";          // used in stopwatch GUI
         var formattedTime2;
         var watch = new Stopwatch();            // holds global stopwatch object
         var stopwatchTexture;                   // used in stopwatch GUI
@@ -426,6 +426,8 @@
             var wallBreak;
             var playerDies;
             var powerUp;
+            var walkingSteps;
+            var runningSteps;
             var createSounds = function () {
                 if (replay) {
                     soundtrack = new BABYLON.Sound(
@@ -482,7 +484,7 @@
 
                 // player caught by bad guy
                 playerDies = new BABYLON.Sound(
-                    "wallBreak",
+                    "playerDies",
                     "sounds/soundFX/bowser_falls.wav",
                     scene1,
                     null,
@@ -495,7 +497,7 @@
 
                 // all items collected
                 powerUp = new BABYLON.Sound(
-                    "wallBreak",
+                    "powerUp",
                     "sounds/soundFX/power_up.wav",
                     scene1,
                     null,
@@ -503,6 +505,32 @@
                         volume: volume,
                         autoplay: false,
                         loop: false
+                    }
+                );    
+
+                // walking steps
+                walkingSteps = new BABYLON.Sound(
+                    "walking",
+                    "sounds/soundFX/heavy_boot_103.wav",
+                    scene1,
+                    null,
+                    {
+                        volume: volume + 0.1,
+                        autoplay: false,
+                        loop: true
+                    }
+                );     
+
+                // running steps
+                runningSteps = new BABYLON.Sound(
+                    "running",
+                    "sounds/soundFX/running_outside_160.wav",
+                    scene1,
+                    null,
+                    {
+                        volume: volume + 0.1,
+                        autoplay: false,
+                        loop: true
                     }
                 );                
             }
@@ -1104,6 +1132,9 @@
             var timeDelay = 0;
             var messageTimerOn = false;
             var itemTimerOn = false;
+            var isWalking = false;
+            var isRunning = false;
+            var isNeither = true;
             var itemTimeDelay = 0;
             var caughtByBadGuy = function () {
                 replay = false;
@@ -1136,6 +1167,7 @@
                 }
 
             }
+
             var checkItems = function () {
                 for (i = 0; i < itemsArray.length; i++) {
                     if (itemsArray[i].key.intersectsMesh(player, false)) {
@@ -1210,6 +1242,39 @@
                     }
                 }
                 makeZoomAndParty();
+
+                // walking and running sounds
+                // console.log("s is down: ");
+                // console.log(window.keyisdown[83]);
+                
+                //walking
+                if ((window.keyisdown[65] || window.keyisdown[83] || window.keyisdown[68] || window.keyisdown[87]) && !window.keyisdown[32] && !isWalking) {
+                    isWalking = true;
+                    isRunning = false;
+                    isNeither = false;
+                    runningSteps.pause();
+                    walkingSteps.play();
+                    console.log("is walking. index = " + index.toString());
+                }
+                // running
+                if ((window.keyisdown[65] || window.keyisdown[83] || window.keyisdown[68] || window.keyisdown[87]) && window.keyisdown[32] && !isRunning) {
+                    isWalking = false;
+                    isRunning = true;
+                    isNeither = false;
+                    walkingSteps.pause();
+                    runningSteps.play();
+                    console.log("is running. index = " + index.toString());
+                }
+                // not moving
+                if (!(window.keyisdown[65] || window.keyisdown[83] || window.keyisdown[68] || window.keyisdown[87]) && !isNeither) {
+                    isWalking = false;
+                    isRunning = false;
+                    isNeither = true;
+                    walkingSteps.pause();
+                    runningSteps.pause();
+                    console.log("no movement. index = " + index.toString());
+                }
+                // 65, 83, 68, 87, 32
 
                 // Player Walking or Running
                 var makePlayerMove = function () {

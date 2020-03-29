@@ -1243,38 +1243,37 @@
                 }
                 makeZoomAndParty();
 
-                // walking and running sounds
-                // console.log("s is down: ");
-                // console.log(window.keyisdown[83]);
-                
-                //walking
-                if ((window.keyisdown[65] || window.keyisdown[83] || window.keyisdown[68] || window.keyisdown[87]) && !window.keyisdown[32] && !isWalking) {
-                    isWalking = true;
-                    isRunning = false;
-                    isNeither = false;
-                    runningSteps.pause();
-                    walkingSteps.play();
-                    console.log("is walking. index = " + index.toString());
+                // trigger footstep sounds
+                var createFootsteps = function() {                
+                    //walking
+                    if ((window.keyisdown[65] || window.keyisdown[83] || window.keyisdown[68] || window.keyisdown[87]) && !window.keyisdown[32] && !isWalking) {
+                        isWalking = true;
+                        isRunning = false;
+                        isNeither = false;
+                        runningSteps.pause();
+                        walkingSteps.play();
+                        // console.log("is walking. index = " + index.toString());
+                    }
+                    // running
+                    if ((window.keyisdown[65] || window.keyisdown[83] || window.keyisdown[68] || window.keyisdown[87]) && window.keyisdown[32] && !isRunning) {
+                        isWalking = false;
+                        isRunning = true;
+                        isNeither = false;
+                        walkingSteps.pause();
+                        runningSteps.play();
+                        // console.log("is running. index = " + index.toString());
+                    }
+                    // not moving
+                    if (!(window.keyisdown[65] || window.keyisdown[83] || window.keyisdown[68] || window.keyisdown[87]) && !isNeither) {
+                        isWalking = false;
+                        isRunning = false;
+                        isNeither = true;
+                        walkingSteps.pause();
+                        runningSteps.pause();
+                        // console.log("no movement. index = " + index.toString());
+                    }
                 }
-                // running
-                if ((window.keyisdown[65] || window.keyisdown[83] || window.keyisdown[68] || window.keyisdown[87]) && window.keyisdown[32] && !isRunning) {
-                    isWalking = false;
-                    isRunning = true;
-                    isNeither = false;
-                    walkingSteps.pause();
-                    runningSteps.play();
-                    console.log("is running. index = " + index.toString());
-                }
-                // not moving
-                if (!(window.keyisdown[65] || window.keyisdown[83] || window.keyisdown[68] || window.keyisdown[87]) && !isNeither) {
-                    isWalking = false;
-                    isRunning = false;
-                    isNeither = true;
-                    walkingSteps.pause();
-                    runningSteps.pause();
-                    console.log("no movement. index = " + index.toString());
-                }
-                // 65, 83, 68, 87, 32
+                createFootsteps();
 
                 // Player Walking or Running
                 var makePlayerMove = function () {
@@ -1449,20 +1448,23 @@
                 }
                 checkItemsAndGate();
 
-                // stop watch
-                if (player.intersectsMesh(startPlane, false) && !playerStarted) {
-                    watch.start();
-                    console.log("player starting");
-                    playerStarted = true;
+                // stop watch and timing
+                var createTiming = function() {
+                    if (player.intersectsMesh(startPlane, false) && !playerStarted) {
+                        watch.start();
+                        console.log("player starting");
+                        playerStarted = true;
+                    }
+                    
+                    if (knockTimerOn) {
+                        knockTimerCount += 1;
+                    }
+                    if (knockTimerCount > 10) {
+                        knockTimerCount = 0;
+                        knockTimerOn = false;
+                    }
                 }
-                
-                if (knockTimerOn) {
-                    knockTimerCount += 1;
-                }
-                if (knockTimerCount > 10) {
-                    knockTimerCount = 0;
-                    knockTimerOn = false;
-                }
+                createTiming();
             });
 
             //When pointer down event is raised

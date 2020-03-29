@@ -200,6 +200,19 @@
         var watch = new Stopwatch();            // holds global stopwatch object
         var stopwatchTexture;                   // used in stopwatch GUI
         var playerStarted = false;              // true if player has started the game and entered the maze
+        var grid = new Array(45);
+        var wallArray = new Array(90);
+        var wallArrayWidth = new Array(90);
+
+
+        // initialize arrays
+        for (i = 0; i < 45; i++) {
+            grid[i] = new Array(45);
+        }
+        for (i = 0; i < 90; i++) {
+            wallArray[i] = new Array(45);
+        }
+
 
         /************************************************* scene0: Welcome Menu *****************************************************************/
         // this scene has the welcome and options menu
@@ -753,13 +766,12 @@
             createSpriteCycles();
 
             // Maze Wall Grid
-            var wallArray = [];
             var createMazeWallGrid = function () {
                 var i = 0;
                 var j = 0;
                 var index = 0;
                 for (i = 0; i <= sub * 2; i++) {
-                    wallArray.push([]);
+                    // wallArray.push([]);
                     for (j = 0; j <= sub; j++) {
                         if (!(i % 2 === 0 && j === sub)) {
                             if (i === 0 || i === sub * 2 || (j === 0 && i % 2 === 1) || (j === sub && i % 2 === 1)) {
@@ -774,50 +786,52 @@
                                 { height: wallHeight + Math.random() * 0.5, width: subLength + subLength * 0.4, depth: wallDepth + Math.random() * 0.2 },
                                 scene1);
                             }
-                        }
-                        mazeWall.material = hedge;
-                        mazeWall.checkCollisions = true;
-                        mazeWall.position.y = wallHeight / 2 + elevation;
-                        mazeWall.position.z = mazeLength / 2 - subLength / 2 * i;
-                        // console.log("placed wall at z:")
-                        // console.log(mazeLength - subLength / 2 * i + 50);
-                        if (i % 2 === 0 && j < sub) {
-                            mazeWall.position.x = -mazeLength / 2 + subLength / 2 + subLength * j;
-                            // console.log("placed horizontal wall at:");
+                            mazeWall.material = hedge;
+                            mazeWall.checkCollisions = true;
+                            mazeWall.position.y = wallHeight / 2 + elevation;
+                            mazeWall.position.z = mazeLength / 2 - subLength / 2 * i;
+                            // console.log("placed wall at z:")
                             // console.log(mazeLength - subLength / 2 * i + 50);
-                            // console.log(subLength / 2 + subLength * j + 50);
+                            if (i % 2 === 0 && j < sub) {
+                                mazeWall.position.x = -mazeLength / 2 + subLength / 2 + subLength * j;
+                                // console.log("placed horizontal wall at:");
+                                // console.log(mazeLength - subLength / 2 * i + 50);
+                                // console.log(subLength / 2 + subLength * j + 50);
+                            }
+                            if (i % 2 === 1) {
+                                mazeWall.position.x = -mazeLength / 2 + subLength * j;
+                                mazeWall.rotation.y = Math.PI / 2;
+                                // console.log("placed vertical wall at:");
+                                // console.log(mazeLength - subLength / 2 * i + 50);
+                                // console.log(subLength * j + 50);
+                            }
                         }
-                        if (i % 2 === 1) {
-                            mazeWall.position.x = -mazeLength / 2 + subLength * j;
-                            mazeWall.rotation.y = Math.PI / 2;
-                            // console.log("placed vertical wall at:");
-                            // console.log(mazeLength - subLength / 2 * i + 50);
-                            // console.log(subLength * j + 50);
+                        else {
+                            var mazeWall = null;
                         }
-                        if (i % 2 === 0 && j === sub) {
-                            continue;
-                        }
-                        wallArray[i].push(mazeWall);
+                        wallArray[i][j] = mazeWall;
                     }
                 }
             }
             createMazeWallGrid();
 
             // Maze Generator
-            var grid = [];
-            var myStack = [];       // stack to push previously visited cells to.
             var mazeIndex = 0;
             var gate;
             var startPlane;
             var generateMaze = function () {
                 // initialize array
                 for (i = 0; i < sub; i++) {
-                    grid.push([]);
+                    // grid.push([]);
                     for (j = 0; j < sub; j++) {
-                        grid[i].push(new Cell(i, j, 0, [], null));
+                        grid[i][j] = new Cell(i, j, 0, [], null);
                     }
                 }
                 // start recursive function
+                var myStack = [];
+                for (i = 0; i < wallArrayWidth.length; i++) {
+                    wallArrayWidth[i] = sub;
+                }
                 recursive_backtracking(0, sub - 1, grid, wallArray, myStack, mazeIndex);
                 // Entrance
                 wallArray[sub * 2][Math.round(sub / 2) - 1].dispose();
@@ -838,11 +852,13 @@
                 gate.checkCollisions = true;
 
                 // splice out undefined walls
-                for (i = 0; i < wallArray.length; i++) {
+                for (i = 0; i <= sub * 2; i++) {
                     var j;
-                    for (j = 0; j < wallArray[i].length; j++) {
+                    for (j = 0; j <= sub; j++) {
                         if (wallArray[i][j] === 0) {
                             wallArray[i].splice(j, 1);
+                            wallArray[i].push(null);
+                            wallArrayWidth[i] -= 1;
                             j -= 1;
                         }
                     }
@@ -857,15 +873,18 @@
                     var randY = Math.floor(Math.random() * (sub * 2 - 1) + 1);
                     if (randY % 2 === 0) {
                         // 0 to (sub - 1)
-                        randX = Math.floor(Math.random() * wallArray[randY].length);
+                        randX = Math.floor(Math.random() * wallArrayWidth[randY]);
                     }
                     else {
-                        randX = Math.floor(Math.random() * (wallArray[randY].length - 2) + 1);
+                        randX = Math.floor(Math.random() * (wallArrayWidth[randY] - 1) + 1);
                     }
                     // console.log("Disposing: " + randY.toString() + ", " + randX.toString());
+                    console.log("randY: " + randY.toString() + ", randX: " + randX.toString());
                     wallArray[randY][randX].dispose();
                     delete wallArray[randY][randX];
                     wallArray[randY].splice(randX, 1);
+                    wallArray[randY].push(null);
+                    wallArrayWidth[randY] -= 1;
                 }
             }
             generateMaze();
@@ -1382,13 +1401,13 @@
             });
 
             //When pointer down event is raised
-            // var cutHedges = function() {
             scene1.onPointerDown = function (evt, pickResult) {
                 // if the click hits the ground object, we change the impact position
                 if (pickResult.hit && pickResult.pickedMesh.name == "mazeWall" && knockCount < maxKnock && nextScene && !knockTimerOn) {
                     wallBreak.play();
                     knockCount += 1;
-                    pickResult.pickedMesh.dispose();
+                    console.log(pickResult.pickedMesh.position);
+                    pickResult.pickedMesh.position.y = -100;
                     console.log("picked mesh " + pickResult.pickedMesh.name.toString());
                     advancedTexture.dispose();
                     pickResult = null;
@@ -1397,8 +1416,6 @@
                     scene1GUI();
                 }
             };
-            // }
-            // cutHedges();
 
             // /*********************************************************************************************************************/
 
@@ -1503,53 +1520,59 @@
                     ny = cy + directions[i];
                 }
                 // if new cell is inbounds and not visitied previously
-                if ((nx >= 0 && nx < grid[0].length) && (ny >= 0 && ny < grid.length) && grid[ny][nx].getVisited === 0) {
-                    myStack.push(cx);
-                    myStack.push(cy);
-                    // Tear down wall and add link between old cell and new
-                    if (directions[i] === N) {
-                        grid[cy][cx].pushLinks(new Cell(ny, nx, 0, null, N));
-                        grid[ny][nx].pushLinks(new Cell(cy, cx, 0, null, S));
-                        wallArray[2 * cy + 1 + N][cx].dispose();
-                        delete wallArray[2 * cy + 1 + N][cx];
-                        wallArray[2 * cy + 1 + N][cx] = 0;
-                        // console.log("tear down wall at:");
-                        // console.log(2 * cy + 1 + N);
-                        // console.log(cx);
+                // console.log("grid[ny][nx]: ");
+                // console.log(grid[ny][nx]);
+                // console.log("ny: " + ny.toString() + ", nx: " + nx.toString());
+                // console.log(grid);
+                if ((nx >= 0 && nx < sub) && (ny >= 0 && ny < sub)) {
+                    if (grid[ny][nx].getVisited === 0) {
+                        myStack.push(cx);
+                        myStack.push(cy);
+                        // Tear down wall and add link between old cell and new
+                        if (directions[i] === N) {
+                            grid[cy][cx].pushLinks(new Cell(ny, nx, 0, null, N));
+                            grid[ny][nx].pushLinks(new Cell(cy, cx, 0, null, S));
+                            wallArray[2 * cy + 1 + N][cx].dispose();
+                            delete wallArray[2 * cy + 1 + N][cx];
+                            wallArray[2 * cy + 1 + N][cx] = 0;
+                            // console.log("tear down wall at:");
+                            // console.log(2 * cy + 1 + N);
+                            // console.log(cx);
+                        }
+                        if (directions[i] === S) {
+                            grid[cy][cx].pushLinks(new Cell(ny, nx, 0, null, S));
+                            grid[ny][nx].pushLinks(new Cell(cy, cx, 0, null, N));
+                            wallArray[2 * cy + 1 + S][cx].dispose();
+                            delete wallArray[2 * cy + 1 + S][cx];
+                            wallArray[2 * cy + 1 + S][cx] = 0;
+                            // console.log("tear down wall at:");
+                            // console.log(2 * cy + 1 + + S);
+                            // console.log(cx);
+                        }
+                        if (directions[i] === E) {
+                            grid[cy][cx].pushLinks(new Cell(ny, nx, 0, null, E));
+                            grid[ny][nx].pushLinks(new Cell(cy, cx, 0, null, W));
+                            wallArray[2 * cy + 1][cx + E / 2].dispose();
+                            delete wallArray[2 * cy + 1][cx + E / 2];
+                            wallArray[2 * cy + 1][cx + E / 2] = 0;
+                            // console.log("tear down wall at:");
+                            // console.log(2 * cy + 1);
+                            // console.log(cx + E / 2);
+                        }
+                        if (directions[i] === W) {
+                            grid[cy][cx].pushLinks(new Cell(ny, nx, 0, null, W));
+                            grid[ny][nx].pushLinks(new Cell(cy, cx, 0, null, E));
+                            wallArray[2 * cy + 1][cx].dispose();
+                            delete wallArray[2 * cy + 1][cx];
+                            wallArray[2 * cy + 1][cx] = 0;
+                            // console.log("tear down wall at:");
+                            // console.log(2 * cy + 1);
+                            // console.log(cx);
+                        }
+                        index++;
+                        // console.log("moving forward");
+                        recursive_backtracking(nx, ny, grid, wallArray, myStack, index);
                     }
-                    if (directions[i] === S) {
-                        grid[cy][cx].pushLinks(new Cell(ny, nx, 0, null, S));
-                        grid[ny][nx].pushLinks(new Cell(cy, cx, 0, null, N));
-                        wallArray[2 * cy + 1 + S][cx].dispose();
-                        delete wallArray[2 * cy + 1 + S][cx];
-                        wallArray[2 * cy + 1 + S][cx] = 0;
-                        // console.log("tear down wall at:");
-                        // console.log(2 * cy + 1 + + S);
-                        // console.log(cx);
-                    }
-                    if (directions[i] === E) {
-                        grid[cy][cx].pushLinks(new Cell(ny, nx, 0, null, E));
-                        grid[ny][nx].pushLinks(new Cell(cy, cx, 0, null, W));
-                        wallArray[2 * cy + 1][cx + E / 2].dispose();
-                        delete wallArray[2 * cy + 1][cx + E / 2];
-                        wallArray[2 * cy + 1][cx + E / 2] = 0;
-                        // console.log("tear down wall at:");
-                        // console.log(2 * cy + 1);
-                        // console.log(cx + E / 2);
-                    }
-                    if (directions[i] === W) {
-                        grid[cy][cx].pushLinks(new Cell(ny, nx, 0, null, W));
-                        grid[ny][nx].pushLinks(new Cell(cy, cx, 0, null, E));
-                        wallArray[2 * cy + 1][cx].dispose();
-                        delete wallArray[2 * cy + 1][cx];
-                        wallArray[2 * cy + 1][cx] = 0;
-                        // console.log("tear down wall at:");
-                        // console.log(2 * cy + 1);
-                        // console.log(cx);
-                    }
-                    index++;
-                    // console.log("moving forward");
-                    recursive_backtracking(nx, ny, grid, wallArray, myStack, index);
                 }
             }
             // if no options available - not in for loop
@@ -1674,7 +1697,7 @@
                 maxItems = 10;
                 numBadGuys = 7;
                 maxLights = 8;
-                maxKnock = 2;
+                maxKnock = 3;
                 difficultyLevel = 1;
                 scene0 = null;
                 scene1 = createScene1();
@@ -1698,11 +1721,11 @@
                 nextScene = true;
                 replay = true;
                 soundtrack.pause();
-                sub = 12;
+                sub = 16;
                 maxItems = 10;
-                numBadGuys = 16;
+                numBadGuys = 20;
                 maxLights = 1;
-                maxKnock = 1;
+                maxKnock = 2;
                 zoomRadius = 25;
                 zoomHeight = 60;
                 difficultyLevel = 2;

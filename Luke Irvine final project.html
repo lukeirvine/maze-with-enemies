@@ -1055,10 +1055,11 @@
             var haloHeight = 0.5;
             var badGuyArray = [];
             var createBadGuys = function () {
-                var guardSpriteManager = new BABYLON.SpriteManager("guardManager", "spritesheets/guards.png", 40, 576, scene1);
+                var guardSpriteManager = new BABYLON.SpriteManager("guardManager", "spritesheets/guards.png", 40, {width: 576 / 12, height: 576 / 8}, scene1);
                 for (i = 0; i < numBadGuys; i++) {
-                    // var badGuy = new BABYLON.MeshBuilder.CreateBox("badGuy1", { width: 3, height: badGuyHeight, depth: 3 }, scene1);
-                    var badGuy = new BABYLON.Sprite("guardSprite", guardSpriteManager);
+                    var badGuy = new BABYLON.MeshBuilder.CreateBox("badGuy1", { width: 3, height: badGuyHeight, depth: 3 }, scene1);
+                    var badGuySprite = new BABYLON.Sprite("guardSprite", guardSpriteManager);
+                    badGuySprite.size = 5;
                     var spriteBase;
                     switch (i % 8) {
                         case 0:
@@ -1093,6 +1094,7 @@
                         var bgCurrentCell = grid[Math.floor(Math.random() * sub)][Math.floor(Math.random() * sub)];
                     }
                     badGuy.position = new BABYLON.Vector3(bgCurrentCell.getXCoord, elevation + badGuyHeight / 2, bgCurrentCell.getZCoord);
+                    badGuySprite.position = new BABYLON.Vector3(bgCurrentCell.getXCoord, elevation + badGuyHeight / 2, bgCurrentCell.getZCoord);
                     if (difficultyLevel != 2) {
                         var halo = new BABYLON.SpotLight(
                             "spotLight", 
@@ -1104,10 +1106,18 @@
                         );
                     }
                     // halo.diffuseColor = new BABYLON.Color3(1, 0, 0);
-                    // badGuy.material = badGuyRed;
+                    badGuy.material = pMat;
                     badGuy.speed = new BABYLON.Vector3(0, 0, 0);
                     badGuy.nextspeed = new BABYLON.Vector3.Zero();
-                    badGuyArray.push({ badGuy: badGuy, spriteBase: spriteBase, halo: halo, oldCell: null, currentCell: bgCurrentCell, nextCell: null });
+                    badGuyArray.push({ 
+                        badGuy: badGuy, 
+                        spriteBase: spriteBase, 
+                        badGuySprite: badGuySprite, 
+                        halo: halo, 
+                        oldCell: null, 
+                        currentCell: bgCurrentCell, 
+                        nextCell: null 
+                    });
                     // console.log(badGuy);
                     // console.log(halo);
                 }
@@ -1179,6 +1189,7 @@
                 for (i = 0; i < itemsArray.length; i++) {
                     if (itemsArray[i].keySphere.position.z === 1000) {
                         var randCell = grid[Math.floor(Math.random() * sub)][Math.floor(Math.random() * sub)];
+                        itemsArray[i].keySprite.position = new BABYLON.Vector3(randCell.getXCoord, elevation + 2, randCell.getZCoord);
                         itemsArray[i].keySphere.position = new BABYLON.Vector3(randCell.getXCoord, elevation + 2, randCell.getZCoord);
                         itemsArray[i].pillar.position = new BABYLON.Vector3(randCell.getXCoord, elevation + pillarHeight / 2, randCell.getZCoord);
                     }
@@ -1522,7 +1533,7 @@
             var S = 1;
             var W = -2;
             var E = 2;
-            var delay = 4;
+            var delay = 6;
             var totalCells = 96;
             badGuy.nextspeed.x = 0.0;
             badGuy.nextspeed.z = 0.0;
@@ -1562,21 +1573,26 @@
                 switch (badGuyVars.nextCell.getLinkDirection) {
                     case N:
                         badGuy.nextspeed.z = v;
-                        moveSprite("min", "max", delay, totalCells, index, "sprite");
+                        moveSprite(badGuyVars.spriteBase + 36, badGuyVars.spriteBase + 36 + 2, delay, totalCells, index, badGuyVars.badGuySprite);
                         break;
                     case S:
                         badGuy.nextspeed.z = -v;
+                        moveSprite(badGuyVars.spriteBase, badGuyVars.spriteBase + 2, delay, totalCells, index, badGuyVars.badGuySprite);
                         break;
                     case E:
                         badGuy.nextspeed.x = v;
+                        moveSprite(badGuyVars.spriteBase + 24, badGuyVars.spriteBase + 24 + 2, delay, totalCells, index, badGuyVars.badGuySprite);
                         break;
                     case W:
                         badGuy.nextspeed.x = -v;
+                        moveSprite(badGuyVars.spriteBase + 12, badGuyVars.spriteBase + 12 + 2, delay, totalCells, index, badGuyVars.badGuySprite);
                         break;
                 }
             }
             badGuy.speed = BABYLON.Vector3.Lerp(badGuy.speed, badGuy.nextspeed, 0.1);
             badGuy.moveWithCollisions(badGuy.speed);
+            badGuyVars.badGuySprite.position.x = badGuy.position.x;
+            badGuyVars.badGuySprite.position.z = badGuy.position.z;
         }
 
         function recursive_backtracking(cx, cy, grid, wallArray, myStack, index) {

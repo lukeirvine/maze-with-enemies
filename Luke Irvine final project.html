@@ -1094,15 +1094,19 @@
             var itemsArray = [];
             var pillarHeight = 100;
             var createItems = function () {
+                var keySpriteManager = new BABYLON.SpriteManager("keyManager", "images/key.png", 50, 600, scene1);
                 for (i = 0; i < maxItems; i++) {
                     var item = {
-                        key: new BABYLON.MeshBuilder.CreateSphere("itemSphere", { diameter: 3 }, scene1), 
+                        keySprite: new BABYLON.Sprite("keySprite", keySpriteManager),
+                        keySphere: new BABYLON.MeshBuilder.CreateSphere("keySphere", { diameter: 3 }, scene1), 
                         pillar: new BABYLON.MeshBuilder.CreateCylinder("cylinder", { diameter: 4, height: pillarHeight}, scene1)
                     };
                     var randCell = grid[Math.floor(Math.random() * sub)][Math.floor(Math.random() * sub)];
-                    item.key.position = new BABYLON.Vector3(randCell.getXCoord, elevation + 2, randCell.getZCoord);
+                    item.keySprite.size = 3;
+                    item.keySprite.position = new BABYLON.Vector3(randCell.getXCoord, elevation + 2, randCell.getZCoord)
+                    item.keySphere.position = new BABYLON.Vector3(randCell.getXCoord, elevation + 2, randCell.getZCoord);
                     item.pillar.position = new BABYLON.Vector3(randCell.getXCoord, elevation + pillarHeight / 2, randCell.getZCoord);
-                    item.key.material = keyMat;
+                    item.keySphere.material = pMat;
                     item.pillar.material = itemMat;
                     itemsArray.push(item);
                 }
@@ -1149,9 +1153,9 @@
                 caught = true;
                 numItems = 0;
                 for (i = 0; i < itemsArray.length; i++) {
-                    if (itemsArray[i].key.position.z === 1000) {
+                    if (itemsArray[i].keySphere.position.z === 1000) {
                         var randCell = grid[Math.floor(Math.random() * sub)][Math.floor(Math.random() * sub)];
-                        itemsArray[i].key.position = new BABYLON.Vector3(randCell.getXCoord, elevation + 2, randCell.getZCoord);
+                        itemsArray[i].keySphere.position = new BABYLON.Vector3(randCell.getXCoord, elevation + 2, randCell.getZCoord);
                         itemsArray[i].pillar.position = new BABYLON.Vector3(randCell.getXCoord, elevation + pillarHeight / 2, randCell.getZCoord);
                     }
                 }
@@ -1170,7 +1174,7 @@
 
             var checkItems = function () {
                 for (i = 0; i < itemsArray.length; i++) {
-                    if (itemsArray[i].key.intersectsMesh(player, false)) {
+                    if (itemsArray[i].keySphere.intersectsMesh(player, false)) {
                         console.log("collision detection worked");
                         numItems += 1;
                         if (numItems === maxItems) {
@@ -1179,8 +1183,9 @@
                         else {
                             coinSound.play();
                         }
-                        itemsArray[i].key.position.z = 1000;
+                        itemsArray[i].keySphere.position.z = 1000;
                         itemsArray[i].pillar.position.z = 1000;
+                        itemsArray[i].keySprite.position.z = 1000;
                         advancedTexture.dispose();
                         scene1GUI();
                     }
@@ -1394,19 +1399,19 @@
                             badGuyArray[i].halo.position.z = badGuyArray[i].badGuy.position.z;
                         }
                     }
+                    // if caught by a bad guy
                     if (index % 4 === 0) {
-                        // if caught by a bad guy
                         for (i = 0; i < badGuyArray.length; i++) {
                             if (Math.round(0.2 * player.position.x) / 0.2 === Math.round(0.2 * badGuyArray[i].badGuy.position.x) / 0.2 &&
                                 Math.round(0.2 * player.position.z) / 0.2 === Math.round(0.2 * badGuyArray[i].badGuy.position.z) / 0.2) 
                                 {
                                 playerDies.play();
                                 caughtByBadGuy();
-                                watch.stop();
-                                watch.reset();
-                                playerStarted = false;
-                                stopwatchTexture.dispose();
-                                stopwatchGUI();
+                                // watch.stop();
+                                // watch.reset();
+                                // playerStarted = false;
+                                // stopwatchTexture.dispose();
+                                // stopwatchGUI();
                             }
                         }
                         if (messageTimerOn) {
@@ -1666,16 +1671,16 @@
          * delay is modulo number to slow down frame rate
          * total is total number of cells in sprite
          * index is used for slowing frame rate
-         * walkingThor is sprite object
+         * sprite is sprite object
          */
-        function moveSprite(min, max, delay, total, index, walkingThor) {
+        function moveSprite(min, max, delay, total, index, sprite) {
             if (index % delay === 0) {
-                if (walkingThor.cellIndex < min || walkingThor.cellIndex > max) {
-                    walkingThor.cellIndex = min;
+                if (sprite.cellIndex < min || sprite.cellIndex > max) {
+                    sprite.cellIndex = min;
                 }
-                walkingThor.cellIndex = (walkingThor.cellIndex + 1) % (total + 1);
-                if (walkingThor.cellIndex > max) {
-                    walkingThor.cellIndex = min;
+                sprite.cellIndex = (sprite.cellIndex + 1) % (total + 1);
+                if (sprite.cellIndex > max) {
+                    sprite.cellIndex = min;
                 }
             }
         }

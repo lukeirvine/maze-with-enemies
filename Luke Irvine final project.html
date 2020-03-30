@@ -774,22 +774,18 @@
                 walkingThor = new BABYLON.Sprite("walkingThor", spriteManagerWalkingThor);
                 walkingThor.cellIndex = 0;
                 walkingThor.size = 6;
-                walkingThor.position.y = 3 + elevation;
-                walkingThor.position.x = 0;
-                walkingThor.position.z = 0;
+                walkingThor.position = new BABYLON.Vector3(0, elevation + 3, 0);
 
                 // Running Thor
                 var spriteManagerRunningThor = new BABYLON.SpriteManager(
                     "RunningThorManager",
                     "spritesheets/running_thor.png",
-                    64, { width: 800 / 8, height: 800 / 8 }, scene1
+                    2, { width: 800 / 8, height: 800 / 8 }, scene1
                 );
                 runningThor = new BABYLON.Sprite("runningThor", spriteManagerRunningThor);
                 runningThor.cellIndex = 0;
                 runningThor.size = 6;
-                runningThor.position.y = 3 + elevation;
-                runningThor.position.x = 0;
-                runningThor.position.z = 0;
+                runningThor.position = new BABYLON.Vector3(0, elevation + 3, 0);
             }
             createSpriteCycles();
 
@@ -1059,9 +1055,38 @@
             var haloHeight = 0.5;
             var badGuyArray = [];
             var createBadGuys = function () {
-
+                var guardSpriteManager = new BABYLON.SpriteManager("guardManager", "spritesheets/guards.png", 40, 576, scene1);
                 for (i = 0; i < numBadGuys; i++) {
-                    var badGuy = new BABYLON.MeshBuilder.CreateBox("badGuy1", { width: 3, height: badGuyHeight, depth: 3 }, scene1);
+                    // var badGuy = new BABYLON.MeshBuilder.CreateBox("badGuy1", { width: 3, height: badGuyHeight, depth: 3 }, scene1);
+                    var badGuy = new BABYLON.Sprite("guardSprite", guardSpriteManager);
+                    var spriteBase;
+                    switch (i % 8) {
+                        case 0:
+                            spriteBase = 0;
+                            break;
+                        case 1:
+                            spriteBase = 3;
+                            break;
+                        case 2:
+                            spriteBase = 6;
+                            break;
+                        case 3:
+                            spriteBase = 9;
+                            break;
+                        case 4:
+                            spriteBase = 48;
+                            break;
+                        case 5:
+                            spriteBase = 51;
+                            break;
+                        case 6:
+                            spriteBase = 54;
+                            break;
+                        case 7:
+                            spriteBase = 57;
+                            break;
+                    }
+                    
                     if (i === 0) {
                         var bgCurrentCell = grid[sub - 1][sub / 2 - 1];
                     } else {
@@ -1079,13 +1104,12 @@
                         );
                     }
                     // halo.diffuseColor = new BABYLON.Color3(1, 0, 0);
-                    // badGuy1.checkCollisions = true;
-                    badGuy.material = badGuyRed;
+                    // badGuy.material = badGuyRed;
                     badGuy.speed = new BABYLON.Vector3(0, 0, 0);
                     badGuy.nextspeed = new BABYLON.Vector3.Zero();
-                    badGuyArray.push({ badGuy: badGuy, halo: halo, oldCell: null, currentCell: bgCurrentCell, nextCell: null });
-                    console.log(badGuy);
-                    console.log(halo);
+                    badGuyArray.push({ badGuy: badGuy, spriteBase: spriteBase, halo: halo, oldCell: null, currentCell: bgCurrentCell, nextCell: null });
+                    // console.log(badGuy);
+                    // console.log(halo);
                 }
             }
             createBadGuys();
@@ -1308,7 +1332,6 @@
                     if (window.keyisdown[65] && !window.keyisdown[87] && !window.keyisdown[83]) {
                         player.nextspeed.x = -v;
                         moveSprite(8, 15, delay, totalCells, index, walkingThor);
-                        // if running
                         moveSprite(8, 15, delay, totalCells, index, runningThor);
                     }
                     // Right "d"
@@ -1499,6 +1522,8 @@
             var S = 1;
             var W = -2;
             var E = 2;
+            var delay = 4;
+            var totalCells = 96;
             badGuy.nextspeed.x = 0.0;
             badGuy.nextspeed.z = 0.0;
             if (index === 1) {
@@ -1507,13 +1532,8 @@
                 console.log("Current Cell coords: " + badGuyVars.currentCell.getZCoord.toString() + ", " + badGuyVars.currentCell.getXCoord.toString());
                 console.log("Next Cell coords: " + badGuyVars.nextCell.getZCoord.toString() + ", " + badGuyVars.nextCell.getXCoord.toString());
             }
-            // console.log((Math.round(1 * badGuy.position.z) / 1).toString() + ", " + (Math.round(1 * badGuy.position.x) / 1).toString());
             // Bad Guy is at Next Cell Position
-            // console.log("next cell, index = " + index.toString());
-            // console.log(badGuyVars.nextCell); 
-            // console.log("nextCell.getXCoord: " + badGuyVars.nextCell.getXCoord.toString());
             if (Math.round(0.2 * badGuy.position.x) / 0.2 === badGuyVars.nextCell.getXCoord && Math.round(badGuy.position.z * 0.2) / 0.2 === badGuyVars.nextCell.getZCoord) {
-                // console.log("-----------------setting new next cell");
                 // Set new currentCell and new nextCell
                 badGuyVars.oldCell = badGuyVars.currentCell;
                 badGuyVars.currentCell = badGuyVars.nextCell;
@@ -1536,13 +1556,13 @@
                     // just pick a random next cell
                     badGuyVars.nextCell = grid[badGuyVars.currentCell.getY][badGuyVars.currentCell.getX].randomLink;
                 }
-                // console.log("-----------------Next cell: " + badGuyVars.nextCell.getZCoord.toString() + ", " + badGuyVars.nextCell.getXCoord.toString());
             }
             else {
                 // Bad Guy isn't at next cell position yet.
                 switch (badGuyVars.nextCell.getLinkDirection) {
                     case N:
                         badGuy.nextspeed.z = v;
+                        moveSprite("min", "max", delay, totalCells, index, "sprite");
                         break;
                     case S:
                         badGuy.nextspeed.z = -v;

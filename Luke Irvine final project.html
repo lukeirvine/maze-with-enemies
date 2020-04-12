@@ -109,7 +109,6 @@
             function update() {
                 time += delta();
                 formattedTime = timeformatter(time);
-                // console.log(formattedTime);
                 stopwatchTexture.dispose();
                 stopwatchGUI();
             }
@@ -193,17 +192,17 @@
         var zoomHeight = 75;                    // ^^^
         var knockCount = 0;                     // used to count how many walls are knocked down by player
         var maxKnock = 0;                       // max number of times a player can cut down a hedge
-        var knockTimerOn = false;
-        var knockTimerCount = 0;
+        var knockTimerOn = false;               // boolean to manage refresh rate for hedge cutting
+        var knockTimerCount = 0;                // refresh rate so two hedges aren't cut in one click
         var formattedTime = "00 : 00";          // used in stopwatch GUI
-        var formattedTime2;
+        var formattedTime2;                     // used to hold time with milliseconds
         var watch = new Stopwatch();            // holds global stopwatch object
         var stopwatchTexture;                   // used in stopwatch GUI
         var playerStarted = false;              // true if player has started the game and entered the maze
-        var grid = new Array(45);
-        var wallArray = new Array(90);
-        var wallArrayWidth = new Array(90);
-        var badGuyArray = new Array(30);
+        var grid = new Array(45);               // holds cell objects with position and linking data
+        var wallArray = new Array(90);          // holds all the wall meshes
+        var wallArrayWidth = new Array(90);     // holds actual length of each row of walls, since wallArray is spliced
+        var badGuyArray = new Array(30);        // holds all variables and data for each bad guy
 
 
         // initialize arrays
@@ -815,20 +814,12 @@
                             mazeWall.checkCollisions = true;
                             mazeWall.position.y = wallHeight / 2 + elevation;
                             mazeWall.position.z = mazeLength / 2 - subLength / 2 * i;
-                            // console.log("placed wall at z:")
-                            // console.log(mazeLength - subLength / 2 * i + 50);
                             if (i % 2 === 0 && j < sub) {
                                 mazeWall.position.x = -mazeLength / 2 + subLength / 2 + subLength * j;
-                                // console.log("placed horizontal wall at:");
-                                // console.log(mazeLength - subLength / 2 * i + 50);
-                                // console.log(subLength / 2 + subLength * j + 50);
                             }
                             if (i % 2 === 1) {
                                 mazeWall.position.x = -mazeLength / 2 + subLength * j;
                                 mazeWall.rotation.y = Math.PI / 2;
-                                // console.log("placed vertical wall at:");
-                                // console.log(mazeLength - subLength / 2 * i + 50);
-                                // console.log(subLength * j + 50);
                             }
                         }
                         else {
@@ -896,8 +887,6 @@
                     else {
                         randX = Math.floor(Math.random() * (wallArrayWidth[randY] - 1) + 1);
                     }
-                    // console.log("Disposing: " + randY.toString() + ", " + randX.toString());
-                    console.log("randY: " + randY.toString() + ", randX: " + randX.toString());
                     wallArray[randY][randX].dispose();
                     delete wallArray[randY][randX];
                     wallArray[randY].splice(randX, 1);
@@ -906,9 +895,6 @@
                 }
             }
             generateMaze();
-
-            console.log("Wall Array: ");
-            console.log(wallArray);
 
             // set player where maze entrance is (or end of maze if specified in global variables)
             if (sub % 2 === 1) {
@@ -1115,8 +1101,6 @@
                         currentCell: bgCurrentCell, 
                         nextCell: null 
                     };
-                    // console.log(badGuy);
-                    // console.log(halo);
                 }
             }
             createBadGuys();
@@ -1171,6 +1155,7 @@
             var isRunning = false;
             var isNeither = true;
             var itemTimeDelay = 0;
+            // called when player runs into a bad guy
             var caughtByBadGuy = function () {
                 replay = false;
                 // set player position
@@ -1258,7 +1243,6 @@
                     // if player is at end of maze, create party
                     if (-(subLength * 2) < player.position.x && player.position.x < subLength * 2 &&
                         mazeLength / 2 + 5 < player.position.z && player.position.z < mazeLength / 2 + subLength * 3 && !madeIt) {
-                        console.log("player made it to end of maze");
                         watch.stop();
                         followCam.radius = 13;
                         followCam.heightOffset = 2;
@@ -1288,7 +1272,6 @@
                         isNeither = false;
                         runningSteps.pause();
                         walkingSteps.play();
-                        // console.log("is walking. index = " + index.toString());
                     }
                     // running
                     if ((window.keyisdown[65] || window.keyisdown[83] || window.keyisdown[68] || window.keyisdown[87]) && window.keyisdown[32] && !isRunning) {
@@ -1297,7 +1280,6 @@
                         isNeither = false;
                         walkingSteps.pause();
                         runningSteps.play();
-                        // console.log("is running. index = " + index.toString());
                     }
                     // not moving
                     if (!(window.keyisdown[65] || window.keyisdown[83] || window.keyisdown[68] || window.keyisdown[87]) && !isNeither) {
@@ -1306,7 +1288,6 @@
                         isNeither = true;
                         walkingSteps.pause();
                         runningSteps.pause();
-                        // console.log("no movement. index = " + index.toString());
                     }
                 }
                 // createFootsteps();
@@ -1476,7 +1457,6 @@
                             Math.round(0.1 * player.position.z) / 0.1 === Math.round(0.1 * gate.position.z) / 0.1 && numItems != maxItems) {
                             nearGate = true;
                             messageTimerOn = true;
-                            // console.log("near gate");
                             advancedTexture.dispose();
                             scene1GUI();
                         }
@@ -1488,7 +1468,6 @@
                 var createTiming = function() {
                     if (player.intersectsMesh(startPlane, false) && !playerStarted) {
                         watch.start();
-                        console.log("player starting");
                         playerStarted = true;
                     }
                     
@@ -1509,9 +1488,7 @@
                 if (pickResult.hit && pickResult.pickedMesh.name == "mazeWall" && knockCount < maxKnock && nextScene && !knockTimerOn) {
                     wallBreak.play();
                     knockCount += 1;
-                    console.log(pickResult.pickedMesh.position);
                     pickResult.pickedMesh.position.y = -100;
-                    console.log("picked mesh " + pickResult.pickedMesh.name.toString());
                     advancedTexture.dispose();
                     pickResult = null;
                     evt = null;
@@ -1535,10 +1512,7 @@
             badGuy.nextspeed.x = 0.0;
             badGuy.nextspeed.z = 0.0;
             if (index === 1) {
-                console.log("reached index = 1");
                 badGuyVars.nextCell = badGuyVars.currentCell.randomLink;
-                console.log("Current Cell coords: " + badGuyVars.currentCell.getZCoord.toString() + ", " + badGuyVars.currentCell.getXCoord.toString());
-                console.log("Next Cell coords: " + badGuyVars.nextCell.getZCoord.toString() + ", " + badGuyVars.nextCell.getXCoord.toString());
             }
             // Bad Guy is at Next Cell Position
             if (Math.round(0.2 * badGuy.position.x) / 0.2 === badGuyVars.nextCell.getXCoord && Math.round(badGuy.position.z * 0.2) / 0.2 === badGuyVars.nextCell.getZCoord) {
@@ -1608,11 +1582,6 @@
             // set 1 at current cell so we know we've been here
             grid[cy][cx].setVisited(1);
 
-            // console.log("cy");
-            // console.log(cy);
-            // console.log("cx");
-            // console.log(cx);
-
             // loops through array of randomized directions
             for (i = 0; i < directions.length; i++) {
                 if (directions[i] === E || directions[i] === W) {
@@ -1625,10 +1594,6 @@
                     ny = cy + directions[i];
                 }
                 // if new cell is inbounds and not visitied previously
-                // console.log("grid[ny][nx]: ");
-                // console.log(grid[ny][nx]);
-                // console.log("ny: " + ny.toString() + ", nx: " + nx.toString());
-                // console.log(grid);
                 if ((nx >= 0 && nx < sub) && (ny >= 0 && ny < sub)) {
                     if (grid[ny][nx].getVisited === 0) {
                         myStack.push(cx);
@@ -1640,9 +1605,6 @@
                             wallArray[2 * cy + 1 + N][cx].dispose();
                             delete wallArray[2 * cy + 1 + N][cx];
                             wallArray[2 * cy + 1 + N][cx] = 0;
-                            // console.log("tear down wall at:");
-                            // console.log(2 * cy + 1 + N);
-                            // console.log(cx);
                         }
                         if (directions[i] === S) {
                             grid[cy][cx].pushLinks(new Cell(ny, nx, 0, null, S));
@@ -1650,9 +1612,6 @@
                             wallArray[2 * cy + 1 + S][cx].dispose();
                             delete wallArray[2 * cy + 1 + S][cx];
                             wallArray[2 * cy + 1 + S][cx] = 0;
-                            // console.log("tear down wall at:");
-                            // console.log(2 * cy + 1 + + S);
-                            // console.log(cx);
                         }
                         if (directions[i] === E) {
                             grid[cy][cx].pushLinks(new Cell(ny, nx, 0, null, E));
@@ -1660,9 +1619,6 @@
                             wallArray[2 * cy + 1][cx + E / 2].dispose();
                             delete wallArray[2 * cy + 1][cx + E / 2];
                             wallArray[2 * cy + 1][cx + E / 2] = 0;
-                            // console.log("tear down wall at:");
-                            // console.log(2 * cy + 1);
-                            // console.log(cx + E / 2);
                         }
                         if (directions[i] === W) {
                             grid[cy][cx].pushLinks(new Cell(ny, nx, 0, null, W));
@@ -1670,12 +1626,8 @@
                             wallArray[2 * cy + 1][cx].dispose();
                             delete wallArray[2 * cy + 1][cx];
                             wallArray[2 * cy + 1][cx] = 0;
-                            // console.log("tear down wall at:");
-                            // console.log(2 * cy + 1);
-                            // console.log(cx);
                         }
                         index++;
-                        // console.log("moving forward");
                         recursive_backtracking(nx, ny, grid, wallArray, myStack, index);
                     }
                 }
@@ -1719,23 +1671,19 @@
         }
 
         var deleteArrays = function() {
-            console.log("Deleting arrays");
             for (i = 0; i < wallArray.length; i++) {
                 for (j = 0; j < wallArray[i].length; j++) {
                     delete wallArray[i][j];
                 }
             }
-            console.log(wallArray);
             for (i = 0; i < grid.length; i++) {
                 for (j = 0; j < grid[i].length; j++) {
                     delete grid[i][j];
                 }
             }
-            console.log(grid);
             for (i = 0; i < badGuyArray.length; i++) {
                 delete badGuyArray[i];
             }
-            console.log(badGuyArray);
         }
 
         engine = createDefaultEngine();

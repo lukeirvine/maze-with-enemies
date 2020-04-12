@@ -203,6 +203,7 @@
         var grid = new Array(45);
         var wallArray = new Array(90);
         var wallArrayWidth = new Array(90);
+        var badGuyArray = new Array(30);
 
 
         // initialize arrays
@@ -795,7 +796,7 @@
                 var j = 0;
                 var index = 0;
                 for (i = 0; i <= sub * 2; i++) {
-                    // wallArray.push([]);
+                    wallArray[i] = new Array(45);
                     for (j = 0; j <= sub; j++) {
                         if (!(i % 2 === 0 && j === sub)) {
                             if (i === 0 || i === sub * 2 || (j === 0 && i % 2 === 1) || (j === sub && i % 2 === 1)) {
@@ -846,7 +847,7 @@
             var generateMaze = function () {
                 // initialize array
                 for (i = 0; i < sub; i++) {
-                    // grid.push([]);
+                    grid[i] = new Array(45);
                     for (j = 0; j < sub; j++) {
                         grid[i][j] = new Cell(i, j, 0, [], null);
                     }
@@ -866,11 +867,8 @@
                 startPlane.material = pMat;
                 // Exit
                 wallArray[0][Math.round(sub / 2) - 1].dispose();
-                // wallArray[0][Math.round(sub / 2)].dispose();
                 delete wallArray[0][Math.round(sub / 2) - 1];
-                // delete wallArray[0][Math.round(sub / 2)];
                 wallArray[0][Math.round(sub / 2) - 1] = 0;
-                // wallArray[0][Math.round(sub / 2)] = 0;
                 gate = new BABYLON.MeshBuilder.CreateBox("gate", { width: subLength, height: wallHeight, depth: 0.5 }, scene1);
                 gate.position = new BABYLON.Vector3(-subLength / 2, elevation + wallHeight / 2, mazeLength / 2);
                 gate.checkCollisions = true;
@@ -886,11 +884,7 @@
                             j -= 1;
                         }
                     }
-                    // console.log("i: " + i.toString())
-                    // console.log("j after splicing: " + (j).toString());
                 }
-                // console.log("WallArray after splicing");
-                // console.log(wallArray);
                 // Random Cuts
                 for (i = 0; i < mazeCuts; i++) {
                     var randX;
@@ -912,6 +906,9 @@
                 }
             }
             generateMaze();
+
+            console.log("Wall Array: ");
+            console.log(wallArray);
 
             // set player where maze entrance is (or end of maze if specified in global variables)
             if (sub % 2 === 1) {
@@ -1053,7 +1050,6 @@
             // Bad Guys
             var badGuyHeight = 10;
             var haloHeight = 0.5;
-            var badGuyArray = [];
             var createBadGuys = function () {
                 var guardSpriteManager = new BABYLON.SpriteManager("guardManager", "spritesheets/guards.png", 40, {width: 576 / 12, height: 576 / 8}, scene1);
                 for (i = 0; i < numBadGuys; i++) {
@@ -1061,6 +1057,7 @@
                     var badGuySprite = new BABYLON.Sprite("guardSprite", guardSpriteManager);
                     badGuySprite.size = 5;
                     var spriteBase;
+                    // sets sprite start cell so each bad guy is a different animated figure
                     switch (i % 8) {
                         case 0:
                             spriteBase = 0;
@@ -1109,7 +1106,7 @@
                     badGuy.material = pMat;
                     badGuy.speed = new BABYLON.Vector3(0, 0, 0);
                     badGuy.nextspeed = new BABYLON.Vector3.Zero();
-                    badGuyArray.push({ 
+                    badGuyArray[i] = { 
                         badGuy: badGuy, 
                         spriteBase: spriteBase, 
                         badGuySprite: badGuySprite, 
@@ -1117,7 +1114,7 @@
                         oldCell: null, 
                         currentCell: bgCurrentCell, 
                         nextCell: null 
-                    });
+                    };
                     // console.log(badGuy);
                     // console.log(halo);
                 }
@@ -1206,11 +1203,10 @@
                 }
 
             }
-
+            // when called, checks each item sphere in array to see if it intersects with player
             var checkItems = function () {
                 for (i = 0; i < itemsArray.length; i++) {
                     if (itemsArray[i].keySphere.intersectsMesh(player, false)) {
-                        console.log("collision detection worked");
                         numItems += 1;
                         if (numItems === maxItems) {
                             powerUp.play();
@@ -1313,7 +1309,7 @@
                         // console.log("no movement. index = " + index.toString());
                     }
                 }
-                createFootsteps();
+                // createFootsteps();
 
                 // Player Walking or Running
                 var makePlayerMove = function () {
@@ -1426,7 +1422,7 @@
                 // Bad Guys
                 var badGuySpeed = 0.15;
                 var makeBadGuysMove = function () {
-                    for (i = 0; i < badGuyArray.length; i++) {
+                    for (i = 0; i < numBadGuys; i++) {
                         createBadGuyMovement(index, grid, badGuyArray[i], badGuyArray[i].badGuy, badGuySpeed);
                         if (difficultyLevel != 2) {
                             badGuyArray[i].halo.position.x = badGuyArray[i].badGuy.position.x;
@@ -1435,7 +1431,7 @@
                     }
                     // if caught by a bad guy
                     if (index % 4 === 0) {
-                        for (i = 0; i < badGuyArray.length; i++) {
+                        for (i = 0; i < numBadGuys; i++) {
                             if (Math.round(0.2 * player.position.x) / 0.2 === Math.round(0.2 * badGuyArray[i].badGuy.position.x) / 0.2 &&
                                 Math.round(0.2 * player.position.z) / 0.2 === Math.round(0.2 * badGuyArray[i].badGuy.position.z) / 0.2) 
                                 {
@@ -1470,6 +1466,7 @@
                     }
                     if (numItems === maxItems) {
                         gate.dispose();
+                        delete gate;
                         gateOpen = true;
                     }
 
@@ -1721,6 +1718,26 @@
             }
         }
 
+        var deleteArrays = function() {
+            console.log("Deleting arrays");
+            for (i = 0; i < wallArray.length; i++) {
+                for (j = 0; j < wallArray[i].length; j++) {
+                    delete wallArray[i][j];
+                }
+            }
+            console.log(wallArray);
+            for (i = 0; i < grid.length; i++) {
+                for (j = 0; j < grid[i].length; j++) {
+                    delete grid[i][j];
+                }
+            }
+            console.log(grid);
+            for (i = 0; i < badGuyArray.length; i++) {
+                delete badGuyArray[i];
+            }
+            console.log(badGuyArray);
+        }
+
         engine = createDefaultEngine();
         if (!engine) throw 'engine should not be null.';
         if (!nextScene) {
@@ -1770,6 +1787,7 @@
             easyButton.isPointerBlocker = true
             easyButton.onPointerUpObservable.add(function () {
                 advancedTexture.dispose();
+                delete advancedTexture;
                 nextScene = true;
                 replay = true;
                 soundtrack.pause();
@@ -1780,6 +1798,7 @@
                 zoomHeight = 55;
                 maxKnock = 3;
                 difficultyLevel = 0;
+                delete scene0;
                 scene0 = null;
                 scene1 = createScene1();
                 stopwatchGUI();
@@ -1798,6 +1817,7 @@
             mediumButton.isPointerBlocker = true
             mediumButton.onPointerUpObservable.add(function () {
                 advancedTexture.dispose();
+                delete advancedTexture;
                 nextScene = true;
                 replay = true;
                 soundtrack.pause();
@@ -1807,6 +1827,7 @@
                 maxLights = 8;
                 maxKnock = 3;
                 difficultyLevel = 1;
+                delete scene0;
                 scene0 = null;
                 scene1 = createScene1();
                 scene1GUI();
@@ -1837,6 +1858,7 @@
                 zoomRadius = 25;
                 zoomHeight = 60;
                 difficultyLevel = 2;
+                delete scene0;
                 scene0 = null;
                 scene1 = createScene1();
                 scene1GUI();
@@ -1906,6 +1928,8 @@
             homeButton.isPointerBlocker = true
             homeButton.onPointerUpObservable.add(function () {
                 advancedTexture.dispose();
+                delete advancedTexture;
+                deleteArrays();
                 stopwatchTexture.dispose();
                 watch.stop();
                 watch.reset();
@@ -1922,6 +1946,8 @@
                 knockCount = 0;
                 knockTimerOn = false;
                 knockTimerCount = 0;
+                delete scene1.onPointerDown
+                delete scene1;
                 scene1 = null;
                 scene0 = createScene0();
                 scene0GUI();
@@ -1972,6 +1998,8 @@
             newMazeButton.isPointerBlocker = true
             newMazeButton.onPointerUpObservable.add(function () {
                 advancedTexture.dispose();
+                delete advancedTexture;
+                deleteArrays();
                 stopwatchTexture.dispose();
                 watch.stop();
                 watch.reset();
@@ -1987,6 +2015,8 @@
                 caught = false;
                 nearGate = false;
                 playerStarted = false;
+                delete scene1.onPointerDown
+                delete scene1;
                 scene1 = null;
                 scene1 = createScene1();
                 numItems = 0;

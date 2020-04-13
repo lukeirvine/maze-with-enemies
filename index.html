@@ -285,6 +285,7 @@
             var tileCount2;
             var tileCount3;
             var tileCount4;
+            var metalDoorMat;
             var textures = function () {
                 hedge = new BABYLON.StandardMaterial("hedge", scene1);
                 hedge.diffuseTexture = new BABYLON.Texture("textures/hedge.png", scene1);
@@ -417,6 +418,14 @@
                 keyMat = new BABYLON.StandardMaterial("keyMat", scene1);
                 keyMat.diffuseColor = new BABYLON.Color3(1, 0.7, 0.1);
                 keyMat.alpha = badGuyAlpha;
+
+                metalDoorMat = new BABYLON.StandardMaterial("doorMat", scene1);
+                metalDoorMat.diffuseTexture = new BABYLON.Texture("textures/woodendoor.jpg", scene1);
+                metalDoorMat.specularTexture = new BABYLON.Texture("textures/woodendoor.jpg", scene1);
+                metalDoorMat.ambientTexture = new BABYLON.Texture("textures/woodendoor.jpg", scene1);
+                // metalDoorMat.emissiveTexture = new BABYLON.Texture("textures/woodendoor.jpg", scene1);
+                metalDoorMat.alpha = 1;
+                metalDoorMat.maxSimultaneousLights = maxLights;
 
             }
             textures();
@@ -860,9 +869,10 @@
                 wallArray[0][Math.round(sub / 2) - 1].dispose();
                 delete wallArray[0][Math.round(sub / 2) - 1];
                 wallArray[0][Math.round(sub / 2) - 1] = 0;
-                gate = new BABYLON.MeshBuilder.CreateBox("gate", { width: subLength, height: wallHeight, depth: 0.5 }, scene1);
+                gate = new BABYLON.MeshBuilder.CreateBox("gate", { width: subLength, height: wallHeight, depth: 1 }, scene1);
                 gate.position = new BABYLON.Vector3(-subLength / 2, elevation + wallHeight / 2, mazeLength / 2);
                 gate.checkCollisions = true;
+                gate.material = metalDoorMat;
 
                 // splice out undefined walls
                 for (i = 0; i <= sub * 2; i++) {

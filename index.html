@@ -804,7 +804,7 @@
                 var j = 0;
                 var index = 0;
                 for (i = 0; i <= sub * 2; i++) {
-                    wallArray[i] = new Array(45);
+                    // wallArray[i] = new Array(45);
                     for (j = 0; j <= sub; j++) {
                         if (!(i % 2 === 0 && j === sub)) {
                             if (i === 0 || i === sub * 2 || (j === 0 && i % 2 === 1) || (j === sub && i % 2 === 1)) {
@@ -847,7 +847,7 @@
             var generateMaze = function () {
                 // initialize array
                 for (i = 0; i < sub; i++) {
-                    grid[i] = new Array(45);
+                    // grid[i] = new Array(45);
                     for (j = 0; j < sub; j++) {
                         grid[i][j] = new Cell(i, j, 0, [], null);
                     }
@@ -1165,6 +1165,8 @@
             var isRunning = false;
             var isNeither = true;
             var itemTimeDelay = 0;
+            var isCheating = false;
+            var cheatIndex = 0;
             // called when player runs into a bad guy
             var caughtByBadGuy = function () {
                 replay = false;
@@ -1249,6 +1251,25 @@
                             followCam.heightOffset = 30;
                         }
                     }
+
+                    var moreCheats = function() {
+                        // hold m, h, and c to add one more hedge cut
+                        if (window.keyisdown[77] && window.keyisdown[72] && window.keyisdown[67] && !isCheating) {
+                            maxKnock += 1;
+                            isCheating = true;
+                            advancedTexture.dispose();
+                            delete advancedTexture;
+                            scene1GUI();
+                        }
+                        if (isCheating) {
+                            cheatIndex++;
+                        }
+                        if (cheatIndex > 30) {
+                            isCheating = false;
+                            cheatIndex = 0;
+                        }
+                    }
+                    moreCheats();
 
                     // if player is at end of maze, create party
                     if (-(subLength * 2) < player.position.x && player.position.x < subLength * 2 &&

@@ -1231,6 +1231,7 @@
                     gate = new BABYLON.MeshBuilder.CreateBox("gate", { width: subLength, height: wallHeight, depth: 0.5 }, scene1);
                     gate.position = new BABYLON.Vector3(-subLength / 2, elevation + wallHeight / 2, mazeLength / 2);
                     gate.checkCollisions = true;
+                    gate.material = metalDoorMat;
                     gateOpen = false;
                 }
 

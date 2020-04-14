@@ -55,6 +55,7 @@
         var scene1 = null;
         var createDefaultEngine = function () { return new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true }); };
 
+
         class Cell {
             constructor(y, x, visited, links, linkDirection) {
                 this.y = y;
@@ -161,6 +162,39 @@
                 stopwatchTexture.dispose();
                 stopwatchGUI();
             };
+        }
+        function Player() {
+            this.name;
+            this.scores;
+
+            this.addScore = function(p_score, p_difficulty) {
+                scores.push({score: p_score, difficulty: p_difficulty})
+            }
+            this.loadScores = function() {
+
+            }
+            this.storeScores = function() {
+
+            }
+        }
+        function GameManager() {
+            this.players = [];
+            this.easyScores = [];
+            this.mediumScores = [];
+            this.hardScores = [];
+
+            this.getPlayer = function() {
+
+            }
+            this.addScores = function() {
+
+            }
+            this.loadData = function() {
+
+            }
+            this.storeData = function() {
+
+            }
         }
 
         // global variables used throughout code
@@ -1102,6 +1136,7 @@
                     badGuy.material = pMat;
                     badGuy.speed = new BABYLON.Vector3(0, 0, 0);
                     badGuy.nextspeed = new BABYLON.Vector3.Zero();
+                    // add variables to array
                     badGuyArray[i] = { 
                         badGuy: badGuy, 
                         spriteBase: spriteBase, 
@@ -1715,13 +1750,6 @@
             for (i = 0; i < badGuyArray.length; i++) {
                 delete badGuyArray[i];
             }
-        }
-
-        var readData = function() {
-
-        }
-        var storeData = function() {
-            
         }
 
         engine = createDefaultEngine();

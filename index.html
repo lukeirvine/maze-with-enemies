@@ -1696,6 +1696,13 @@
             }
         }
 
+        var readData = function() {
+
+        }
+        var storeData = function() {
+            
+        }
+
         engine = createDefaultEngine();
         if (!engine) throw 'engine should not be null.';
         if (!nextScene) {
@@ -1705,6 +1712,7 @@
         }
 
         // gui for Home Menu
+        var input;
         var scene0GUI = function () {
             var cornerRadius = 10;
             var squareSide = 300;
@@ -1735,6 +1743,13 @@
             textPanel.thickness = 0;
             advancedTexture.addControl(textPanel);
 
+            var inputPanel = new BABYLON.GUI.Rectangle();
+            inputPanel.top = "260px";
+            inputPanel.width = "1100px";
+            inputPanel.height = "200px";
+            inputPanel.thickness = 0;
+            advancedTexture.addControl(inputPanel);
+
             // Easy Level Button
             var easyButton = BABYLON.GUI.Button.CreateImageWithCenterTextButton("but", "", "images/new_easy.png");
             easyButton.width = squareSide.toString() + "px";
@@ -1744,6 +1759,10 @@
             easyButton.thickness = 0;
             easyButton.isPointerBlocker = true
             easyButton.onPointerUpObservable.add(function () {
+                if (input.text === "Enter Username here for score tracking" || input.text === "") {
+                    input.text = "Anonymous Player"
+                }
+                console.log(input.text);
                 advancedTexture.dispose();
                 delete advancedTexture;
                 nextScene = true;
@@ -1774,6 +1793,9 @@
             mediumButton.thickness = 0;
             mediumButton.isPointerBlocker = true
             mediumButton.onPointerUpObservable.add(function () {
+                if (input.text === "Enter Username here for score tracking" || input.text === "") {
+                    input.text = "Anonymous Player"
+                }
                 advancedTexture.dispose();
                 delete advancedTexture;
                 nextScene = true;
@@ -1804,6 +1826,9 @@
             hardButton.thickness = 0;
             hardButton.isPointerBlocker = true
             hardButton.onPointerUpObservable.add(function () {
+                if (input.text === "Enter Username here for score tracking" || input.text === "") {
+                    input.text = "Anonymous Player"
+                }
                 advancedTexture.dispose();
                 nextScene = true;
                 replay = true;
@@ -1837,6 +1862,32 @@
             background.height = "1500px";
             backgroundPanel.addControl(background);
 
+            // username input
+            input = new BABYLON.GUI.InputText();
+            input.width = "568px";
+            input.height = "50px";
+            input.text = "Enter Username here for score tracking";
+            input.color = "gray";
+            input.background = "black";
+            input.text.textHorizontalAlignment = 2;
+            input.onFocusObservable.add(function () {
+                input.text = "";
+            });
+            input.onTextChangedObservable.add(function () {
+                input.color = "white";
+            });
+            input.onBlurObservable.add(function () {
+                if (input.text === "") {
+                    input.text = "Enter Username here for score tracking";
+                    input.color = "gray";
+                    input.background = "black";
+                } else {
+                    input.background = "green";
+                }
+            });
+            inputPanel.addControl(input);
+
+            // directions
             var directions = new BABYLON.GUI.TextBlock();
             directions.text = "Welcome young Squire! Select your hardship and use the 'w', 'a', 's', and 'd' keys to move thine avatar. " +
                 "Bear the space bar to run and depress the z key to zoom out, obtaining a bird's eye view.";
